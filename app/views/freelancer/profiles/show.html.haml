@@ -1,0 +1,28 @@
+%h2.mb-4 My POP Profile
+
+- @profiles.each do |entry|
+  .card.shadow-sm.mb-3
+    .card-header
+      %strong= entry[:engagement].booker.name || entry[:engagement].booker.email
+      %span.badge.bg-success.ms-2 Active
+    .card-body
+      - if entry[:profile]
+        .row
+          .col-md-6
+            %dl
+              - entry[:profile].each do |key, value|
+                - next if key == "id" || value.is_a?(Hash) || value.is_a?(Array)
+                %dt= key.humanize
+                %dd= value || "—"
+          .col-md-6
+            - if entry[:manage_url]
+              %a.btn.btn-primary{href: entry[:manage_url]} Update Profile on POP
+      - elsif entry[:error]
+        .alert.alert-warning
+          Could not load profile: #{entry[:error].message}
+      - else
+        %p.text-muted Profile data not yet available.
+
+- if @profiles.empty?
+  .text-center.py-5
+    %p.text-muted No active engagements. Accept a booker's invitation to get started.

@@ -1,0 +1,24 @@
+= render "shared/breadcrumbs", crumbs: [["Freelancers", booker_freelancers_path], "Invite"]
+
+%h2.mb-4 Invite a Freelancer
+
+.row.justify-content-center
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-body.p-4
+        = form_for @engagement, url: booker_freelancers_path do |f|
+          - if @engagement.errors.any?
+            .alert.alert-danger.mb-3
+              - @engagement.errors.full_messages.each do |msg|
+                %p.mb-0= msg
+          .mb-3
+            = f.label :name, "Their name", class: "form-label"
+            = f.text_field :name, class: "form-control", placeholder: "Anna Hansen", required: true
+          .mb-3
+            = f.label :email, "Their email", class: "form-label"
+            = f.email_field :email, class: "form-control", placeholder: "anna@example.com", required: true
+          = f.submit "Send Invitation", class: "btn btn-primary w-100"
+
+        %p.text-muted.small.mt-3
+          %i.bi.bi-info-circle.me-1
+          They'll receive an email inviting them to verify their identity and set up payouts through POP.

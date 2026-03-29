@@ -1,0 +1,17 @@
+.row.justify-content-center.mt-5
+  .col-md-5.col-lg-4
+    .card.shadow-sm.border-0
+      .card-body.p-4
+        .text-center.mb-4
+          %i.bi.bi-book.display-6.text-primary
+          %h3.fw-bold.mt-2 Welcome to Bookify
+          %p.text-muted Sign in or create your account — no password needed.
+
+        = form_with model: @session, url: url_for(action: "new"), data: { turbo: "false" } do |f|
+          .mb-3
+            = label_tag "passwordless[#{email_field}]", "Email address", class: "form-label", for: "passwordless_#{email_field}"
+            = email_field_tag "passwordless[#{email_field}]", params.dig(:passwordless, email_field), class: "form-control form-control-lg", required: true, autofocus: true, placeholder: "you@example.com", id: "passwordless_#{email_field}"
+          = f.submit "Continue with email", class: "btn btn-primary btn-lg w-100"
+
+        %p.text-muted.small.text-center.mt-3.mb-0
+          We'll email you a magic link — no password needed.

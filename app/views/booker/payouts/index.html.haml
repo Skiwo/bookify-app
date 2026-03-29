@@ -1,0 +1,32 @@
+.d-flex.justify-content-between.align-items-center.mb-4
+  %h2 Payouts
+  .btn-group
+    = button_to "Submit Invoice Bundle", bundle_booker_payouts_path, method: :post, class: "btn btn-outline-primary btn-sm", data: { confirm: "This tells POP to bundle pending payouts into invoices. Continue?" }, title: "Bundles all pending payouts into invoices on POP"
+    = button_to "Refresh Statuses", sync_all_booker_payouts_path, method: :post, class: "btn btn-outline-secondary btn-sm", title: "Updates payout statuses from POP"
+
+- if @payouts.any?
+  .table-responsive
+    %table.table.table-hover.align-middle
+      %thead.table-light
+        %tr
+          %th Invoice
+          %th Freelancer
+          %th Amount
+          %th Status
+          %th Last Updated
+      %tbody
+        - @payouts.each do |payout|
+          %tr
+            %td= link_to(payout.pop_invoice_number || "—", booker_payout_path(payout), class: "fw-medium text-decoration-none")
+            %td.text-muted= payout.booking.engagement.name
+            %td.fw-bold= format_nok(payout.amount_ore)
+            %td
+              %span.badge.bg-info= payout.pop_status || "pending"
+            %td.text-muted.small= payout.synced_at&.strftime("%b %d, %H:%M") || "—"
+  = paginate @payouts
+- else
+  .card.border-0.shadow-sm.text-center.py-5
+    .card-body
+      %i.bi.bi-cash-stack.display-3.text-muted
+      %h5.fw-bold.mt-3 No payouts yet
+      %p.text-muted Create a booking and pay a freelancer to see payouts here.

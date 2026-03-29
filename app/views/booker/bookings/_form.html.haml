@@ -1,0 +1,129 @@
+= form_for @booking, url: form_url do |f|
+  - if @booking.errors.any?
+    .alert.alert-danger.mb-3
+      - @booking.errors.full_messages.each do |msg|
+        %p.mb-0= msg
+
+  - if @engagements
+    .mb-3
+      = f.label :engagement_id, "Freelancer", class: "form-label"
+      = f.select :engagement_id, @engagements.map { |e| [e.name, e.id] }, { prompt: "Select freelancer" }, class: "form-select", required: true
+
+  .mb-3
+    = f.label :description, "Description", class: "form-label"
+    = f.text_field :description, class: "form-control", placeholder: "e.g. Logo design", required: true
+
+  .mb-3
+    = f.label :occupation_code, "Occupation code", class: "form-label"
+    - if @occupation_codes&.any?
+      = f.select :occupation_code, @occupation_codes.map { |oc| ["#{oc['code']} \u2014 #{oc['name']}", oc['code']] }, { prompt: "Select code (optional)", selected: @booking.occupation_code }, class: "form-select"
+    - else
+      = f.text_field :occupation_code, class: "form-control", placeholder: "e.g. 7223.14 (optional)"
+      - if @occupation_codes_error
+        %small.text-danger Could not load codes from POP. You can enter one manually.
+
+  .mb-3
+    = f.label :order_reference, "Order reference (optional)", class: "form-label"
+    = f.text_field :order_reference, class: "form-control", placeholder: "e.g. PO-2026-042"
+
+  .mb-3
+    %label.form-label Booking type
+    .btn-group.w-100{role: "group"}
+      %input.btn-check{type: "radio", name: "booking[booking_type]", id: "type-time", value: "time_based", checked: @booking.time_based? || @booking.new_record?, autocomplete: "off"}
+      %label.btn.btn-outline-primary{for: "type-time"} Time-based
+      %input.btn-check{type: "radio", name: "booking[booking_type]", id: "type-project", value: "project_based", checked: @booking.project_based?, autocomplete: "off"}
+      %label.btn.btn-outline-primary{for: "type-project"} Project-based
+
+  #time-based-fields{style: @booking.project_based? ? 'display:none' : ''}
+    .row
+      .col-md-6.mb-3
+        = label_tag :rate_nok, "Rate (NOK)", class: "form-label"
+        .input-group
+          %span.input-group-text kr
+          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok"
+      .col-md-6.mb-3
+        = f.label :hours, "Hours", class: "form-label"
+        = f.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "hours"
+    .mb-3
+      = f.label :work_date, "Work date", class: "form-label"
+      = f.date_field :work_date, class: "form-control", value: @booking.work_date || Date.current
+    .row
+      .col-md-6.mb-3
+        = f.label :start_time, "Start time", class: "form-label"
+        = f.time_field :start_time, class: "form-control"
+      .col-md-6.mb-3
+        = f.label :end_time, "End time", class: "form-label"
+        = f.time_field :end_time, class: "form-control"
+
+  #project-based-fields{style: @booking.project_based? ? '' : 'display:none'}
+    .row
+      .col-md-6.mb-3
+        = label_tag :rate_nok_project, "Rate (NOK)", class: "form-label"
+        .input-group
+          %span.input-group-text kr
+          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project"
+      .col-md-6.mb-3
+        = f.label :total_hours, "Total hours", class: "form-label"
+        = f.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "total_hours"
+    .row
+      .col-md-6.mb-3
+        = f.label :work_start_date, "Start date", class: "form-label"
+        = f.date_field :work_start_date, class: "form-control", value: @booking.work_start_date || Date.current
+      .col-md-6.mb-3
+        = f.label :work_end_date, "End date", class: "form-label"
+        = f.date_field :work_end_date, class: "form-control"
+
+  .mb-3
+    .card.bg-light.border-0
+      .card-body.py-2.px-3.d-flex.justify-content-between
+        %span.text-muted Estimated total
+        %strong#booking-total kr 0.00
+
+  = f.submit (@booking.new_record? ? "Create Booking" : "Update Booking"), class: "btn btn-primary w-100"
+
+:javascript
+  document.addEventListener('DOMContentLoaded', function() {
+    var timeRadio = document.getElementById('type-time');
+    var projectRadio = document.getElementById('type-project');
+    var timeFields = document.getElementById('time-based-fields');
+    var projectFields = document.getElementById('project-based-fields');
+
+    function toggleFields() {
+      if (timeRadio.checked) {
+        timeFields.style.display = '';
+        projectFields.style.display = 'none';
+      } else {
+        timeFields.style.display = 'none';
+        projectFields.style.display = '';
+      }
+      timeFields.querySelectorAll('input,select').forEach(function(el) { el.disabled = !timeRadio.checked; });
+      projectFields.querySelectorAll('input,select').forEach(function(el) { el.disabled = timeRadio.checked; });
+      updateTotal();
+    }
+
+    timeRadio.addEventListener('change', toggleFields);
+    projectRadio.addEventListener('change', toggleFields);
+
+    var rate = document.getElementById('rate_nok');
+    var hours = document.getElementById('hours');
+    var rateProject = document.getElementById('rate_nok_project');
+    var totalHours = document.getElementById('total_hours');
+    var total = document.getElementById('booking-total');
+
+    function updateTotal() {
+      var r, h;
+      if (timeRadio.checked) {
+        r = parseFloat(rate.value) || 0;
+        h = parseFloat(hours.value) || 0;
+      } else {
+        r = parseFloat(rateProject.value) || 0;
+        h = parseFloat(totalHours.value) || 0;
+      }
+      total.textContent = 'kr ' + (r * h).toFixed(2);
+    }
+
+    [rate, hours, rateProject, totalHours].forEach(function(el) {
+      if (el) el.addEventListener('input', updateTotal);
+    });
+    toggleFields();
+  });

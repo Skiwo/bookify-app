@@ -1,0 +1,102 @@
+= render "shared/breadcrumbs", crumbs: [["Freelancers", booker_freelancers_path], @engagement.name]
+
+.d-flex.justify-content-between.align-items-center.mb-4
+  %h2= @engagement.name
+  .btn-group
+    - if @engagement.invited? || @engagement.onboarding?
+      = button_to "Resend Invitation", resend_invite_booker_freelancer_path(@engagement), method: :post, class: "btn btn-outline-warning btn-sm"
+    - if @engagement.pop_synced?
+      = button_to "Sync from POP", sync_booker_freelancer_path(@engagement), method: :post, class: "btn btn-outline-primary btn-sm"
+    - if @engagement.active?
+      = button_to "Remove Freelancer", booker_freelancer_path(@engagement), method: :delete, class: "btn btn-outline-danger btn-sm", data: { confirm: "This will remove #{@engagement.name} and unenroll them from POP. This action cannot be undone. Continue?" }
+
+- unless @engagement.active?
+  .alert.alert-info
+    .d-flex.align-items-center
+      %i.bi.bi-hourglass-split.me-2
+      - if @engagement.invited?
+        %span Invitation sent to #{@engagement.email}. Waiting for them to accept and complete onboarding.
+      - elsif @engagement.onboarding?
+        %span #{@engagement.name} is completing identity verification on POP.
+    - if @engagement.invitation_token.present?
+      .mt-2
+        %small.text-muted Invitation link:
+        .input-group.input-group-sm.mt-1
+          %input.form-control.form-control-sm{type: "text", value: invitation_url(token: @engagement.invitation_token), readonly: true, id: "invitation-link"}
+          %button.btn.btn-outline-secondary.btn-sm{type: "button", onclick: "navigator.clipboard.writeText(document.getElementById('invitation-link').value); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000);"} Copy
+
+.row
+  .col-md-6
+    .card.shadow-sm.border-0.mb-3
+      .card-header.bg-white.fw-bold Details
+      .card-body
+        .row.mb-2
+          .col-5.text-muted Email
+          .col-7= @engagement.email
+        .row.mb-2
+          .col-5.text-muted Status
+          .col-7
+            %span.badge{class: @engagement.active? ? "bg-success" : "bg-warning text-dark"}= @engagement.status.humanize
+        .row.mb-2
+          .col-5.text-muted Invited
+          .col-7= @engagement.invited_at&.strftime("%b %d, %Y") || "—"
+        .row.mb-2
+          .col-5.text-muted Onboarded
+          .col-7= @engagement.onboarded_at&.strftime("%b %d, %Y") || "—"
+        - if @engagement.pop_worker_id.present?
+          .row
+            .col-5.text-muted POP Worker ID
+            .col-7
+              %code.small= @engagement.pop_worker_id
+
+  .col-md-6
+    - profile = @pop_profile || @engagement.pop_profile_data
+    - if profile.present?
+      .card.shadow-sm.border-0.mb-3
+        .card-header.bg-white.fw-bold POP Profile
+        .card-body
+          - %w[first_name last_name email phone country].each do |field|
+            - if profile[field].present?
+              .row.mb-2
+                .col-5.text-muted= field.humanize
+                .col-7= profile[field]
+          %a.small.text-muted{"data-bs-toggle": "collapse", href: "#raw-profile-#{@engagement.id}", role: "button"}
+            %i.bi.bi-code-slash.me-1
+            Show raw API response
+          .collapse.mt-2{id: "raw-profile-#{@engagement.id}"}
+            - safe_profile = profile.except('personal_number', 'date_of_birth', 'identifier', 'national_id', 'ssn')
+            %pre.small.bg-light.p-2.rounded= JSON.pretty_generate(safe_profile) rescue "—"
+    - elsif @pop_error
+      .card.shadow-sm.border-0.mb-3.border-danger
+        .card-header.text-danger POP Profile Error
+        .card-body
+          %p.mb-0= @pop_error.message
+
+- if @engagement.active?
+  .d-flex.justify-content-between.align-items-center.mt-4.mb-3
+    %h4.mb-0 Bookings
+    %a.btn.btn-sm.btn-primary{href: new_booker_booking_path}
+      %i.bi.bi-plus-lg.me-1
+      New Booking
+  - if @bookings.any?
+    .table-responsive
+      %table.table.table-hover.align-middle
+        %thead.table-light
+          %tr
+            %th Description
+            %th Rate
+            %th Hours
+            %th Total
+            %th Status
+        %tbody
+          - @bookings.each do |booking|
+            %tr
+              %td= link_to booking.description, booker_booking_path(booking)
+              %td= format_nok_value(booking.rate_nok)
+              %td= booking.hours
+              %td.fw-bold= format_nok_value(booking.total_nok)
+              %td
+                %span.badge{class: booking.has_payout? ? "bg-success" : booking.completed? ? "bg-primary" : "bg-secondary"}= booking.status.humanize
+    = paginate @bookings
+  - else
+    %p.text-muted No bookings yet for this freelancer.

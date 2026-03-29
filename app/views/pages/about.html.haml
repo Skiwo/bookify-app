@@ -1,0 +1,61 @@
+.row.justify-content-center.mt-4
+  .col-md-8
+    %h1.fw-bold About Bookify
+    %p.lead.text-muted
+      An open-source freelancer payment marketplace built on the
+      %a{href: "https://payoutpartner.com", target: "_blank"} Payout Partner
+      API v2.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold What is Bookify?
+        %p
+          Bookify is a complete, working two-sided marketplace that demonstrates how to
+          onboard freelancers, create bookings, process payouts, and bundle invoices using
+          POP's REST API.
+        %p.mb-0
+          It's built for operators and developers who want to build their own
+          freelancer payment platform. Clone it, customize it, or just read the code.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold How it works
+        .row.g-3.mt-2
+          .col-md-6
+            .d-flex.align-items-start
+              %span.badge.rounded-pill.bg-primary.me-3.mt-1 1
+              %div
+                %strong Booker invites a freelancer
+                %p.text-muted.small.mb-0 Enter their email — they receive a link to accept.
+          .col-md-6
+            .d-flex.align-items-start
+              %span.badge.rounded-pill.bg-primary.me-3.mt-1 2
+              %div
+                %strong Freelancer verifies identity
+                %p.text-muted.small.mb-0 Through POP's secure BankID/ID verification flow.
+          .col-md-6
+            .d-flex.align-items-start
+              %span.badge.rounded-pill.bg-primary.me-3.mt-1 3
+              %div
+                %strong Booker logs work and pays
+                %p.text-muted.small.mb-0 Create bookings with hours and rate, then trigger payouts.
+          .col-md-6
+            .d-flex.align-items-start
+              %span.badge.rounded-pill.bg-primary.me-3.mt-1 4
+              %div
+                %strong POP handles the rest
+                %p.text-muted.small.mb-0 Invoicing, tax reporting, and bank transfer.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold Links
+        %ul.list-unstyled.mb-0
+          %li.mb-2
+            %i.bi.bi-github.me-2
+            %a{href: "https://github.com/payoutpartner/bookify-app", target: "_blank"} Source code on GitHub
+          %li.mb-2
+            %i.bi.bi-globe.me-2
+            %a{href: "https://payoutpartner.com", target: "_blank"} Payout Partner
+          %li
+            %i.bi.bi-file-code.me-2
+            %a{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"} POP API documentation

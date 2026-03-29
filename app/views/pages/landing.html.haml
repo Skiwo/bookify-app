@@ -1,0 +1,145 @@
+- content_for :body_class, "landing-page"
+
+%section.hero-section.text-white.py-5
+  .container
+    .row.align-items-center.py-5
+      .col-lg-7
+        %span.badge.bg-white.text-primary.mb-3.px-3.py-2
+          %i.bi.bi-code-slash.me-1
+          Open Source
+        %h1.display-4.fw-bold.mb-3
+          Pay freelancers.
+          %br
+          Built on POP.
+        %p.lead.mb-4{style: "opacity: 0.9;"}
+          Bookify is an open-source marketplace that shows you exactly how to
+          onboard, manage, and pay freelancers using the
+          %strong Payout Partner API.
+        .d-flex.flex-wrap.gap-3
+          %a.btn.btn-light.btn-lg.px-4{href: users_sign_in_path}
+            %i.bi.bi-arrow-right-circle.me-2
+            Get Started
+          %a.btn.btn-outline-light.btn-lg.px-4{href: "https://github.com/payoutpartner/bookify-app", target: "_blank"}
+            %i.bi.bi-github.me-2
+            View Source
+
+      .col-lg-5.d-none.d-lg-block.text-center
+        .hero-illustration
+          .card.shadow-lg.border-0.mx-auto{style: "max-width: 380px; transform: rotate(2deg);"}
+            .card-body.p-4
+              .d-flex.align-items-center.mb-3
+                .rounded-circle.bg-primary.text-white.d-flex.align-items-center.justify-content-center{style: "width: 40px; height: 40px;"}
+                  %i.bi.bi-person
+                %div.ms-3
+                  %strong.d-block Anna Freelancer
+                  %small.text-muted anna@example.com
+              %hr.my-2
+              .d-flex.justify-content-between.align-items-center.mb-2
+                %span.text-muted Booking
+                %span.fw-bold Website Design
+              .d-flex.justify-content-between.align-items-center.mb-2
+                %span.text-muted Rate
+                %span.fw-bold kr 850/hr
+              .d-flex.justify-content-between.align-items-center
+                %span.text-muted Status
+                %span.badge.bg-success Paid
+
+%section.py-5
+  .container
+    .text-center.mb-5
+      %h2.fw-bold How it works
+      %p.text-muted.lead Three steps from invite to payout
+    .row.g-4
+      .col-md-4
+        .card.h-100.border-0.shadow-sm.text-center
+          .card-body.p-4
+            .step-number.mb-3 1
+            %h5.fw-bold Invite Freelancers
+            %p.text-muted
+              Enter their email. They receive an invitation and complete identity verification
+              through POP's secure onboarding flow.
+      .col-md-4
+        .card.h-100.border-0.shadow-sm.text-center
+          .card-body.p-4
+            .step-number.mb-3 2
+            %h5.fw-bold Create Bookings
+            %p.text-muted
+              Log work with a description, hours, and rate.
+              Bookify handles the tax and compliance through POP.
+      .col-md-4
+        .card.h-100.border-0.shadow-sm.text-center
+          .card-body.p-4
+            .step-number.mb-3 3
+            %h5.fw-bold Pay Instantly
+            %p.text-muted
+              Hit pay and POP handles invoicing, tax reporting,
+              and bank transfer. The freelancer gets paid to their account.
+
+%section.py-5{style: "background-color: #f0f0ff;"}
+  .container
+    .text-center.mb-5
+      %h2.fw-bold Two sides, one platform
+    .row.g-4
+      .col-md-6
+        .card.border-0.shadow-sm.h-100
+          .card-body.p-4
+            .d-flex.align-items-center.mb-3
+              .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #EEF2FF;"}
+                %i.bi.bi-briefcase.text-primary{style: "font-size: 1.4rem;"}
+              %h4.fw-bold.mb-0 Booker
+            %p.text-muted
+              The operator side. Invite freelancers, create bookings,
+              trigger payouts, and track everything from your dashboard.
+            %ul.list-unstyled
+              %li.mb-2
+                %i.bi.bi-check2.text-primary.me-2
+                Invite freelancers by email
+              %li.mb-2
+                %i.bi.bi-check2.text-primary.me-2
+                Track bookings and payouts
+              %li.mb-2
+                %i.bi.bi-check2.text-primary.me-2
+                One-click payments via POP
+
+      .col-md-6
+        .card.border-0.shadow-sm.h-100
+          .card-body.p-4
+            .d-flex.align-items-center.mb-3
+              .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #F0FDFA;"}
+                %i.bi.bi-person-badge{style: "font-size: 1.4rem; color: #0D9488;"}
+              %h4.fw-bold.mb-0 Freelancer
+            %p.text-muted
+              The worker side. Accept invitations, verify your identity,
+              view bookings, and get paid directly to your bank account.
+            %ul.list-unstyled
+              %li.mb-2
+                %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
+                Accept invites with one click
+              %li.mb-2
+                %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
+                Secure identity verification
+              %li.mb-2
+                %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
+                Track your earnings
+
+%section.py-5
+  .container
+    .row.justify-content-center
+      .col-md-8
+        .card.border-0.shadow.text-center
+          .card-body.p-5
+            %i.bi.bi-code-square.display-4.text-primary.mb-3
+            %h3.fw-bold Built for developers
+            %p.text-muted.mb-4
+              Bookify is a fully working Rails app that demonstrates every POP API v2 endpoint.
+              Clone it, deploy it, or use it as a reference for your own integration.
+            .d-flex.flex-wrap.justify-content-center.gap-2
+              %span.badge.bg-light.text-dark.border.px-3.py-2 Rails 8
+              %span.badge.bg-light.text-dark.border.px-3.py-2 PostgreSQL
+              %span.badge.bg-light.text-dark.border.px-3.py-2 Bootstrap 5
+              %span.badge.bg-light.text-dark.border.px-3.py-2 HAML
+              %span.badge.bg-light.text-dark.border.px-3.py-2 Heroku-ready
+            %hr.my-4
+            %a.btn.btn-primary.btn-lg.px-5{href: "https://github.com/payoutpartner/bookify-app", target: "_blank"}
+              %i.bi.bi-github.me-2
+              View on GitHub

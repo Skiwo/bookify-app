@@ -1,0 +1,76 @@
+= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], @booking.description]
+
+.d-flex.justify-content-between.align-items-center.mb-4
+  %h2= @booking.description
+  .btn-group
+    - if @booking.editable?
+      = link_to "Edit", edit_booker_booking_path(@booking), class: "btn btn-outline-secondary btn-sm"
+    - if @booking.draft?
+      = button_to "Mark Completed", complete_booker_booking_path(@booking), method: :post, class: "btn btn-outline-success btn-sm"
+    - if @booking.can_uncomplete?
+      = button_to "Revert to Draft", uncomplete_booker_booking_path(@booking), method: :post, class: "btn btn-outline-warning btn-sm", data: { confirm: "Revert this booking to draft?" }
+    - if @booking.completed? && !@booking.payout
+      = button_to "Pay via POP", pay_booker_booking_path(@booking), method: :post, class: "btn btn-primary btn-sm", data: { confirm: "This will create a payout through POP and pay the freelancer. Continue?" }
+
+.row
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-header.bg-white.fw-bold Booking Details
+      .card-body
+        .row.mb-2
+          .col-5.text-muted Freelancer
+          .col-7= link_to @booking.engagement.name, booker_freelancer_path(@booking.engagement)
+        .row.mb-2
+          .col-5.text-muted Status
+          .col-7
+            %span.badge{class: @booking.has_payout? ? "bg-success" : @booking.completed? ? "bg-primary" : "bg-secondary"}= @booking.status.humanize
+        .row.mb-2
+          .col-5.text-muted Rate
+          .col-7= format_nok_value(@booking.rate_nok)
+        .row.mb-2
+          .col-5.text-muted Type
+          .col-7= @booking.booking_type.humanize
+        .row.mb-2
+          .col-5.text-muted Hours
+          .col-7= @booking.effective_hours
+        .row.mb-2
+          .col-5.text-muted Total
+          .col-7
+            %strong= format_nok_value(@booking.total_nok)
+        - if @booking.time_based?
+          .row.mb-2
+            .col-5.text-muted Work date
+            .col-7= @booking.work_date&.strftime("%b %d, %Y") || "—"
+          - if @booking.start_time.present?
+            .row.mb-2
+              .col-5.text-muted Time
+              .col-7= "#{@booking.start_time&.strftime('%H:%M')} – #{@booking.end_time&.strftime('%H:%M')}"
+        - if @booking.project_based?
+          .row.mb-2
+            .col-5.text-muted Period
+            .col-7= "#{@booking.work_start_date&.strftime('%b %d')} – #{@booking.work_end_date&.strftime('%b %d, %Y')}"
+        - if @booking.occupation_code.present?
+          .row.mb-2
+            .col-5.text-muted Occupation code
+            .col-7= @booking.occupation_code
+        - if @booking.order_reference.present?
+          .row
+            .col-5.text-muted Order reference
+            .col-7= @booking.order_reference
+
+  .col-md-6
+    - if @booking.payout
+      .card.shadow-sm.border-0
+        .card-header.bg-white.fw-bold Payout
+        .card-body
+          .row.mb-2
+            .col-5.text-muted Invoice
+            .col-7= link_to(@booking.payout.pop_invoice_number || "View payout", booker_payout_path(@booking.payout))
+          .row.mb-2
+            .col-5.text-muted Status
+            .col-7
+              %span.badge.bg-info= @booking.payout.pop_status || "pending"
+          .row
+            .col-5.text-muted Amount
+            .col-7
+              %strong= format_nok(@booking.payout.amount_ore)
