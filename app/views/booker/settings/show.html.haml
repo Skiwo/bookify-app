@@ -51,7 +51,7 @@
             .tab-pane.fade{class: ("show active" if current_user.pop_sandbox?), id: "sandbox-pane", role: "tabpanel"}
               %p.text-muted.small.mb-3
                 Credentials for
-                %code sandbox.core.payoutpartner.com
+                %code sandbox.manage.payoutpartner.com
                 — use test BankID, no real money.
 
               .mb-3
@@ -99,20 +99,20 @@
             %ol.small.mb-3
               %li.mb-2
                 Create a partner account at
-                %a{href: "https://sandbox.core.payoutpartner.com/partners/new", target: "_blank"} sandbox.core.payoutpartner.com
+                %a{href: "https://sandbox.manage.payoutpartner.com/partners/new", target: "_blank"} sandbox.manage.payoutpartner.com
               %li.mb-2 Log in and go to Settings > Credentials
               %li Copy your Partner ID, HMAC Secret, and API Key
-            %a.btn.btn-sm.btn-outline-primary.w-100{href: "https://manage.sandbox.core.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
+            %a.btn.btn-sm.btn-outline-primary.w-100{href: "https://sandbox.manage.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
               %i.bi.bi-box-arrow-up-right.me-1
               Open POP Settings
           - else
             %ol.small.mb-3
               %li.mb-2
                 Log in to your production account at
-                %a{href: "https://core.payoutpartner.com", target: "_blank"} core.payoutpartner.com
+                %a{href: "https://manage.payoutpartner.com", target: "_blank"} manage.payoutpartner.com
               %li.mb-2 Go to Settings > Credentials
               %li Copy your Partner ID, HMAC Secret, and API Key
-            %a.btn.btn-sm.btn-outline-primary.w-100.mb-2{href: "https://manage.core.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
+            %a.btn.btn-sm.btn-outline-primary.w-100.mb-2{href: "https://manage.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
               %i.bi.bi-box-arrow-up-right.me-1
               Open POP Settings
             %p.small.text-muted.mb-0

@@ -37,7 +37,7 @@ class User < ApplicationRecord
 
   def effective_pop_base_url
     return ENV["POP_BASE_URL"] if ENV["POP_BASE_URL"].present?
-    pop_sandbox? ? "https://sandbox.core.payoutpartner.com" : "https://core.payoutpartner.com"
+    pop_sandbox? ? "https://sandbox.manage.payoutpartner.com" : "https://manage.payoutpartner.com"
   end
 
   def pop_credentials
