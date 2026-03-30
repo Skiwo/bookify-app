@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_29_000009) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_30_000001) do
   create_schema "_heroku"
 
   # These are extensions that must be enabled in order to support this database
@@ -19,7 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_29_000009) do
   enable_extension "pgcrypto"
 
   create_table "bookings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "engagement_id", null: false
+    t.uuid "engagement_id"
     t.string "description", null: false
     t.string "occupation_code"
     t.integer "status", default: 0, null: false

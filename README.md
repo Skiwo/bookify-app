@@ -153,9 +153,36 @@ git push heroku main
 
 ## Run Locally
 
-```bash
-# Prerequisites: Ruby 3.2.0, PostgreSQL
+### With Docker (recommended)
 
+Prerequisites: Docker with Compose
+
+```bash
+git clone https://github.com/payoutpartner/bookify-app.git
+cd bookify-app
+docker compose up
+# Visit http://localhost:3000
+```
+
+Seed the database on first run:
+
+```bash
+docker compose exec app bundle exec rails db:seed
+```
+
+To open a Rails console:
+
+```bash
+docker compose exec app bundle exec rails c
+```
+
+POP credentials are optional — each booker can enter their own in Settings. To set a global fallback, copy `.env.sample` to `.env` and fill in the values before `docker compose up`.
+
+### Without Docker
+
+Prerequisites: Ruby 3.2.0, PostgreSQL
+
+```bash
 git clone https://github.com/payoutpartner/bookify-app.git
 cd bookify-app
 bundle install

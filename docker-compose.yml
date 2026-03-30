@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: bookify
+      POSTGRES_PASSWORD: bookify
+      POSTGRES_DB: bookify_development
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookify -d bookify_development"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/rails
+      - bundle:/usr/local/bundle
+    environment:
+      DATABASE_URL: postgres://bookify:bookify@db/bookify_development
+      SECRET_KEY_BASE: dev_secret_key_base_change_for_production
+      RAILS_ENV: development
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+  bundle:
