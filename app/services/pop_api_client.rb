@@ -27,6 +27,14 @@ class PopApiClient
     delete("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}")
   end
 
+  def deactivate_enrollment(enrollment_id)
+    post("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}/deactivate", {})
+  end
+
+  def reactivate_enrollment(enrollment_id)
+    post("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}/reactivate", {})
+  end
+
   # Profiles
   def get_profile(worker_id)
     get("/api/v2/partner/profiles/#{encode_path(worker_id)}")
@@ -61,28 +69,13 @@ class PopApiClient
     get("/api/v2/partner/payouts", params)
   end
 
-  # Bundles
-  def create_bundle
-    post("/api/v2/partner/bundles", {})
-  end
-
   # Browser flow JWT generation
-  def onboard_url(worker_id:, callback_url:)
+  def connect_url(worker_id:, callback_url:)
     jwt = generate_jwt(
-      session_type: "onboard",
       partner_worker_id: worker_id,
       callback_url: callback_url
     )
-    "#{base_url}/partner_platform/onboard?token=#{jwt}"
-  end
-
-  def manage_url(worker_id:, callback_url:)
-    jwt = generate_jwt(
-      session_type: "manage",
-      partner_worker_id: worker_id,
-      callback_url: callback_url
-    )
-    "#{base_url}/partner_platform/manage?token=#{jwt}"
+    "#{base_url}/partner_platform/connect?token=#{jwt}"
   end
 
   private

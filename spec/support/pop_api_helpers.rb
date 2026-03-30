@@ -84,9 +84,16 @@ module PopApiHelpers
       .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
 
-  def stub_pop_create_bundle
-    stub_request(:post, "#{POP_BASE}/api/v2/partner/bundles")
-      .to_return(status: 202, body: "".to_json, headers: { "Content-Type" => "application/json" })
+  def stub_pop_deactivate_enrollment(enrollment_id)
+    body = { "id" => enrollment_id, "status" => "deactivated", "approved" => false }
+    stub_request(:post, "#{POP_BASE}/api/v2/partner/enrollments/#{enrollment_id}/deactivate")
+      .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
+  end
+
+  def stub_pop_reactivate_enrollment(enrollment_id)
+    body = { "id" => enrollment_id, "status" => "approved", "approved" => true }
+    stub_request(:post, "#{POP_BASE}/api/v2/partner/enrollments/#{enrollment_id}/reactivate")
+      .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
 
   def stub_pop_api_down

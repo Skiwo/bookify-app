@@ -120,45 +120,18 @@ RSpec.describe PopApiClient do
     end
   end
 
-  describe "#create_bundle" do
-    it "submits a bundle request" do
-      stub_pop_create_bundle
-
-      result = client.create_bundle
-
-      expect(result.success?).to be true
-      expect(result.status).to eq(202)
-    end
-  end
-
-  describe "#onboard_url" do
-    it "generates a signed JWT URL" do
-      url = client.onboard_url(
+  describe "#connect_url" do
+    it "generates a signed JWT URL for the unified connect endpoint" do
+      url = client.connect_url(
         worker_id: "wk_123",
-        callback_url: "https://bookify.app/callbacks/onboard"
+        callback_url: "https://bookify.app/callbacks/connect"
       )
 
-      expect(url).to start_with("https://sandbox.core.payoutpartner.com/partner_platform/onboard?token=")
+      expect(url).to start_with("https://sandbox.core.payoutpartner.com/partner_platform/connect?token=")
       token = url.split("token=").last
       decoded = JWT.decode(token, PopApiHelpers::POP_ENV["POP_HMAC_SECRET"], true, algorithm: "HS256").first
       expect(decoded["partner_worker_id"]).to eq("wk_123")
-      expect(decoded["session_type"]).to eq("onboard")
       expect(decoded["partner_id"]).to eq(PopApiHelpers::POP_ENV["POP_PARTNER_ID"])
-    end
-  end
-
-  describe "#manage_url" do
-    it "generates a signed JWT URL for profile management" do
-      url = client.manage_url(
-        worker_id: "wk_456",
-        callback_url: "https://bookify.app/callbacks/manage"
-      )
-
-      expect(url).to start_with("https://sandbox.core.payoutpartner.com/partner_platform/manage?token=")
-      token = url.split("token=").last
-      decoded = JWT.decode(token, PopApiHelpers::POP_ENV["POP_HMAC_SECRET"], true, algorithm: "HS256").first
-      expect(decoded["partner_worker_id"]).to eq("wk_456")
-      expect(decoded["session_type"]).to eq("manage")
     end
   end
 

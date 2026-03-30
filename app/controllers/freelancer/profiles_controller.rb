@@ -10,13 +10,13 @@ module Freelancer
             engagement: engagement,
             profile: engagement.pop_profile_data.presence,
             error: nil,
-            manage_url: booker_client.manage_url(
+            connect_url: booker_client.connect_url(
               worker_id: engagement.pop_worker_id,
               callback_url: callbacks_manage_url
             )
           }
         else
-          { engagement: engagement, profile: engagement.pop_profile_data, error: nil, manage_url: nil }
+          { engagement: engagement, profile: engagement.pop_profile_data, error: nil, connect_url: nil }
         end
       end
     end

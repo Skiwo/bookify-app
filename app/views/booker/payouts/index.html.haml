@@ -1,8 +1,6 @@
 .d-flex.justify-content-between.align-items-center.mb-4
   %h2 Payouts
-  .btn-group
-    = button_to "Submit Invoice Bundle", bundle_booker_payouts_path, method: :post, class: "btn btn-outline-primary btn-sm", data: { confirm: "This tells POP to bundle pending payouts into invoices. Continue?" }, title: "Bundles all pending payouts into invoices on POP"
-    = button_to "Refresh Statuses", sync_all_booker_payouts_path, method: :post, class: "btn btn-outline-secondary btn-sm", title: "Updates payout statuses from POP"
+  = button_to "Refresh Statuses", sync_all_booker_payouts_path, method: :post, class: "btn btn-outline-secondary btn-sm", title: "Updates payout statuses from POP"
 
 - if @payouts.any?
   .table-responsive

@@ -15,8 +15,8 @@
                 %dt= key.humanize
                 %dd= value || "—"
           .col-md-6
-            - if entry[:manage_url]
-              %a.btn.btn-primary{href: entry[:manage_url]} Update Profile on POP
+            - if entry[:connect_url]
+              %a.btn.btn-primary{href: entry[:connect_url]} Update Profile on POP
       - elsif entry[:error]
         .alert.alert-warning
           Could not load profile: #{entry[:error].message}

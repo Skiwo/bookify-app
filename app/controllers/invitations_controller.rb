@@ -20,13 +20,13 @@ class InvitationsController < ApplicationController
 
     client = PopApiClient.for_user(booker)
     callback_url = callbacks_onboard_url(token: @engagement.invitation_token)
-    onboard_url = client.onboard_url(
+    url = client.connect_url(
       worker_id: @engagement.id,
       callback_url: callback_url
     )
 
     @engagement.update!(status: :onboarding)
-    redirect_to onboard_url, allow_other_host: true
+    redirect_to url, allow_other_host: true
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Invalid or expired invitation."
   end

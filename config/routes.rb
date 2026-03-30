@@ -34,7 +34,6 @@ Rails.application.routes.draw do
     end
     resources :payouts, only: [:index, :show] do
       collection do
-        post :bundle
         post :sync_all
       end
     end

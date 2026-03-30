@@ -7,17 +7,6 @@ RSpec.describe "Booker::Payouts", type: :request do
 
   before { allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(booker) }
 
-  describe "POST /booker/payouts/bundle" do
-    it "sends bundle request to POP" do
-      stub_pop_create_bundle
-
-      post bundle_booker_payouts_path
-
-      expect(response).to redirect_to(booker_payouts_path)
-      expect(flash[:notice]).to include("Bundle")
-    end
-  end
-
   describe "POST /booker/payouts/sync_all" do
     it "syncs payout statuses from POP" do
       payout = booking.payout
