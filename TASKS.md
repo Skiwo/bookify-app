@@ -86,6 +86,30 @@ Generated 2026-03-29 from a full codebase review of both `bookify-app` and `pop-
 
 ---
 
+## Bookify Marketing Website — Content Gaps (2026-03-30)
+
+### Payout Flow Accuracy
+- [ ] Explain that payout only happens **after the company pays the invoice** — not instantly
+- [ ] Clarify that PayoutPartner reviews each invoice before accepting it
+- [ ] Make clear the flow is: submit payout → PayoutPartner generates invoice → company pays invoice → freelancer gets paid
+
+### Missing Feature Explanations
+- [ ] **Bundle feature**: Companies can stage multiple payouts and submit them all at once as a single bundle, or send them individually
+- [ ] **Idempotency Key**: The unique identifier between platforms for each payout — prevents duplicate submissions
+- [ ] **External ID**: An identifier for a job — one job can have many payouts
+- [ ] **Order Reference, Buyer Reference**: Important fields on payouts
+- [ ] **Invoiced On, Due On**: Date fields that control invoice timing
+
+### GitHub Repository
+- [ ] Ruby badge in README says 3.2.0 — verify against actual `.ruby-version` and update
+- [ ] Heroku deploy URL points to `payoutpartner/bookify-app` but repo is `skiwo/bookify-app` — one-click deploy button will 404
+- [ ] Add prominent link to Partner API v2 docs (`sandbox.core.payoutpartner.com/partner/docs`) in README
+- [ ] General README improvement — better structure, clearer setup instructions
+- [ ] `tmp/` and `log/` — verify they're properly gitignored
+- [ ] Consider whether TASKS.md should remain in a public repo — convert to public roadmap or move internal tasks elsewhere
+
+---
+
 ## Cross-Cutting (Both Apps)
 
 - [ ] **Local dev: bookify needs `dotenv-rails`** — Added in this session. Verify it loads `.env` correctly in development.

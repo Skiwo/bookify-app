@@ -1,25 +1,28 @@
 - content_for :body_class, "landing-page"
+- content_for :title, "Freelancer Payout Management"
+- content_for :description, "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."
 
 %section.hero-section.text-white.py-5
   .container
     .row.align-items-center.py-5
       .col-lg-7
-        %span.badge.bg-white.text-primary.mb-3.px-3.py-2
-          %i.bi.bi-code-slash.me-1
-          Open Source
+        %p.lead.mb-3{style: "opacity: 0.9;"}
+          Built on the
+          %a.text-white.fw-bold{href: "https://payoutpartner.com", target: "_blank", style: "text-decoration: underline;"} PayoutPartner
+          API
         %h1.display-4.fw-bold.mb-3
-          Pay freelancers.
+          Manage and pay
           %br
-          Built on POP.
+          your freelancers.
         %p.lead.mb-4{style: "opacity: 0.9;"}
-          Bookify is an open-source marketplace that shows you exactly how to
+          Bookify is an open-source app that shows you exactly how to
           onboard, manage, and pay freelancers using the
-          %strong Payout Partner API.
+          %strong PayoutPartner API.
         .d-flex.flex-wrap.gap-3
           %a.btn.btn-light.btn-lg.px-4{href: users_sign_in_path}
             %i.bi.bi-arrow-right-circle.me-2
             Get Started
-          %a.btn.btn-outline-light.btn-lg.px-4{href: "https://github.com/payoutpartner/bookify-app", target: "_blank"}
+          %a.btn.btn-outline-light.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
             %i.bi.bi-github.me-2
             View Source
 
@@ -48,37 +51,45 @@
   .container
     .text-center.mb-5
       %h2.fw-bold How it works
-      %p.text-muted.lead Three steps from invite to payout
+      %p.text-muted.lead From invite to payout in four steps
     .row.g-4
-      .col-md-4
+      .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 1
             %h5.fw-bold Invite Freelancers
             %p.text-muted
               Enter their email. They receive an invitation and complete identity verification
-              through POP's secure onboarding flow.
-      .col-md-4
+              through PayoutPartner's secure onboarding flow.
+      .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 2
             %h5.fw-bold Create Bookings
             %p.text-muted
               Log work with a description, hours, and rate.
-              Bookify handles the tax and compliance through POP.
-      .col-md-4
+              PayoutPartner handles the tax and compliance.
+      .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 3
-            %h5.fw-bold Pay Instantly
+            %h5.fw-bold Submit Payouts
             %p.text-muted
-              Hit pay and POP handles invoicing, tax reporting,
-              and bank transfer. The freelancer gets paid to their account.
+              Submit payouts to PayoutPartner. They generate an invoice for the work
+              and send it to you for payment.
+      .col-md-3
+        .card.h-100.border-0.shadow-sm.text-center
+          .card-body.p-4
+            .step-number.mb-3 4
+            %h5.fw-bold Pay the Invoice
+            %p.text-muted
+              Once you pay the invoice, PayoutPartner handles tax reporting
+              and bank transfer to the freelancer.
 
 %section.py-5{style: "background-color: #f0f0ff;"}
   .container
     .text-center.mb-5
-      %h2.fw-bold Two sides, one platform
+      %h2.fw-bold Who is Bookify for?
     .row.g-4
       .col-md-6
         .card.border-0.shadow-sm.h-100
@@ -86,20 +97,21 @@
             .d-flex.align-items-center.mb-3
               .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #EEF2FF;"}
                 %i.bi.bi-briefcase.text-primary{style: "font-size: 1.4rem;"}
-              %h4.fw-bold.mb-0 Booker
+              %h4.fw-bold.mb-0 Companies
             %p.text-muted
-              The operator side. Invite freelancers, create bookings,
-              trigger payouts, and track everything from your dashboard.
+              The operator side. Companies and organisations that need to pay freelancers
+              can invite them, create bookings, submit payouts, and track everything
+              from their dashboard.
             %ul.list-unstyled
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
                 Invite freelancers by email
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
-                Track bookings and payouts
+                Create bookings and submit payouts
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
-                One-click payments via POP
+                Bundle multiple payouts into one invoice
 
       .col-md-6
         .card.border-0.shadow-sm.h-100
@@ -107,20 +119,21 @@
             .d-flex.align-items-center.mb-3
               .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #F0FDFA;"}
                 %i.bi.bi-person-badge{style: "font-size: 1.4rem; color: #0D9488;"}
-              %h4.fw-bold.mb-0 Freelancer
+              %h4.fw-bold.mb-0 Freelancers
             %p.text-muted
-              The worker side. Accept invitations, verify your identity,
-              view bookings, and get paid directly to your bank account.
+              The worker side. Freelancers accept invitations, verify their identity
+              through BankID, and get paid directly to their bank account after the
+              company pays the invoice.
             %ul.list-unstyled
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
                 Accept invites with one click
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
-                Secure identity verification
+                Secure identity verification via BankID
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
-                Track your earnings
+                Get paid to your bank account
 
 %section.py-5
   .container
@@ -131,7 +144,7 @@
             %i.bi.bi-code-square.display-4.text-primary.mb-3
             %h3.fw-bold Built for developers
             %p.text-muted.mb-4
-              Bookify is a fully working Rails app that demonstrates every POP API v2 endpoint.
+              Bookify is a fully working Rails app that demonstrates the PayoutPartner API v2.
               Clone it, deploy it, or use it as a reference for your own integration.
             .d-flex.flex-wrap.justify-content-center.gap-2
               %span.badge.bg-light.text-dark.border.px-3.py-2 Rails 8
@@ -140,6 +153,10 @@
               %span.badge.bg-light.text-dark.border.px-3.py-2 HAML
               %span.badge.bg-light.text-dark.border.px-3.py-2 Heroku-ready
             %hr.my-4
-            %a.btn.btn-primary.btn-lg.px-5{href: "https://github.com/payoutpartner/bookify-app", target: "_blank"}
-              %i.bi.bi-github.me-2
-              View on GitHub
+            .d-flex.flex-wrap.justify-content-center.gap-3
+              %a.btn.btn-primary.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
+                %i.bi.bi-github.me-2
+                View on GitHub
+              %a.btn.btn-outline-primary.btn-lg.px-4{href: "https://sandbox.core.payoutpartner.com/partner/docs", target: "_blank"}
+                %i.bi.bi-file-code.me-2
+                API Docs

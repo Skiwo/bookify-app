@@ -1,0 +1,73 @@
+- content_for :title, "Privacy Policy"
+- content_for :description, "Bookify privacy policy. How we handle your data."
+
+.row.justify-content-center.mt-4
+  .col-md-8
+    %h1.fw-bold Privacy Policy
+    %p.text-muted Last updated: 30 March 2026
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold Who we are
+        %p
+          Bookify is operated by
+          %strong Skiwo AS
+          (org. 916 636 660), Pilestredet 17, 0164 Oslo, Norway.
+          Skiwo AS is the data controller for personal data processed through Bookify.
+        %p.mb-0
+          Contact:
+          %a{href: "mailto:privacy@payoutpartner.com"} privacy@payoutpartner.com
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold What we collect
+        %p We collect the minimum data needed to operate Bookify:
+        %ul
+          %li
+            %strong Email address
+            — used for passwordless sign-in (magic link) and to identify your account.
+          %li
+            %strong Booking and payout data
+            — descriptions, rates, and hours you enter when creating bookings.
+          %li
+            %strong PayoutPartner API credentials
+            — if you enter sandbox API keys in Settings, they are stored to connect your account to PayoutPartner.
+        %p.mb-0 We do not collect analytics, tracking cookies, or any data beyond what you explicitly provide.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold How we use your data
+        %ul.mb-0
+          %li To authenticate you via magic link email
+          %li To display your bookings, freelancers, and payouts
+          %li To communicate with the PayoutPartner API on your behalf
+          %li We do not sell, share, or transfer your data to third parties other than PayoutPartner (as required to process payouts)
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold Cookies
+        %p.mb-0
+          Bookify uses a single session cookie (
+          %code _bookify_app_session
+          ) to keep you signed in. This is a functional cookie required for the app to work.
+          We do not use tracking cookies, analytics cookies, or any third-party cookies.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold Data storage and security
+        %p.mb-0
+          Data is stored in a PostgreSQL database hosted on Heroku (AWS EU region).
+          All connections use TLS encryption. Access is restricted to authorised personnel only.
+
+    .card.border-0.shadow-sm.my-4
+      .card-body.p-4
+        %h4.fw-bold Your rights
+        %p Under GDPR, you have the right to:
+        %ul
+          %li Access the personal data we hold about you
+          %li Request correction or deletion of your data
+          %li Object to or restrict processing of your data
+          %li Data portability
+        %p.mb-0
+          To exercise any of these rights, email
+          %a{href: "mailto:privacy@payoutpartner.com"} privacy@payoutpartner.com

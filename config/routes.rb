@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   root "pages#landing"
   get "about", to: "pages#about"
+  get "privacy", to: "pages#privacy"
 
   passwordless_for :users, at: "/", as: :users
 
