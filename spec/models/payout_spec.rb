@@ -1,8 +1,10 @@
 require "rails_helper"
 
 RSpec.describe Payout, type: :model do
+  subject { create(:payout) }
+
   it { should belong_to(:booking) }
-  it { should validate_uniqueness_of(:booking_id) }
+  it { should validate_uniqueness_of(:booking_id).ignoring_case_sensitivity }
 
   describe "#amount_nok" do
     it "converts ore to NOK" do

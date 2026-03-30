@@ -7,10 +7,15 @@ FactoryBot.define do
     invited_at { Time.current }
 
     trait :active do
-      status { :active }
-      pop_worker_id { "wk_#{SecureRandom.alphanumeric(10)}" }
-      onboarded_at { Time.current }
       association :freelancer, factory: [:user, :freelancer]
+      after(:create) do |engagement|
+        engagement.update_columns(
+          status: Engagement.statuses[:active],
+          pop_worker_id: "wk_#{SecureRandom.alphanumeric(10)}",
+          onboarded_at: Time.current
+        )
+        engagement.reload
+      end
     end
 
     trait :onboarding do

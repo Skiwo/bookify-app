@@ -90,12 +90,12 @@ module Booker
     def pay
       @booking = find_booking
 
-      unless @booking.completed?
-        redirect_to(booker_booking_path(@booking), alert: "Booking must be completed before payment.") and return
-      end
-
       if @booking.payout.present?
         redirect_to(booker_booking_path(@booking), alert: "This booking has already been paid.") and return
+      end
+
+      unless @booking.completed?
+        redirect_to(booker_booking_path(@booking), alert: "Booking must be completed before payment.") and return
       end
 
       engagement = @booking.engagement

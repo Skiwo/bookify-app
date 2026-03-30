@@ -13,5 +13,11 @@ FactoryBot.define do
       role { :freelancer }
       name { "Test Freelancer" }
     end
+
+    trait :pop_configured do
+      pop_sandbox_api_key { "test-api-key" }
+      pop_sandbox_hmac_secret { "test-hmac-secret" }
+      pop_sandbox_partner_id { "test-partner-id" }
+    end
   end
 end

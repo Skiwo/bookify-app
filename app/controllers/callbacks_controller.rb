@@ -17,6 +17,7 @@ class CallbacksController < ApplicationController
       user = find_or_create_freelancer(profile_data, engagement)
 
       ActiveRecord::Base.transaction do
+        engagement.update!(status: :onboarding) if engagement.invited?
         engagement.update!(
           freelancer: user,
           pop_worker_id: worker_id,
@@ -72,7 +73,7 @@ class CallbacksController < ApplicationController
   end
 
   def find_or_create_freelancer(profile_data, engagement)
-    email = engagement.email.downcase.strip
+    email = profile_data["email"].to_s.downcase.strip.presence || engagement.email.downcase.strip
     name = [profile_data.dig("first_name"), profile_data.dig("last_name")].compact.join(" ")
     name = engagement.name if name.blank?
 

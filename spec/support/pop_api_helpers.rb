@@ -54,6 +54,7 @@ module PopApiHelpers
       "pagination" => { "page" => 1, "total_count" => 1 }
     }
     stub_request(:get, "#{POP_BASE}/api/v2/partner/enrollments")
+      .with(query: hash_including({}))
       .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
 
@@ -69,6 +70,7 @@ module PopApiHelpers
       "pagination" => { "page" => 1, "total_count" => 1 }
     }
     stub_request(:get, "#{POP_BASE}/api/v2/partner/payouts")
+      .with(query: hash_including({}))
       .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
 
@@ -81,6 +83,7 @@ module PopApiHelpers
       "pagination" => { "page" => 1, "total_count" => 2 }
     }
     stub_request(:get, "#{POP_BASE}/api/v2/partner/occupation_codes")
+      .with(query: hash_including({}))
       .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
 

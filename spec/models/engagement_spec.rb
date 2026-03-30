@@ -48,7 +48,7 @@ RSpec.describe Engagement, type: :model do
 
   describe "#pop_synced?" do
     it "returns true when active with pop_worker_id" do
-      engagement = build(:engagement, :active)
+      engagement = create(:engagement, :active)
       expect(engagement.pop_synced?).to be true
     end
 

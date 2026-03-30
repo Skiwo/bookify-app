@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Booker::Freelancers", type: :request do
-  let(:booker) { create(:user, :booker) }
+  let(:booker) { create(:user, :booker, :pop_configured) }
 
   before { post "/users/sign_in", params: { passwordless: { email: booker.email } } rescue nil; allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(booker) }
 
@@ -21,8 +21,8 @@ RSpec.describe "Booker::Freelancers", type: :request do
 
   describe "GET /booker/freelancers" do
     it "only shows current booker's engagements" do
-      own = create(:engagement, booker: booker)
-      other = create(:engagement)
+      own = create(:engagement, booker: booker, name: "My Freelancer")
+      other = create(:engagement, name: "Other Freelancer")
 
       get booker_freelancers_path
 

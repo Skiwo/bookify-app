@@ -46,9 +46,10 @@ RSpec.describe "Callbacks", type: :request do
         "last_name" => "Hansen"
       })
 
-      expect {
-        get callbacks_onboard_path, params: { token: engagement.invitation_token, worker_id: "wk_booker" }
-      }.to raise_error(RuntimeError, /booker/)
+      get callbacks_onboard_path, params: { token: engagement.invitation_token, worker_id: "wk_booker" }
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to include("booker")
     end
 
     it "redirects to invitation on POP failure" do

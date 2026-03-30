@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Booker::Bookings", type: :request do
-  let(:booker) { create(:user, :booker) }
+  let(:booker) { create(:user, :booker, :pop_configured) }
   let(:engagement) { create(:engagement, :active, booker: booker) }
 
   before { allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(booker) }

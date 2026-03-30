@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Booker::Payouts", type: :request do
-  let(:booker) { create(:user, :booker) }
+  let(:booker) { create(:user, :booker, :pop_configured) }
   let(:engagement) { create(:engagement, :active, booker: booker) }
   let!(:booking) { create(:booking, :paid, engagement: engagement) }
 
