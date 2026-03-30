@@ -2,7 +2,7 @@ class Engagement < ApplicationRecord
   belongs_to :booker, class_name: "User"
   belongs_to :freelancer, class_name: "User", optional: true
 
-  has_many :bookings, dependent: :restrict_with_error
+  has_many :bookings, dependent: :nullify
 
   enum :status, { invited: 0, onboarding: 1, active: 2, removed: 3 }
 

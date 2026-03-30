@@ -51,8 +51,9 @@ module Booker
         pop_client.delete_enrollment(@engagement.pop_enrollment_id)
       end
 
-      @engagement.update!(status: :removed)
-      redirect_to booker_freelancers_path, notice: "Freelancer #{@engagement.name} has been removed."
+      name = @engagement.name
+      @engagement.destroy!
+      redirect_to booker_freelancers_path, notice: "Freelancer #{name} has been removed."
     end
 
     def sync

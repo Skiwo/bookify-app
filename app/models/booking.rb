@@ -1,5 +1,5 @@
 class Booking < ApplicationRecord
-  belongs_to :engagement
+  belongs_to :engagement, optional: true
 
   has_one :payout, dependent: :restrict_with_error
 
