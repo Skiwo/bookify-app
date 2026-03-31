@@ -1,0 +1,34 @@
+.row.justify-content-center.mt-5
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-body.p-5.text-center
+        %i.bi.bi-envelope-open.display-3.mb-3{style: "color: #0D9488;"}
+        %h2
+          %strong= @booker.name || @booker.email
+          invited you to Bookify
+        %p.text-muted.mt-3 Here's what happens next:
+
+        .text-start.mx-auto{style: "max-width: 360px;"}
+          .d-flex.align-items-start.mb-3
+            %span.badge.rounded-pill.bg-primary.me-3{style: "background-color: #0D9488 !important;"} 1
+            %div
+              %strong Verify your identity
+              %br
+              %small.text-muted Through Payout Partner's secure wizard
+          .d-flex.align-items-start.mb-3
+            %span.badge.rounded-pill.bg-primary.me-3{style: "background-color: #0D9488 !important;"} 2
+            %div
+              %strong Add your bank account
+              %br
+              %small.text-muted So you can receive payments
+          .d-flex.align-items-start.mb-3
+            %span.badge.rounded-pill.bg-primary.me-3{style: "background-color: #0D9488 !important;"} 3
+            %div
+              %strong You're done — get paid!
+              %br
+              %small.text-muted Takes about 5 minutes total
+
+        %p.text-muted.small.mt-3
+          You'll be redirected to Payout Partner to securely verify your identity.
+
+        = button_to "Accept and Set Up Your Profile", accept_invitation_path(token: @enrollment.invitation_token), method: :post, class: "btn btn-lg mt-3", style: "background-color: #0D9488; border-color: #0D9488; color: white;"

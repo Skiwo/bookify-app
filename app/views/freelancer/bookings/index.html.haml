@@ -1,0 +1,30 @@
+%h2.mb-4 My Bookings
+
+- if @bookings.any?
+  .table-responsive
+    %table.table.table-hover.align-middle
+      %thead.table-light
+        %tr
+          %th Description
+          %th Booker
+          %th Rate
+          %th Hours
+          %th Total
+          %th Status
+      %tbody
+        - @bookings.each do |booking|
+          %tr
+            %td= link_to booking.description, freelancer_booking_path(booking), class: "fw-medium text-decoration-none"
+            %td.text-muted= booking.enrollment.booker.name || booking.enrollment.booker.email
+            %td= format_nok_value(booking.rate_nok)
+            %td= booking.hours
+            %td.fw-bold= format_nok_value(booking.total_nok)
+            %td
+              %span.badge{class: booking.has_payout? ? "bg-success" : booking.completed? ? "bg-primary" : "bg-secondary"}= booking.status.humanize
+  = paginate @bookings
+- else
+  .card.border-0.shadow-sm.text-center.py-5
+    .card-body
+      %i.bi.bi-calendar-check.display-3.text-muted
+      %h5.fw-bold.mt-3 No bookings yet
+      %p.text-muted When a booker creates a booking for you, it will appear here.

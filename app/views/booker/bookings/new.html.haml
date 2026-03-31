@@ -1,0 +1,18 @@
+= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], "New Booking"]
+
+%h2.mb-4 New Booking
+
+.row.justify-content-center
+  .col-md-6
+    - if @enrollments.empty?
+      .card.shadow-sm.border-0
+        .card-body.p-5.text-center
+          %i.bi.bi-people.display-4.text-muted
+          %p.text-muted.mt-3 You need at least one active freelancer before creating a booking.
+          %a.btn.btn-primary{href: new_booker_freelancer_path}
+            %i.bi.bi-plus-lg.me-1
+            Invite a Freelancer
+    - else
+      .card.shadow-sm.border-0
+        .card-body.p-4
+          = render "form", form_url: booker_bookings_path

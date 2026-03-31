@@ -1,0 +1,46 @@
+= render "shared/breadcrumbs", crumbs: [["Payouts", booker_payouts_path], @payout.pop_invoice_number || "Payout"]
+
+%h2.mb-4
+  Payout
+  - if @payout.pop_invoice_number
+    %span.text-muted= @payout.pop_invoice_number
+
+.row
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-header.bg-white.fw-bold Payout Details
+      .card-body
+        .row.mb-2
+          .col-5.text-muted Freelancer
+          .col-7= link_to @enrollment.name, booker_freelancer_path(@enrollment)
+        .row.mb-2
+          .col-5.text-muted Booking
+          .col-7= link_to @booking.description, booker_booking_path(@booking)
+        .row.mb-2
+          .col-5.text-muted Amount
+          .col-7
+            %strong= format_nok(@payout.amount_ore)
+        .row.mb-2
+          .col-5.text-muted Status
+          .col-7
+            %span.badge.bg-info= @payout.pop_status || "pending"
+        - if @payout.pop_invoice_number
+          .row.mb-2
+            .col-5.text-muted Invoice #
+            .col-7= @payout.pop_invoice_number
+        .row.mb-2
+          .col-5.text-muted POP Payout ID
+          .col-7
+            %code.small= @payout.pop_payout_id
+        .row
+          .col-5.text-muted Last Synced
+          .col-7= @payout.synced_at&.strftime("%b %d, %Y %H:%M") || "Never"
+
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-header.bg-white.d-flex.justify-content-between.align-items-center
+        %span.fw-bold API Response
+        %a.small.text-muted{"data-bs-toggle": "collapse", href: "#raw-response", role: "button"} Toggle
+      #raw-response.collapse
+        .card-body
+          %pre.small.bg-light.p-3.rounded.mb-0= JSON.pretty_generate(@payout.pop_response) rescue "—"

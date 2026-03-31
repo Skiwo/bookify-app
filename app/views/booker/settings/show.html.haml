@@ -1,0 +1,134 @@
+= render "shared/breadcrumbs", crumbs: [["Dashboard", booker_dashboard_path], ["Settings", nil]]
+
+%h2.mb-4
+  %i.bi.bi-gear.me-2
+  Settings
+
+= form_with model: current_user, url: booker_settings_path, method: :patch, id: "settings-form", data: { controller: "auto-submit" } do |f|
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body
+      %h5.fw-bold.mb-1 Environment
+      %p.text-muted.mb-3 Choose which POP environment Bookify connects to.
+
+      .d-flex.gap-3
+        %label.flex-fill.card.p-3.text-center{class: current_user.pop_sandbox? ? "border-warning bg-warning bg-opacity-10" : "border", style: "cursor: pointer; border-radius: 12px;"}
+          = f.radio_button :pop_environment, "sandbox", class: "form-check-input me-1", "data-action": "change->auto-submit#submit"
+          %span.fw-bold
+            %i.bi.bi-cone-striped.me-1
+            Sandbox
+          %br
+          %small.text-muted Test with fake data
+
+        %label.flex-fill.card.p-3.text-center{class: current_user.pop_production? ? "border-success bg-success bg-opacity-10" : "border", style: "cursor: pointer; border-radius: 12px;"}
+          = f.radio_button :pop_environment, "production", class: "form-check-input me-1", "data-action": "change->auto-submit#submit"
+          %span.fw-bold
+            %i.bi.bi-lightning-charge-fill.me-1
+            Production
+          %br
+          %small.text-muted Real payouts
+
+  .row{"data-controller": "tab-sidebar"}
+    .col-lg-8
+      .card.border-0.shadow-sm.mb-4
+        .card-header.bg-white.p-0.border-0
+          %ul.nav.nav-tabs.px-3.pt-2{role: "tablist"}
+            %li.nav-item
+              %button.nav-link.active{id: "sandbox-tab", "data-bs-toggle": "tab", "data-bs-target": "#sandbox-pane", type: "button", role: "tab", "data-action": "shown.bs.tab->tab-sidebar#switch", "data-tab-sidebar-show-param": "sandbox"}
+                %i.bi.bi-cone-striped.me-1
+                Sandbox
+                - if current_user.pop_sandbox? && current_user.pop_configured?
+                  %span.badge.bg-success.ms-1 active
+            %li.nav-item
+              %button.nav-link{id: "production-tab", "data-bs-toggle": "tab", "data-bs-target": "#production-pane", type: "button", role: "tab", "data-action": "shown.bs.tab->tab-sidebar#switch", "data-tab-sidebar-show-param": "production"}
+                %i.bi.bi-lightning-charge-fill.me-1
+                Production
+                - if current_user.pop_production? && current_user.pop_configured?
+                  %span.badge.bg-success.ms-1 active
+
+        .card-body
+          .tab-content
+            .tab-pane.fade.show.active{id: "sandbox-pane", role: "tabpanel"}
+              %p.text-muted.small.mb-3
+                Credentials for the sandbox API at
+                %code sandbox.core.payoutpartner.com
+
+              .mb-3
+                = f.label :pop_sandbox_api_key, "API Key", class: "form-label fw-medium"
+                = f.password_field :pop_sandbox_api_key, class: "form-control font-monospace", placeholder: current_user.pop_sandbox_api_key.present? ? "••••••••#{current_user.pop_sandbox_api_key.last(4)}" : "pk_sandbox_abc123...", autocomplete: "off"
+              .mb-3
+                = f.label :pop_sandbox_hmac_secret, "HMAC Secret", class: "form-label fw-medium"
+                = f.password_field :pop_sandbox_hmac_secret, class: "form-control font-monospace", placeholder: current_user.pop_sandbox_hmac_secret.present? ? "••••••••#{current_user.pop_sandbox_hmac_secret.last(4)}" : "64-character hex string", autocomplete: "off"
+              .mb-3
+                = f.label :pop_sandbox_partner_id, "Partner ID", class: "form-label fw-medium"
+                = f.text_field :pop_sandbox_partner_id, class: "form-control font-monospace", placeholder: "uuid", autocomplete: "off"
+
+            .tab-pane.fade{id: "production-pane", role: "tabpanel"}
+              .alert.alert-warning.small.mb-3
+                %i.bi.bi-exclamation-triangle.me-1
+                Production credentials process real payouts with real money. Use with care.
+
+              .mb-3
+                = f.label :pop_production_api_key, "API Key", class: "form-label fw-medium"
+                = f.password_field :pop_production_api_key, class: "form-control font-monospace", placeholder: current_user.pop_production_api_key.present? ? "••••••••#{current_user.pop_production_api_key.last(4)}" : "pk_live_abc123...", autocomplete: "off"
+              .mb-3
+                = f.label :pop_production_hmac_secret, "HMAC Secret", class: "form-label fw-medium"
+                = f.password_field :pop_production_hmac_secret, class: "form-control font-monospace", placeholder: current_user.pop_production_hmac_secret.present? ? "••••••••#{current_user.pop_production_hmac_secret.last(4)}" : "64-character hex string", autocomplete: "off"
+              .mb-3
+                = f.label :pop_production_partner_id, "Partner ID", class: "form-label fw-medium"
+                = f.text_field :pop_production_partner_id, class: "form-control font-monospace", placeholder: "uuid", autocomplete: "off"
+
+          = f.submit "Save credentials", class: "btn btn-primary mt-2"
+
+          - if current_user.pop_configured?
+            %hr.my-3
+            .d-flex.align-items-center
+              %i.bi.bi-check-circle-fill.text-success.fs-5.me-2
+              %span.text-success.fw-medium
+                Connected —
+                = current_user.pop_sandbox? ? "Sandbox" : "Production"
+
+    .col-lg-4
+      .card.border-0.shadow-sm.mb-4{"data-tab-sidebar-target": "panel", "data-tab-sidebar-name": "sandbox"}
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-question-circle.me-1
+            Where do I get these?
+          %ol.small.mb-3
+            %li.mb-2
+              Create a partner account at
+              %a{href: "https://sandbox.app.payoutpartner.com/partner/session/new", target: "_blank"} sandbox.app.payoutpartner.com
+            %li.mb-2 Log in and go to Settings > Credentials
+            %li Copy your Partner ID, HMAC Secret, and API Key
+          %a.btn.btn-outline-primary.w-100{href: "https://sandbox.app.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
+            %i.bi.bi-box-arrow-up-right.me-1
+            Open Partner Portal
+
+      .card.border-0.shadow-sm.mb-4{"data-tab-sidebar-target": "panel", "data-tab-sidebar-name": "production", style: "display: none;"}
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-question-circle.me-1
+            Where do I get these?
+          %ol.small.mb-3
+            %li.mb-2
+              Log in to your production account at
+              %a{href: "https://app.payoutpartner.com/partner", target: "_blank"} app.payoutpartner.com
+            %li.mb-2 Go to Settings > Credentials
+            %li Copy your Partner ID, HMAC Secret, and API Key
+          %a.btn.btn-outline-primary.w-100.mb-2{href: "https://app.payoutpartner.com/partner/settings?tab=credentials", target: "_blank", rel: "noopener"}
+            %i.bi.bi-box-arrow-up-right.me-1
+            Open Partner Portal
+          %p.small.text-muted.mb-0
+            Need a production account?
+            %a{href: "mailto:support@payoutpartner.com"} Contact us
+
+      .card.border-0.shadow-sm.bg-light
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-info-circle.me-1
+            Sandbox vs Production
+          %dl.small.mb-0
+            %dt Sandbox
+            %dd.text-muted Test BankID, no real money, safe to experiment.
+            %dt Production
+            %dd.text-muted.mb-0 Real identity verification, real payouts. Use when you're ready to go live.

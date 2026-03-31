@@ -1,0 +1,8 @@
+%nav{"aria-label": "breadcrumb"}
+  %ol.breadcrumb.small
+    - crumbs.each_with_index do |crumb, i|
+      - if crumb.is_a?(Array)
+        %li.breadcrumb-item
+          %a{href: crumb[1]}= crumb[0]
+      - else
+        %li.breadcrumb-item.active{"aria-current": "page"}= crumb

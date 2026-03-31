@@ -1,0 +1,51 @@
+= render "shared/breadcrumbs", crumbs: [["My Bookings", freelancer_bookings_path], @booking.description]
+
+%h2.mb-4= @booking.description
+
+.row
+  .col-md-6
+    .card.shadow-sm.border-0
+      .card-header.bg-white.fw-bold Booking Details
+      .card-body
+        .row.mb-2
+          .col-5.text-muted Booker
+          .col-7= @booking.enrollment.booker.name || @booking.enrollment.booker.email
+        .row.mb-2
+          .col-5.text-muted Status
+          .col-7
+            %span.badge{class: @booking.has_payout? ? "bg-success" : @booking.completed? ? "bg-primary" : "bg-secondary"}= @booking.status.humanize
+        .row.mb-2
+          .col-5.text-muted Rate
+          .col-7= format_nok_value(@booking.rate_nok)
+        .row.mb-2
+          .col-5.text-muted Hours
+          .col-7= @booking.hours
+        .row.mb-2
+          .col-5.text-muted Total
+          .col-7
+            %strong= format_nok_value(@booking.total_nok)
+        .row
+          .col-5.text-muted Work date
+          .col-7= @booking.work_date&.strftime("%b %d, %Y") || "—"
+
+  .col-md-6
+    - if @booking.payout
+      .card.shadow-sm.border-0
+        .card-header.bg-white.fw-bold Payout
+        .card-body
+          .row.mb-2
+            .col-5.text-muted Status
+            .col-7
+              %span.badge.bg-info= @booking.payout.pop_status || "pending"
+          .row.mb-2
+            .col-5.text-muted Amount
+            .col-7
+              %strong= format_nok(@booking.payout.amount_ore)
+          .row
+            .col-5.text-muted Invoice
+            .col-7= @booking.payout.pop_invoice_number || "—"
+    - elsif @booking.completed?
+      .card.shadow-sm.border-0
+        .card-body.text-center.py-4
+          %i.bi.bi-hourglass-split.display-6.text-muted
+          %p.text-muted.mt-2.mb-0 Work is completed. Waiting for the booker to process payment.

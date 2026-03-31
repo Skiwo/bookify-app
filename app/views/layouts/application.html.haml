@@ -1,0 +1,118 @@
+!!!
+%html{lang: "en"}
+  %head
+    %meta{charset: "utf-8"}
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1"}
+    %title= content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"
+    %meta{name: "description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."}
+
+    /OG tags
+    %meta{property: "og:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"}
+    %meta{property: "og:description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."}
+    %meta{property: "og:type", content: "website"}
+    %meta{property: "og:url", content: request.original_url}
+    %meta{property: "og:site_name", content: "Bookify"}
+
+    /Twitter Card
+    %meta{name: "twitter:card", content: "summary"}
+    %meta{name: "twitter:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"}
+    %meta{name: "twitter:description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API."}
+
+    %link{rel: "icon", type: "image/svg+xml", href: "/favicon.svg"}
+    %link{rel: "preconnect", href: "https://fonts.googleapis.com"}
+    %link{rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css", crossorigin: "anonymous"}
+    = csrf_meta_tags
+    = csp_meta_tag
+    :css
+      :root { --brand-indigo: #4F46E5; --brand-indigo-dark: #4338CA; --brand-teal: #0D9488; }
+      body { background-color: #f8f9fa; font-family: 'Outfit', system-ui, -apple-system, sans-serif; }
+      .btn-primary { background-color: var(--brand-indigo); border-color: var(--brand-indigo); }
+      .btn-primary:hover { background-color: var(--brand-indigo-dark); border-color: var(--brand-indigo-dark); }
+      .btn-outline-primary { color: var(--brand-indigo); border-color: var(--brand-indigo); }
+      .btn-outline-primary:hover { background-color: var(--brand-indigo); border-color: var(--brand-indigo); }
+      .text-primary { color: var(--brand-indigo) !important; }
+      .bg-primary { background-color: var(--brand-indigo) !important; }
+
+      .hero-section { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #6D28D9 100%); }
+      .step-number { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background-color: #EEF2FF; color: var(--brand-indigo); font-size: 1.25rem; font-weight: 700; }
+
+      .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      .navbar-sticky { position: sticky; top: 0; z-index: 1020; }
+      .card { border-radius: 12px; }
+      footer a { color: #6c757d; text-decoration: none; }
+      footer a:hover { color: var(--brand-indigo); }
+
+  %body{ class: content_for?(:body_class) ? yield(:body_class) : nil }
+    - unless content_for?(:body_class) && yield(:body_class) == "landing-page"
+      %nav.navbar.navbar-expand-lg.navbar-light.bg-white.navbar-sticky
+        .container
+          %a.navbar-brand.fw-bold{href: root_path}
+            %i.bi.bi-book.me-2.text-primary
+            Bookify
+          %ul.navbar-nav.ms-auto
+            - if signed_in?
+              %li.nav-item
+                %span.nav-link.text-muted= current_user.name || current_user.email
+              %li.nav-item
+                = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-secondary btn-sm my-1"
+            - else
+              %li.nav-item
+                %a.nav-link{href: root_path} Home
+              %li.nav-item
+                %a.nav-link{href: about_path} About
+              %li.nav-item
+                %a.nav-link{href: users_sign_in_path} Sign in
+
+    - if content_for?(:body_class) && yield(:body_class) == "landing-page"
+      %nav.navbar.navbar-expand-md.navbar-dark.navbar-sticky{style: "background: transparent; position: absolute; width: 100%; z-index: 10;"}
+        .container
+          %a.navbar-brand.fw-bold.text-white{href: root_path}
+            %i.bi.bi-book.me-2
+            Bookify
+          %button.navbar-toggler{type: "button", "data-bs-toggle": "collapse", "data-bs-target": "#landingNav"}
+            %span.navbar-toggler-icon
+          #landingNav.collapse.navbar-collapse
+            %ul.navbar-nav.ms-auto
+              %li.nav-item
+                %a.nav-link.text-white{href: about_path} About
+              %li.nav-item
+                %a.nav-link.text-white{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
+                  %i.bi.bi-github
+              %li.nav-item
+                %a.btn.btn-outline-light.btn-sm.ms-2.my-1{href: users_sign_in_path} Sign in
+
+    - if flash[:notice] || flash[:alert]
+      .container{style: content_for?(:body_class) && yield(:body_class) == "landing-page" ? "padding-top: 80px;" : ""}
+        - if flash[:notice]
+          .alert.alert-success.alert-dismissible.fade.show.mt-2
+            = flash[:notice]
+            %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+        - if flash[:alert]
+          .alert.alert-danger.alert-dismissible.fade.show.mt-2
+            = flash[:alert]
+            %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+
+    .main-content
+      - unless content_for?(:body_class) && yield(:body_class) == "landing-page"
+        .container.py-4
+          = yield
+      - else
+        = yield
+
+    %footer.border-top.py-4.mt-5
+      .container
+        .row.align-items-center
+          .col-md-6
+            %p.text-muted.small.mb-0
+              Bookify is open source, built by
+              %a{href: "https://payoutpartner.com", target: "_blank"} PayoutPartner
+          .col-md-6.text-md-end
+            %a.me-3.small{href: about_path} About
+            %a.me-3.small{href: privacy_path} Privacy
+            %a.me-3.small{href: "https://github.com/skiwo/bookify-app", target: "_blank"} GitHub
+            %a.small{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"} API Docs
+
+    %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js", crossorigin: "anonymous"}

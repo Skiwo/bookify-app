@@ -1,0 +1,24 @@
+# Bookify
+
+> Open-source reference app built on the Payout Partner (POP) API v2.
+
+Bookify demonstrates how to onboard freelancers, create bookings, and process payouts using POP's REST API.
+
+## Links
+
+- Source code: https://github.com/payoutpartner/bookify-app
+- Live demo: https://bookify.app
+- About page: https://bookify.app/about
+- POP API docs: https://sandbox.core.payoutpartner.com/api-docs
+
+## Key concepts
+
+- Booker: a company that hires and pays freelancers
+- Freelancer: an individual who gets booked and paid
+- Enrollment: the relationship between a booker and a freelancer (maps to POP's enrollment concept)
+- Booking: a unit of work with rate and hours
+- Payout: a payment processed through POP's API
+
+## Tech stack
+
+Ruby on Rails, PostgreSQL, Bootstrap 5, Faraday HTTP client, JWT for browser redirects.

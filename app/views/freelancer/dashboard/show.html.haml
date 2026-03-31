@@ -1,0 +1,62 @@
+%h2.mb-4
+  My Dashboard
+  - if current_user.name.present?
+    %small.text-muted.fw-normal= "— #{current_user.name}"
+
+- if @booker_count == 0
+  .card.border-0.shadow-sm.text-center.py-5
+    .card-body
+      %i.bi.bi-envelope-open.display-3.text-muted.mb-3
+      %h4.fw-bold Waiting for an invitation
+      %p.text-muted.mb-0 When a booker invites you, you'll see your bookings and earnings here.
+
+- else
+  .row
+    .col-md-4.mb-3
+      .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+        .card-body.text-center.py-3
+          %h3.fw-bold.mb-0{style: "color: #0D9488;"}= @booker_count
+          %p.text-muted.small.mb-0 Active Bookers
+    .col-md-4.mb-3
+      .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+        .card-body.text-center.py-3
+          %h3.fw-bold.mb-0{style: "color: #0D9488;"}= @total_bookings
+          %p.text-muted.small.mb-0 Total Bookings
+    .col-md-4.mb-3
+      .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+        .card-body.text-center.py-3
+          %h3.fw-bold.mb-0{style: "color: #0D9488;"}= format_nok(@total_paid)
+          %p.text-muted.small.mb-0 Total Earned
+
+  .row.mt-4
+    .col-md-6
+      .card.border-0.shadow-sm
+        .card-header.bg-white.fw-bold Recent Bookings
+        .card-body
+          - if @recent_bookings.any?
+            .list-group.list-group-flush
+              - @recent_bookings.each do |booking|
+                = link_to freelancer_booking_path(booking), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
+                  %div
+                    %span.fw-medium= booking.description
+                    %br
+                    %small.text-muted= booking.enrollment.booker.name || booking.enrollment.booker.email
+                  %span.badge{class: booking.has_payout? ? "bg-success" : "bg-secondary"}= booking.status.humanize
+          - else
+            %p.text-muted.mb-0.py-2 No bookings yet.
+
+    .col-md-6
+      .card.border-0.shadow-sm
+        .card-header.bg-white.fw-bold Recent Payouts
+        .card-body
+          - if @recent_payouts.any?
+            .list-group.list-group-flush
+              - @recent_payouts.each do |payout|
+                .list-group-item.d-flex.justify-content-between.align-items-center
+                  %div
+                    %span.fw-medium= payout.pop_invoice_number || "Payout"
+                    %br
+                    %small.text-muted= format_nok(payout.amount_ore)
+                  %span.badge.bg-info= payout.pop_status || "pending"
+          - else
+            %p.text-muted.mb-0.py-2 No payouts yet.

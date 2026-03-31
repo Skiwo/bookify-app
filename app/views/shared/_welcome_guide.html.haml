@@ -1,0 +1,31 @@
+- unless current_user.welcome_dismissed?
+  .card.border-0.shadow-sm.mb-4{style: "border-left: 4px solid #4F46E5 !important;"}
+    .card-body
+      .d-flex.justify-content-between.align-items-start
+        %div
+          %h5.fw-bold.text-primary
+            %i.bi.bi-rocket-takeoff.me-2
+            Welcome to Bookify!
+          %p.mb-2 Here's how to get started:
+          .d-flex.align-items-start.mb-2
+            %span.badge.bg-primary.me-3 1
+            %span
+              %strong
+                = link_to "Invite a freelancer", new_booker_freelancer_path
+              \— enter their name and email
+          .d-flex.align-items-start.mb-2
+            %span.badge.bg-primary.me-3 2
+            %span
+              %strong Wait for them to accept
+              and complete onboarding on POP
+          .d-flex.align-items-start.mb-2
+            %span.badge.bg-primary.me-3 3
+            %span
+              %strong Create a booking
+              for their work
+          .d-flex.align-items-start.mb-2
+            %span.badge.bg-primary.me-3 4
+            %span
+              %strong Pay them
+              \— Bookify sends the payout through POP
+        = button_to "Got it", booker_dismiss_welcome_path, method: :patch, class: "btn btn-outline-secondary btn-sm"

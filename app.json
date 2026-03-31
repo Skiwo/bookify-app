@@ -1,0 +1,27 @@
+{
+  "name": "Bookify",
+  "description": "Open-source freelancer payment marketplace on POP's Partner API v2",
+  "repository": "https://github.com/payoutpartner/bookify-app",
+  "keywords": ["rails", "freelancer", "payments", "marketplace", "payout-partner"],
+  "env": {
+    "POP_API_KEY": { "description": "Your POP Partner API key", "required": true },
+    "POP_HMAC_SECRET": { "description": "Your POP HMAC secret for JWT signing", "required": true },
+    "POP_BASE_URL": { "description": "POP API base URL", "value": "https://sandbox.core.payoutpartner.com" },
+    "POP_PARTNER_ID": { "description": "Your POP Partner UUID", "required": true },
+    "SECRET_KEY_BASE": { "generator": "secret" },
+    "SMTP_ADDRESS": { "description": "SES SMTP address", "required": false },
+    "SMTP_PORT": { "value": "587" },
+    "SMTP_USERNAME": { "description": "SES SMTP username", "required": false },
+    "SMTP_PASSWORD": { "description": "SES SMTP password", "required": false },
+    "SMTP_DOMAIN": { "description": "Email domain", "required": false },
+    "MAILER_FROM": { "description": "From address for emails", "value": "no-reply@bookify.app" }
+  },
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" }
+  },
+  "addons": ["heroku-postgresql:essential-0"],
+  "buildpacks": [{ "url": "heroku/ruby" }],
+  "scripts": {
+    "postdeploy": "bundle exec rails db:schema:load db:seed"
+  }
+}

@@ -1,0 +1,87 @@
+!!!
+%html{lang: "en"}
+  %head
+    %meta{charset: "utf-8"}
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1"}
+    %title Bookify — Freelancer
+    %link{rel: "icon", type: "image/svg+xml", href: "/favicon.svg"}
+    %link{rel: "preconnect", href: "https://fonts.googleapis.com"}
+    %link{rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css", crossorigin: "anonymous"}
+    = csrf_meta_tags
+    = csp_meta_tag
+    :css
+      :root { --brand-teal: #0D9488; --brand-teal-dark: #0F766E; }
+      body { background-color: #f8f9fa; font-family: 'Outfit', system-ui, -apple-system, sans-serif; }
+      .bg-primary, .btn-primary { background-color: var(--brand-teal) !important; border-color: var(--brand-teal) !important; }
+      .btn-primary:hover { background-color: var(--brand-teal-dark) !important; border-color: var(--brand-teal-dark) !important; }
+      .text-primary { color: var(--brand-teal) !important; }
+      .badge.bg-primary { background-color: var(--brand-teal) !important; }
+      .card { border-radius: 12px; }
+      .sidebar-tint { background-color: #F0FDFA; }
+      .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    - if Rails.env.development?
+      :css
+        .dev-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: #1e1e2e; color: #cdd6f4; z-index: 1050; transition: right 0.3s ease; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
+        .dev-panel.open { right: 0; }
+        .dev-panel pre { color: #a6e3a1; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
+        .dev-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--brand-teal); color: white; border: none; font-size: 1.4rem; z-index: 1051; box-shadow: 0 4px 12px rgba(13,148,136,0.4); cursor: pointer; }
+        .dev-fab:hover { background: var(--brand-teal-dark); }
+        .dev-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1049; display: none; }
+        .dev-overlay.open { display: block; }
+
+  %body
+    %nav.navbar.navbar-expand-lg.navbar-dark{style: "background-color: var(--brand-teal);"}
+      .container-fluid.px-4
+        %a.navbar-brand.fw-bold{href: freelancer_dashboard_path}
+          %i.bi.bi-person-badge.me-2
+          Bookify
+        %button.navbar-toggler{type: "button", "data-bs-toggle": "collapse", "data-bs-target": "#freelancerNav"}
+          %span.navbar-toggler-icon
+        #freelancerNav.collapse.navbar-collapse
+          %ul.navbar-nav.me-auto
+            %li.nav-item
+              %a.nav-link{href: freelancer_dashboard_path, class: nav_active?("freelancer/dashboard")}
+                %i.bi.bi-speedometer2.me-1
+                Dashboard
+            %li.nav-item
+              %a.nav-link{href: freelancer_bookings_path, class: nav_active?("freelancer/booking")}
+                %i.bi.bi-calendar-check.me-1
+                Bookings
+            %li.nav-item
+              %a.nav-link{href: freelancer_profile_path, class: nav_active?("freelancer/profile")}
+                %i.bi.bi-person.me-1
+                Profile
+          %ul.navbar-nav
+            %li.nav-item
+              %span.nav-link.text-white-50
+                %i.bi.bi-person-circle.me-1
+                = current_user.name || current_user.email
+            %li.nav-item
+              = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-light btn-sm my-1"
+
+    - booker = current_user.enrollments_as_freelancer.active.includes(:booker).first&.booker
+    - if booker&.pop_configured?
+      - env = pop_environment_banner(booker.effective_pop_base_url)
+      .text-center.py-1.small.fw-medium{class: "bg-#{env[:color]} #{env[:text_class]}"}
+        %i.bi{class: env[:icon]}
+        = "POP #{env[:name]}"
+
+    .container-fluid.px-4.py-4
+      - if flash[:notice]
+        .alert.alert-success.alert-dismissible.fade.show
+          = flash[:notice]
+          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+      - if flash[:alert]
+        .alert.alert-danger.alert-dismissible.fade.show
+          = flash[:alert]
+          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+
+      = yield
+
+    - if Rails.env.development?
+      = render "shared/developer_notes"
+
+    %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js", crossorigin: "anonymous"}

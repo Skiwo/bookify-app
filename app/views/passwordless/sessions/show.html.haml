@@ -1,0 +1,23 @@
+.row.justify-content-center.mt-5
+  .col-md-5.col-lg-4
+    .card.shadow-sm.border-0
+      .card-body.p-5.text-center
+        %i.bi.bi-envelope-check.display-3.text-primary.mb-3
+        %h3.fw-bold Check your email
+        %p.text-muted.mb-4
+          We sent you a magic link and a confirmation code.
+          Click the link or enter the code below.
+
+        = form_with model: @session, url: url_for(action: "update"), scope: "passwordless", method: :patch, data: { turbo: false } do |f|
+          .mb-3
+            = f.label :token, "Confirmation code", class: "form-label"
+            = f.text_field :token, required: true, autofocus: true, autocomplete: "one-time-code", class: "form-control form-control-lg text-center", style: "letter-spacing: 0.3em; font-weight: 600;", placeholder: "••••••"
+          = f.submit "Confirm", class: "btn btn-primary btn-lg w-100"
+
+        .mt-4
+          %p.text-muted.small.mb-1
+            %i.bi.bi-clock.me-1
+            The code expires in 15 minutes.
+          %p.text-muted.small.mb-0
+            Didn't get it?
+            = link_to "Try again", users_sign_in_path
