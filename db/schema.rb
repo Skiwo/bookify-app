@@ -24,7 +24,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_30_000002) do
     t.string "occupation_code"
     t.integer "status", default: 0, null: false
     t.integer "rate_ore", null: false
-    t.decimal "hours", precision: 8, scale: 2, null: false
+    t.decimal "hours", precision: 8, scale: 2
     t.date "work_date"
     t.string "order_reference"
     t.datetime "created_at", null: false

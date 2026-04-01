@@ -37,13 +37,13 @@
   #time-based-fields{"data-booking-form-target": "timeFields", style: @booking.project_based? ? 'display:none' : ''}
     .row
       .col-md-6.mb-3
-        = label_tag :rate_nok, "Rate (NOK)", class: "form-label"
+        = label_tag :rate_nok_time, "Rate (NOK)", class: "form-label"
         .input-group
           %span.input-group-text kr
-          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok", "data-booking-form-target": "rate", "data-action": "input->booking-form#updateTotal"
+          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_time", "data-booking-form-target": "rate", "data-action": "input->booking-form#updateTotal"
       .col-md-6.mb-3
-        = f.label :hours, "Hours", class: "form-label"
-        = f.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "hours", "data-booking-form-target": "hours", "data-action": "input->booking-form#updateTotal"
+        = label_tag :booking_hours, "Quantity", class: "form-label"
+        = f.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "booking_hours", "data-booking-form-target": "hours", "data-action": "input->booking-form#updateTotal"
     .mb-3
       = f.label :work_date, "Work date", class: "form-label"
       = f.date_field :work_date, class: "form-control", value: @booking.work_date || Date.current
@@ -63,8 +63,8 @@
           %span.input-group-text kr
           = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project", "data-booking-form-target": "rateProject", "data-action": "input->booking-form#updateTotal"
       .col-md-6.mb-3
-        = f.label :total_hours, "Total hours", class: "form-label"
-        = f.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "total_hours", "data-booking-form-target": "totalHours", "data-action": "input->booking-form#updateTotal"
+        = label_tag :booking_total_hours, "Quantity", class: "form-label"
+        = f.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "booking_total_hours", "data-booking-form-target": "totalHours", "data-action": "input->booking-form#updateTotal"
     .row
       .col-md-6.mb-3
         = f.label :work_start_date, "Start date", class: "form-label"
