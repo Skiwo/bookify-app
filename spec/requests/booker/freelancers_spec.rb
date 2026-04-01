@@ -11,9 +11,8 @@ RSpec.describe "Booker::Freelancers", type: :request do
         post booker_freelancers_path, params: { enrollment: { name: "Anna", email: "anna@test.com" } }
       }.to change(Enrollment, :count).by(1)
 
-      enrollment = Enrollment.last
+      enrollment = Enrollment.find_by!(email: "anna@test.com")
       expect(enrollment.name).to eq("Anna")
-      expect(enrollment.email).to eq("anna@test.com")
       expect(enrollment.booker).to eq(booker)
       expect(enrollment.invited?).to be true
     end
