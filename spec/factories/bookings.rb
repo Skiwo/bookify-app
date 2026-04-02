@@ -1,12 +1,11 @@
 FactoryBot.define do
   factory :booking do
     association :enrollment, :active
-    description { "Logo design work" }
-    occupation_code { "7223.14" }
-    rate_ore { 60_000 }
-    hours { 3.0 }
-    work_date { Date.current }
     status { :draft }
+
+    after(:build) do |booking|
+      booking.booking_lines.build(attributes_for(:booking_line)) if booking.booking_lines.empty?
+    end
 
     trait :completed do
       status { :completed }

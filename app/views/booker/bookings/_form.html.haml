@@ -1,8 +1,10 @@
-= form_for @booking, url: form_url, html: { data: { controller: "booking-form", action: "input->booking-form#updateTotal" } } do |f|
+= form_for @booking, url: form_url, html: { data: { controller: "booking-form" } } do |f|
   - if @booking.errors.any?
     .alert.alert-danger.mb-3
       - @booking.errors.full_messages.each do |msg|
         %p.mb-0= msg
+
+  -# === Invoice-level fields ===
 
   - if @enrollments
     .mb-3
@@ -10,95 +12,56 @@
       = f.select :enrollment_id, @enrollments.map { |e| [e.name, e.id] }, { prompt: "Select freelancer" }, class: "form-select", required: true
 
   .mb-3
-    = f.label :description, "Description", class: "form-label"
-    = f.text_field :description, class: "form-control", placeholder: "e.g. Logo design", required: true
-
-  .mb-3
-    = f.label :occupation_code, "Occupation code", class: "form-label"
-    - if @occupation_codes&.any?
-      = f.select :occupation_code, @occupation_codes.map { |oc| ["#{oc['code']} \u2014 #{oc['name']}", oc['code']] }, { prompt: "Select code (optional)", selected: @booking.occupation_code }, class: "form-select"
-    - else
-      = f.text_field :occupation_code, class: "form-control", placeholder: "e.g. 7223.14 (optional)"
-      - if @occupation_codes_error
-        %small.text-danger Could not load codes from POP. You can enter one manually.
-
-  .mb-3
-    = f.label :order_reference, "Order reference (optional)", class: "form-label"
-    = f.text_field :order_reference, class: "form-control", placeholder: "e.g. PO-2026-042"
+    = f.label :description, "Booking title (optional)", class: "form-label"
+    = f.text_field :description, class: "form-control", placeholder: "e.g. March 2026 work"
 
   .mb-3.border.rounded.p-3.bg-light
-    %h6.text-muted.mb-2 Optional fields
+    %h6.text-muted.mb-2 Invoice details
+    .row
+      .col-md-6.mb-3
+        = f.label :order_reference, "Order reference", class: "form-label"
+        = f.text_field :order_reference, class: "form-control", placeholder: "e.g. PO-2026-042"
+      .col-md-6.mb-3
+        = f.label :buyer_reference, "Buyer reference", class: "form-label"
+        = f.text_field :buyer_reference, class: "form-control", placeholder: "Optional; defaults on POP if omitted"
     .row
       .col-md-6.mb-3
         = f.label :invoiced_on, "Invoiced on", class: "form-label"
         = f.date_field :invoiced_on, class: "form-control"
-        %small.text-muted If blank, uses work date, project start, or today.
+        %small.text-muted If blank, uses first line's work date or today.
       .col-md-6.mb-3
         = f.label :due_on, "Due on", class: "form-label"
         = f.date_field :due_on, class: "form-control"
         %small.text-muted If blank, POP defaults (e.g. invoiced + 14 days).
-    .mb-3
-      = f.label :buyer_reference, "Buyer reference", class: "form-label"
-      = f.text_field :buyer_reference, class: "form-control", placeholder: "Optional; defaults on POP if omitted"
-    .mb-3
+    .mb-0
       = f.label :external_note, "External note (invoice memo)", class: "form-label"
       = f.text_area :external_note, class: "form-control", rows: 2, placeholder: "Optional note on the invoice"
-    .mb-0
-      = f.label :line_external_id, "Line external ID", class: "form-label"
-      = f.text_field :line_external_id, class: "form-control", placeholder: "Optional; sent as lines[].external_id"
-      %small.text-muted One line per booking; links your reference to the payout line.
+
+  %hr.my-4
+
+  -# === Booking lines ===
+
+  %h5.mb-3 Lines
+
+  %div{"data-booking-form-target": "lineContainer"}
+    = f.fields_for :booking_lines do |lf|
+      = render "line_fields", lf: lf, idx: lf.index, occupation_codes: @occupation_codes, occupation_codes_error: @occupation_codes_error
+
+  %template{"data-booking-form-target": "lineTemplate"}
+    = f.fields_for :booking_lines, BookingLine.new, child_index: "NEW_RECORD" do |lf|
+      = render "line_fields", lf: lf, idx: "NEW_RECORD", occupation_codes: @occupation_codes, occupation_codes_error: @occupation_codes_error
 
   .mb-3
-    %label.form-label Booking type
-    .btn-group.w-100{role: "group"}
-      %input.btn-check{"data-booking-form-target": "timeRadio", "data-action": "change->booking-form#toggleFields", type: "radio", name: "booking[booking_type]", id: "type-time", value: "time_based", checked: @booking.time_based? || @booking.new_record?, autocomplete: "off"}
-      %label.btn.btn-outline-primary{for: "type-time"} Time-based
-      %input.btn-check{"data-booking-form-target": "projectRadio", "data-action": "change->booking-form#toggleFields", type: "radio", name: "booking[booking_type]", id: "type-project", value: "project_based", checked: @booking.project_based?, autocomplete: "off"}
-      %label.btn.btn-outline-primary{for: "type-project"} Project-based
+    %button.btn.btn-outline-secondary.w-100{type: "button", "data-action": "click->booking-form#addLine"}
+      %i.bi.bi-plus-lg.me-1
+      Add Line
 
-  #time-based-fields{"data-booking-form-target": "timeFields", style: @booking.project_based? ? 'display:none' : ''}
-    .row
-      .col-md-6.mb-3
-        = label_tag :rate_nok_time, "Rate (NOK)", class: "form-label"
-        .input-group
-          %span.input-group-text kr
-          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_time", "data-booking-form-target": "rate"
-      .col-md-6.mb-3
-        = label_tag :booking_hours, "Quantity", class: "form-label"
-        = f.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "booking_hours", "data-booking-form-target": "hours"
-    .mb-3
-      = f.label :work_date, "Work date", class: "form-label"
-      = f.date_field :work_date, class: "form-control", value: @booking.work_date || Date.current
-    .row
-      .col-md-6.mb-3
-        = f.label :start_time, "Start time", class: "form-label"
-        = f.time_field :start_time, class: "form-control"
-      .col-md-6.mb-3
-        = f.label :end_time, "End time", class: "form-label"
-        = f.time_field :end_time, class: "form-control"
-
-  #project-based-fields{"data-booking-form-target": "projectFields", style: @booking.project_based? ? '' : 'display:none'}
-    .row
-      .col-md-6.mb-3
-        = label_tag :rate_nok_project, "Rate (NOK)", class: "form-label"
-        .input-group
-          %span.input-group-text kr
-          = number_field_tag :rate_nok, @rate_nok || @booking.rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project", "data-booking-form-target": "rateProject"
-      .col-md-6.mb-3
-        = label_tag :booking_total_hours, "Quantity", class: "form-label"
-        = f.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "booking_total_hours", "data-booking-form-target": "totalHours"
-    .row
-      .col-md-6.mb-3
-        = f.label :work_start_date, "Start date", class: "form-label"
-        = f.date_field :work_start_date, class: "form-control", value: @booking.work_start_date || Date.current
-      .col-md-6.mb-3
-        = f.label :work_end_date, "End date", class: "form-label"
-        = f.date_field :work_end_date, class: "form-control"
+  -# === Grand total ===
 
   .mb-3
-    .card.bg-light.border-0
+    .card.border-0{"style": "background-color: #f0f4ff"}
       .card-body.py-2.px-3.d-flex.justify-content-between
-        %span.text-muted Estimated total
-        %strong{"data-booking-form-target": "total"} kr 0.00
+        %span.fw-bold Grand total
+        %strong.fs-5{"data-booking-form-target": "grandTotal"} kr 0.00
 
   = f.submit (@booking.new_record? ? "Create Booking" : "Update Booking"), class: "btn btn-primary w-100"

@@ -1,7 +1,7 @@
-= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], @booking.description]
+= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], @booking.summary]
 
 .d-flex.justify-content-between.align-items-center.mb-4
-  %h2= @booking.description
+  %h2= @booking.summary
   .btn-group
     - if @booking.editable?
       = link_to "Edit", edit_booker_booking_path(@booking), class: "btn btn-outline-secondary btn-sm"
@@ -13,9 +13,9 @@
       = button_to "Pay via POP", pay_booker_booking_path(@booking), method: :post, class: "btn btn-primary btn-sm", data: { confirm: "This will create a payout through POP and pay the freelancer. Continue?" }
 
 .row
-  .col-md-6
-    .card.shadow-sm.border-0
-      .card-header.bg-white.fw-bold Booking Details
+  .col-md-5
+    .card.shadow-sm.border-0.mb-3
+      .card-header.bg-white.fw-bold Invoice Details
       .card-body
         .row.mb-2
           .col-5.text-muted Freelancer
@@ -24,35 +24,6 @@
           .col-5.text-muted Status
           .col-7
             %span.badge{class: @booking.has_payout? ? "bg-success" : @booking.completed? ? "bg-primary" : "bg-secondary"}= @booking.status.humanize
-        .row.mb-2
-          .col-5.text-muted Rate
-          .col-7= format_nok_value(@booking.rate_nok)
-        .row.mb-2
-          .col-5.text-muted Type
-          .col-7= @booking.booking_type.humanize
-        .row.mb-2
-          .col-5.text-muted Hours
-          .col-7= @booking.effective_hours
-        .row.mb-2
-          .col-5.text-muted Total
-          .col-7
-            %strong= format_nok_value(@booking.total_nok)
-        - if @booking.time_based?
-          .row.mb-2
-            .col-5.text-muted Work date
-            .col-7= @booking.work_date&.strftime("%b %d, %Y") || "—"
-          - if @booking.start_time.present?
-            .row.mb-2
-              .col-5.text-muted Time
-              .col-7= "#{@booking.start_time&.strftime('%H:%M')} – #{@booking.end_time&.strftime('%H:%M')}"
-        - if @booking.project_based?
-          .row.mb-2
-            .col-5.text-muted Period
-            .col-7= "#{@booking.work_start_date&.strftime('%b %d')} – #{@booking.work_end_date&.strftime('%b %d, %Y')}"
-        - if @booking.occupation_code.present?
-          .row.mb-2
-            .col-5.text-muted Occupation code
-            .col-7= @booking.occupation_code
         - if @booking.order_reference.present?
           .row.mb-2
             .col-5.text-muted Order reference
@@ -73,12 +44,11 @@
           .row.mb-2
             .col-5.text-muted External note
             .col-7{style: "white-space: pre-wrap"}= @booking.external_note
-        - if @booking.line_external_id.present?
-          .row
-            .col-5.text-muted Line external ID
-            .col-7= @booking.line_external_id
+        .row
+          .col-5.text-muted.fw-bold Total
+          .col-7
+            %strong= format_nok_value(@booking.total_nok)
 
-  .col-md-6
     - if @booking.payout
       .card.shadow-sm.border-0
         .card-header.bg-white.fw-bold Payout
@@ -94,3 +64,42 @@
             .col-5.text-muted Amount
             .col-7
               %strong= format_nok(@booking.payout.amount_ore)
+
+  .col-md-7
+    %h5.mb-3 Lines
+    - @booking.booking_lines.each_with_index do |line, i|
+      .card.shadow-sm.border-0.mb-3
+        .card-body
+          .d-flex.justify-content-between.align-items-start.mb-2
+            %h6.mb-0= line.description
+            %span.badge.bg-light.text-dark= line.booking_type.humanize
+          .row.mb-2
+            .col-4.text-muted Rate
+            .col-8= format_nok_value(line.rate_nok)
+          .row.mb-2
+            .col-4.text-muted Quantity
+            .col-8= line.effective_hours
+          .row.mb-2
+            .col-4.text-muted Line total
+            .col-8
+              %strong= format_nok_value(line.total_nok)
+          - if line.time_based?
+            .row.mb-2
+              .col-4.text-muted Work date
+              .col-8= line.work_date&.strftime("%b %d, %Y") || "—"
+            - if line.start_time.present?
+              .row.mb-2
+                .col-4.text-muted Time
+                .col-8= "#{line.start_time&.strftime('%H:%M')} – #{line.end_time&.strftime('%H:%M')}"
+          - if line.project_based?
+            .row.mb-2
+              .col-4.text-muted Period
+              .col-8= "#{line.work_start_date&.strftime('%b %d')} – #{line.work_end_date&.strftime('%b %d, %Y')}"
+          - if line.occupation_code.present?
+            .row.mb-2
+              .col-4.text-muted Occupation code
+              .col-8= line.occupation_code
+          - if line.line_external_id.present?
+            .row
+              .col-4.text-muted Line external ID
+              .col-8= line.line_external_id

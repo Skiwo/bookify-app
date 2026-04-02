@@ -1,0 +1,85 @@
+-# Renders one booking line card inside the booking form.
+-# Receives: lf (fields_for builder), index (child_index), occupation_codes, occupation_codes_error
+- line = lf.object
+- idx = lf.index || "NEW_RECORD"
+- is_project = line.project_based?
+
+.card.shadow-sm.border-0.mb-3{"data-booking-form-target": "lineCard", "data-controller": "booking-line", "data-action": "input->booking-line#updateTotal booking-line:totalChanged->booking-form#lineTotalChanged"}
+  = lf.hidden_field :id if line.persisted?
+  = lf.hidden_field :_destroy, value: "0"
+  = lf.hidden_field :position, value: idx
+
+  .card-body.p-3
+    .d-flex.justify-content-between.align-items-center.mb-3
+      %h6.mb-0{"data-line-number": true} Line 1
+      %button.btn.btn-outline-danger.btn-sm{type: "button", "data-action": "click->booking-form#removeLine"}
+        %i.bi.bi-trash
+
+    .mb-3
+      = lf.label :description, "Description", class: "form-label"
+      = lf.text_field :description, class: "form-control", placeholder: "e.g. Logo design", required: true
+
+    .mb-3
+      = lf.label :occupation_code, "Occupation code", class: "form-label"
+      - if occupation_codes&.any?
+        = lf.select :occupation_code, occupation_codes.map { |oc| ["#{oc['code']} — #{oc['name']}", oc['code']] }, { prompt: "Select code (optional)", selected: line.occupation_code }, class: "form-select"
+      - else
+        = lf.text_field :occupation_code, class: "form-control", placeholder: "e.g. 7223.14 (optional)"
+        - if occupation_codes_error
+          %small.text-danger Could not load codes from POP. You can enter one manually.
+
+    .mb-3
+      %label.form-label Booking type
+      .btn-group.w-100{role: "group"}
+        %input.btn-check{"data-booking-line-target": "timeRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-time-#{idx}", value: "time_based", checked: !is_project, autocomplete: "off"}
+        %label.btn.btn-outline-primary{for: "type-time-#{idx}"} Time-based
+        %input.btn-check{"data-booking-line-target": "projectRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-project-#{idx}", value: "project_based", checked: is_project, autocomplete: "off"}
+        %label.btn.btn-outline-primary{for: "type-project-#{idx}"} Project-based
+
+    %div{"data-booking-line-target": "timeFields", style: is_project ? 'display:none' : ''}
+      .row
+        .col-md-6.mb-3
+          = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_time_#{idx}"
+          .input-group
+            %span.input-group-text kr
+            = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_time_#{idx}", "data-booking-line-target": "rate"
+        .col-md-6.mb-3
+          = lf.label :hours, "Quantity", class: "form-label", for: "hours_#{idx}"
+          = lf.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "hours_#{idx}", "data-booking-line-target": "hours"
+      .mb-3
+        = lf.label :work_date, "Work date", class: "form-label"
+        = lf.date_field :work_date, class: "form-control", value: line.work_date || Date.current
+      .row
+        .col-md-6.mb-3
+          = lf.label :start_time, "Start time", class: "form-label"
+          = lf.time_field :start_time, class: "form-control"
+        .col-md-6.mb-3
+          = lf.label :end_time, "End time", class: "form-label"
+          = lf.time_field :end_time, class: "form-control"
+
+    %div{"data-booking-line-target": "projectFields", style: is_project ? '' : 'display:none'}
+      .row
+        .col-md-6.mb-3
+          = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_project_#{idx}"
+          .input-group
+            %span.input-group-text kr
+            = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project_#{idx}", "data-booking-line-target": "rateProject"
+        .col-md-6.mb-3
+          = lf.label :total_hours, "Quantity", class: "form-label", for: "total_hours_#{idx}"
+          = lf.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "total_hours_#{idx}", "data-booking-line-target": "totalHours"
+      .row
+        .col-md-6.mb-3
+          = lf.label :work_start_date, "Start date", class: "form-label"
+          = lf.date_field :work_start_date, class: "form-control", value: line.work_start_date || Date.current
+        .col-md-6.mb-3
+          = lf.label :work_end_date, "End date", class: "form-label"
+          = lf.date_field :work_end_date, class: "form-control"
+
+    .mb-3
+      = lf.label :line_external_id, "Line external ID (optional)", class: "form-label"
+      = lf.text_field :line_external_id, class: "form-control", placeholder: "Optional; sent as lines[].external_id"
+
+    .card.bg-light.border-0
+      .card-body.py-2.px-3.d-flex.justify-content-between
+        %span.text-muted Line total
+        %strong{"data-booking-line-target": "lineTotal"} kr 0.00

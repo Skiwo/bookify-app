@@ -2,35 +2,30 @@ require "rails_helper"
 
 RSpec.describe Booking, type: :model do
   it { should belong_to(:enrollment) }
+  it { should have_many(:booking_lines).dependent(:destroy) }
   it { should have_one(:payout) }
-  it { should validate_presence_of(:description) }
-  it { should validate_presence_of(:rate_ore) }
-  it { should validate_presence_of(:hours) }
-  it { should validate_numericality_of(:rate_ore).only_integer.is_greater_than(0) }
+  it { should accept_nested_attributes_for(:booking_lines).allow_destroy(true) }
 
   describe "#total_ore" do
-    it "calculates rate * hours" do
-      booking = build(:booking, rate_ore: 60_000, hours: 3)
-      expect(booking.total_ore).to eq(180_000)
-    end
-
-    it "returns 0 when rate_ore is nil" do
+    it "aggregates from booking lines" do
       booking = build(:booking)
-      booking.rate_ore = nil
-      expect(booking.total_ore).to eq(0)
+      booking.booking_lines = [
+        build(:booking_line, rate_ore: 60_000, hours: 3),
+        build(:booking_line, rate_ore: 40_000, hours: 2)
+      ]
+      expect(booking.total_ore).to eq(260_000)
     end
   end
 
-  describe "#rate_nok" do
-    it "converts ore to NOK" do
-      booking = build(:booking, rate_ore: 60_000)
-      expect(booking.rate_nok).to eq(600.0)
+  describe "#summary" do
+    it "uses description when present" do
+      booking = build(:booking, description: "March work")
+      expect(booking.summary).to eq("March work")
     end
 
-    it "returns nil when rate_ore is nil" do
-      booking = build(:booking)
-      booking.rate_ore = nil
-      expect(booking.rate_nok).to be_nil
+    it "falls back to first line description" do
+      booking = build(:booking, description: nil)
+      expect(booking.summary).to eq(booking.booking_lines.first.description)
     end
   end
 

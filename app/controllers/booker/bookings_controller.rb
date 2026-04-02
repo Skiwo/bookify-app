@@ -5,15 +5,15 @@ module Booker
     def index
       @bookings = Booking.joins(:enrollment)
         .where(enrollments: { booker_id: current_user.id })
-        .includes(enrollment: :freelancer)
+        .includes(:booking_lines, enrollment: :freelancer)
         .order(created_at: :desc)
         .page(params[:page])
     end
 
     def new
       @booking = Booking.new
+      @booking.booking_lines.build
       @enrollments = current_user.enrollments_as_booker.active
-      @rate_nok = nil
       load_occupation_codes
     end
 
@@ -21,14 +21,11 @@ module Booker
       enrollment = current_user.enrollments_as_booker.active.find(params[:booking][:enrollment_id])
       @booking = enrollment.bookings.build(booking_params)
 
-      rate_nok = params[:rate_nok].to_f
-      @booking.rate_ore = (rate_nok * 100).round if rate_nok > 0
-
       if @booking.save
         redirect_to booker_booking_path(@booking), notice: "Booking created."
       else
         @enrollments = current_user.enrollments_as_booker.active
-        @rate_nok = params[:rate_nok]
+        @booking.booking_lines.build if @booking.booking_lines.empty?
         load_occupation_codes
         render :new, status: :unprocessable_entity
       end
@@ -43,7 +40,6 @@ module Booker
       unless @booking.editable?
         redirect_to(booker_booking_path(@booking), alert: "This booking can no longer be edited.") and return
       end
-      @rate_nok = @booking.rate_nok
       load_occupation_codes
     end
 
@@ -53,13 +49,10 @@ module Booker
         redirect_to(booker_booking_path(@booking), alert: "This booking can no longer be edited.") and return
       end
 
-      rate_nok = params[:rate_nok].to_f
-      @booking.rate_ore = (rate_nok * 100).round if rate_nok > 0
-
       if @booking.update(booking_params)
         redirect_to booker_booking_path(@booking), notice: "Booking updated."
       else
-        @rate_nok = params[:rate_nok]
+        @booking.booking_lines.build if @booking.booking_lines.reject(&:marked_for_destruction?).empty?
         load_occupation_codes
         render :edit, status: :unprocessable_entity
       end
@@ -100,28 +93,28 @@ module Booker
 
       enrollment = @booking.enrollment
 
-      work_started, work_ended = work_timestamps_for(@booking)
-
-      lines = [{
-        description: @booking.description,
-        rate: @booking.rate_ore / 100.0,
-        quantity: @booking.effective_hours,
-        occupation_code: @booking.occupation_code.presence,
-        work_started_at: work_started&.iso8601,
-        work_ended_at: work_ended&.iso8601,
-        work_hours: @booking.effective_hours,
-        external_id: @booking.line_external_id.presence
-      }.compact]
+      lines = @booking.booking_lines.order(:position).map do |line|
+        work_started, work_ended = work_timestamps_for_line(line)
+        {
+          description: line.description,
+          rate: line.rate_ore / 100.0,
+          quantity: line.effective_hours,
+          occupation_code: line.occupation_code.presence,
+          work_started_at: work_started&.iso8601,
+          work_ended_at: work_ended&.iso8601,
+          work_hours: line.effective_hours,
+          external_id: line.line_external_id.presence
+        }.compact
+      end
 
       invoiced_on_date = @booking.invoiced_on.presence ||
-        @booking.work_date.presence ||
-        (@booking.project_based? ? @booking.work_start_date : nil) ||
+        @booking.booking_lines.first&.work_date.presence ||
+        @booking.booking_lines.first&.work_start_date.presence ||
         Date.current
 
       result = pop_client.create_payout(
         worker_id: enrollment.pop_worker_id,
         lines: lines,
-        occupation_code: @booking.occupation_code.presence,
         invoiced_on: invoiced_on_date.iso8601,
         due_on: @booking.due_on&.iso8601,
         buyer_reference: @booking.buyer_reference.presence,
@@ -153,13 +146,20 @@ module Booker
     def find_booking
       Booking.joins(:enrollment)
         .where(enrollments: { booker_id: current_user.id })
+        .includes(:booking_lines)
         .find(params[:id])
     end
 
     def booking_params
-      params.require(:booking).permit(:description, :occupation_code, :hours, :work_date, :order_reference,
-        :booking_type, :start_time, :end_time, :work_start_date, :work_end_date, :total_hours,
-        :invoiced_on, :due_on, :buyer_reference, :external_note, :line_external_id)
+      params.require(:booking).permit(
+        :description, :order_reference, :invoiced_on, :due_on,
+        :buyer_reference, :external_note,
+        booking_lines_attributes: [
+          :id, :_destroy, :description, :occupation_code, :booking_type,
+          :rate_nok, :hours, :work_date, :start_time, :end_time,
+          :total_hours, :work_start_date, :work_end_date, :line_external_id, :position
+        ]
+      )
     end
 
     def load_occupation_codes
@@ -169,15 +169,15 @@ module Booker
       @occupation_codes_error = result.error unless result.success?
     end
 
-    def work_timestamps_for(booking)
-      if booking.time_based?
-        date = booking.work_date || Date.current
-        started = booking.start_time ? Time.zone.local(date.year, date.month, date.day, booking.start_time.hour, booking.start_time.min) : Time.zone.local(date.year, date.month, date.day, 8, 0)
-        ended = booking.end_time ? Time.zone.local(date.year, date.month, date.day, booking.end_time.hour, booking.end_time.min) : started + booking.hours.hours
+    def work_timestamps_for_line(line)
+      if line.time_based?
+        date = line.work_date || Date.current
+        started = line.start_time ? Time.zone.local(date.year, date.month, date.day, line.start_time.hour, line.start_time.min) : Time.zone.local(date.year, date.month, date.day, 8, 0)
+        ended = line.end_time ? Time.zone.local(date.year, date.month, date.day, line.end_time.hour, line.end_time.min) : started + line.hours.hours
         [started, ended]
       else
-        started = booking.work_start_date&.beginning_of_day
-        ended = booking.work_end_date&.end_of_day
+        started = line.work_start_date&.beginning_of_day
+        ended = line.work_end_date&.end_of_day
         [started, ended]
       end
     end

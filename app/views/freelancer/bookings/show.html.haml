@@ -1,10 +1,10 @@
-= render "shared/breadcrumbs", crumbs: [["My Bookings", freelancer_bookings_path], @booking.description]
+= render "shared/breadcrumbs", crumbs: [["My Bookings", freelancer_bookings_path], @booking.summary]
 
-%h2.mb-4= @booking.description
+%h2.mb-4= @booking.summary
 
 .row
-  .col-md-6
-    .card.shadow-sm.border-0
+  .col-md-5
+    .card.shadow-sm.border-0.mb-3
       .card-header.bg-white.fw-bold Booking Details
       .card-body
         .row.mb-2
@@ -14,21 +14,11 @@
           .col-5.text-muted Status
           .col-7
             %span.badge{class: @booking.has_payout? ? "bg-success" : @booking.completed? ? "bg-primary" : "bg-secondary"}= @booking.status.humanize
-        .row.mb-2
-          .col-5.text-muted Rate
-          .col-7= format_nok_value(@booking.rate_nok)
-        .row.mb-2
-          .col-5.text-muted Hours
-          .col-7= @booking.hours
-        .row.mb-2
-          .col-5.text-muted Total
+        .row
+          .col-5.text-muted.fw-bold Total
           .col-7
             %strong= format_nok_value(@booking.total_nok)
-        .row
-          .col-5.text-muted Work date
-          .col-7= @booking.work_date&.strftime("%b %d, %Y") || "—"
 
-  .col-md-6
     - if @booking.payout
       .card.shadow-sm.border-0
         .card-header.bg-white.fw-bold Payout
@@ -49,3 +39,30 @@
         .card-body.text-center.py-4
           %i.bi.bi-hourglass-split.display-6.text-muted
           %p.text-muted.mt-2.mb-0 Work is completed. Waiting for the booker to process payment.
+
+  .col-md-7
+    %h5.mb-3 Lines
+    - @booking.booking_lines.each do |line|
+      .card.shadow-sm.border-0.mb-3
+        .card-body
+          .d-flex.justify-content-between.align-items-start.mb-2
+            %h6.mb-0= line.description
+            %span.badge.bg-light.text-dark= line.booking_type.humanize
+          .row.mb-2
+            .col-4.text-muted Rate
+            .col-8= format_nok_value(line.rate_nok)
+          .row.mb-2
+            .col-4.text-muted Quantity
+            .col-8= line.effective_hours
+          .row.mb-2
+            .col-4.text-muted Line total
+            .col-8
+              %strong= format_nok_value(line.total_nok)
+          - if line.time_based?
+            .row
+              .col-4.text-muted Work date
+              .col-8= line.work_date&.strftime("%b %d, %Y") || "—"
+          - if line.project_based?
+            .row
+              .col-4.text-muted Period
+              .col-8= "#{line.work_start_date&.strftime('%b %d')} – #{line.work_end_date&.strftime('%b %d, %Y')}"

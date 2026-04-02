@@ -1,9 +1,7 @@
-= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], [@booking.description, booker_booking_path(@booking)], "Edit"]
+= render "shared/breadcrumbs", crumbs: [["Bookings", booker_bookings_path], [@booking.summary, booker_booking_path(@booking)], "Edit"]
 
 %h2.mb-4 Edit Booking
 
 .row.justify-content-center
-  .col-md-6
-    .card.shadow-sm.border-0
-      .card-body.p-4
-        = render "form", form_url: booker_booking_path(@booking)
+  .col-md-8
+    = render "form", form_url: booker_booking_path(@booking)

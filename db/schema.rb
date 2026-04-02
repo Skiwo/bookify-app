@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_200003) do
   create_schema "_heroku"
 
   # These are extensions that must be enabled in order to support this database
@@ -18,28 +18,37 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_140000) do
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
 
-  create_table "bookings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "enrollment_id"
+  create_table "booking_lines", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "booking_id", null: false
     t.string "description", null: false
     t.string "occupation_code"
-    t.integer "status", default: 0, null: false
+    t.integer "booking_type", default: 0, null: false
     t.integer "rate_ore", null: false
     t.decimal "hours", precision: 8, scale: 2
     t.date "work_date"
+    t.time "start_time"
+    t.time "end_time"
+    t.decimal "total_hours", precision: 8, scale: 2
+    t.date "work_start_date"
+    t.date "work_end_date"
+    t.string "line_external_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id", "position"], name: "index_booking_lines_on_booking_id_and_position"
+  end
+
+  create_table "bookings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "enrollment_id"
+    t.string "description"
+    t.integer "status", default: 0, null: false
     t.string "order_reference"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "booking_type", default: 0, null: false
-    t.time "start_time"
-    t.time "end_time"
-    t.date "work_start_date"
-    t.date "work_end_date"
-    t.decimal "total_hours", precision: 8, scale: 2
     t.date "invoiced_on"
     t.date "due_on"
     t.string "buyer_reference"
     t.text "external_note"
-    t.string "line_external_id"
     t.index ["enrollment_id"], name: "index_bookings_on_enrollment_id"
     t.index ["status"], name: "index_bookings_on_status"
   end
@@ -111,6 +120,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_140000) do
     t.index ["role"], name: "index_users_on_role"
   end
 
+  add_foreign_key "booking_lines", "bookings"
   add_foreign_key "bookings", "enrollments"
   add_foreign_key "enrollments", "users", column: "booker_id"
   add_foreign_key "enrollments", "users", column: "freelancer_id"
