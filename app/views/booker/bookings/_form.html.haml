@@ -1,77 +1,77 @@
-- qty_param = @booking.project_based? ? "booking[total_hours]" : "booking[hours]"
+- qty_name = @booking.project_based? ? "booking[total_hours]" : "booking[hours]"
 - qty_value = @booking.project_based? ? @booking.total_hours : @booking.hours
 
-= form_for @booking, url: form_url, html: { data: { controller: "booking-form", action: "input->booking-form#updateTotal" } } do |f|
+= form_for @booking, url: form_url, html: { class: "booking-entry-form", data: { controller: "booking-entry", action: "input->booking-entry#refresh" } } do |f|
   - if @booking.errors.any?
-    .alert.alert-danger.mb-3
+    .alert.alert-danger
       - @booking.errors.full_messages.each do |msg|
-        %p.mb-0= msg
+        %div= msg
 
   - if @enrollments
-    .mb-3
+    %div
       = f.label :enrollment_id, "Freelancer", class: "form-label"
       = f.select :enrollment_id, @enrollments.map { |e| [e.name, e.id] }, { prompt: "Select freelancer" }, class: "form-select", required: true
 
-  .mb-3
+  %div
     = f.label :description, "Description", class: "form-label"
-    = f.text_field :description, class: "form-control", placeholder: "e.g. Logo design", required: true
+    = f.text_field :description, class: "form-control", required: true
 
-  .mb-3
+  %div
     = f.label :occupation_code, "Occupation code", class: "form-label"
     - if @occupation_codes&.any?
       = f.select :occupation_code, @occupation_codes.map { |oc| ["#{oc['code']} \u2014 #{oc['name']}", oc['code']] }, { prompt: "Select code (optional)", selected: @booking.occupation_code }, class: "form-select"
     - else
-      = f.text_field :occupation_code, class: "form-control", placeholder: "e.g. 7223.14 (optional)"
+      = f.text_field :occupation_code, class: "form-control"
       - if @occupation_codes_error
-        %small.text-danger Could not load codes from POP. You can enter one manually.
+        .text-danger.small Could not load codes from POP.
 
-  .mb-3
-    = f.label :order_reference, "Order reference (optional)", class: "form-label"
-    = f.text_field :order_reference, class: "form-control", placeholder: "e.g. PO-2026-042"
+  %div
+    = f.label :order_reference, "Order reference", class: "form-label"
+    = f.text_field :order_reference, class: "form-control"
 
-  .mb-3
-    %label.form-label Booking type
-    .btn-group.w-100{role: "group"}
-      %input.btn-check{type: "radio", name: "booking[booking_type]", id: "booking-type-time", value: "time_based", checked: (@booking.time_based? || @booking.new_record?), autocomplete: "off", data: { action: "change->booking-form#toggleFields" }}
-      %label.btn.btn-outline-primary{for: "booking-type-time"} Time-based
-      %input.btn-check{type: "radio", name: "booking[booking_type]", id: "booking-type-project", value: "project_based", checked: @booking.project_based?, autocomplete: "off", data: { action: "change->booking-form#toggleFields" }}
-      %label.btn.btn-outline-primary{for: "booking-type-project"} Project-based
+  %hr
 
-  .row
-    .col-md-6.mb-3
-      = label_tag :booking_rate_nok, "Rate (NOK)", class: "form-label"
+  %div
+    = f.label :booking_type, "How is this work billed?", class: "form-label"
+    = f.select :booking_type, [["By the hour (single day)", "time_based"], ["As a project (date range)", "project_based"]], {}, class: "form-select", data: { action: "change->booking-entry#modeChanged" }
+
+  %div.row.g-3
+    %div.col-sm-6
+      %label.form-label{for: "rate_nok_input"} Amount per hour (NOK)
       .input-group
         %span.input-group-text kr
-        = number_field_tag :rate_nok, (@rate_nok || @booking.rate_nok), class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "booking_rate_nok", data: { booking_form_target: "rate" }
-    .col-md-6.mb-3
-      = label_tag :booking_quantity, "Quantity", class: "form-label"
-      = number_field_tag qty_param, qty_value, class: "form-control", step: "0.25", min: 0.25, placeholder: (@booking.project_based? ? "40" : "3"), id: "booking_quantity", data: { booking_form_target: "quantity" }
+        %input.form-control{type: "number", name: "rate_nok", id: "rate_nok_input", min: 1, step: "0.01", value: (@rate_nok || @booking.rate_nok)}
+    %div.col-sm-6
+      %label.form-label{for: "js-booking-quantity"} Hours (quantity)
+      %input.form-control{type: "number", name: qty_name, id: "js-booking-quantity", min: 0.25, step: "0.25", value: qty_value}
 
-  #booking-time-fields{ class: ("d-none" if @booking.project_based?), data: { booking_form_target: "timeSection" } }
-    .mb-3
-      = f.label :work_date, "Work date", class: "form-label"
+  %div#js-booking-time-block{ hidden: @booking.project_based? }
+    %h6.mt-4.text-muted When (time-based)
+    %div.mb-3
+      = f.label :work_date, "Date of work", class: "form-label"
       = f.date_field :work_date, class: "form-control", value: @booking.work_date || Date.current
-    .row
-      .col-md-6.mb-3
-        = f.label :start_time, "Start time", class: "form-label"
+    %div.row.g-3
+      %div.col-sm-6
+        = f.label :start_time, "Start", class: "form-label"
         = f.time_field :start_time, class: "form-control"
-      .col-md-6.mb-3
-        = f.label :end_time, "End time", class: "form-label"
+      %div.col-sm-6
+        = f.label :end_time, "End", class: "form-label"
         = f.time_field :end_time, class: "form-control"
 
-  #booking-project-fields{ class: ("d-none" unless @booking.project_based?), data: { booking_form_target: "projectSection" } }
-    .row
-      .col-md-6.mb-3
-        = f.label :work_start_date, "Start date", class: "form-label"
+  %div#js-booking-project-block{ hidden: !@booking.project_based? }
+    %h6.mt-4.text-muted Project dates
+    %div.row.g-3
+      %div.col-sm-6
+        = f.label :work_start_date, "First day", class: "form-label"
         = f.date_field :work_start_date, class: "form-control", value: @booking.work_start_date || Date.current
-      .col-md-6.mb-3
-        = f.label :work_end_date, "End date", class: "form-label"
+      %div.col-sm-6
+        = f.label :work_end_date, "Last day", class: "form-label"
         = f.date_field :work_end_date, class: "form-control"
 
-  .mb-3
-    .card.bg-light.border-0
-      .card-body.py-2.px-3.d-flex.justify-content-between
-        %span.text-muted Estimated total
-        %strong{data: { booking_form_target: "total" }} kr 0.00
+  %hr
 
-  = f.submit (@booking.new_record? ? "Create Booking" : "Update Booking"), class: "btn btn-primary w-100"
+  %div.d-flex.justify-content-between.align-items-baseline.border.rounded.p-3.bg-light
+    %span.text-secondary Estimated total
+    %span.fs-5.fw-bold{data: { booking_entry_target: "total" }} kr 0.00
+
+  = f.submit (@booking.new_record? ? "Create Booking" : "Update Booking"), class: "btn btn-primary w-100 mt-2"
