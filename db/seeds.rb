@@ -41,27 +41,32 @@ end
 
 # --- Enrollment: Active with bookings ---
 
-active_enrollment = Enrollment.find_or_create_by!(booker: booker, email: freelancer.email) do |e|
-  e.name = freelancer.name
-  e.freelancer = freelancer
-  e.status = :active
-  e.pop_worker_id = "demo-worker-001"
-  e.pop_enrollment_id = "00000000-0000-0000-0000-000000000001"
-  e.invited_at = 7.days.ago
-  e.onboarded_at = 5.days.ago
-  e.pop_profile_data = {
-    "enrollment_id" => "00000000-0000-0000-0000-000000000001",
-    "partner_worker_id" => "demo-worker-001",
-    "payout_preference" => "salary",
-    "approved" => true,
-    "status" => "Approved",
-    "freelancer" => {
-      "email" => freelancer.email,
-      "first_name" => "Anna",
-      "last_name" => "Hansen",
-      "freelance_type" => "individual"
+active_enrollment = Enrollment.find_or_initialize_by(booker: booker, email: freelancer.email)
+unless active_enrollment.persisted?
+  active_enrollment.assign_attributes(
+    name: freelancer.name,
+    freelancer: freelancer,
+    pop_worker_id: "demo-worker-001",
+    pop_enrollment_id: "00000000-0000-0000-0000-000000000001",
+    invited_at: 7.days.ago,
+    onboarded_at: 5.days.ago,
+    pop_profile_data: {
+      "enrollment_id" => "00000000-0000-0000-0000-000000000001",
+      "partner_worker_id" => "demo-worker-001",
+      "payout_preference" => "salary",
+      "approved" => true,
+      "status" => "Approved",
+      "freelancer" => {
+        "email" => freelancer.email,
+        "first_name" => "Anna",
+        "last_name" => "Hansen",
+        "freelance_type" => "individual"
+      }
     }
-  }
+  )
+  active_enrollment.status = :invited
+  active_enrollment.save!
+  active_enrollment.update_columns(status: Enrollment.statuses[:active])
 end
 
 # --- Bookings ---
@@ -70,46 +75,62 @@ unless active_enrollment.bookings.exists?
   # Draft booking
   active_enrollment.bookings.create!(
     description: "Website redesign - homepage",
-    occupation_code: "2130112",
-    rate_ore: 80000,
-    hours: 8,
-    work_date: Date.current,
-    booking_type: :time_based,
-    status: :draft
+    status: :draft,
+    booking_lines_attributes: [{
+      description: "Homepage design",
+      occupation_code: "2130112",
+      booking_type: :time_based,
+      rate_ore: 80000,
+      hours: 8,
+      work_date: Date.current,
+      position: 1
+    }]
   )
 
   # Completed booking (ready to pay)
   active_enrollment.bookings.create!(
     description: "Logo design",
-    occupation_code: "7223.14",
-    rate_ore: 60000,
-    hours: 3,
-    work_date: 3.days.ago.to_date,
-    booking_type: :time_based,
-    status: :completed
+    status: :completed,
+    booking_lines_attributes: [{
+      description: "Logo design",
+      occupation_code: "7223.14",
+      booking_type: :time_based,
+      rate_ore: 60000,
+      hours: 3,
+      work_date: 3.days.ago.to_date,
+      position: 1
+    }]
   )
 
   # Project-based draft
   active_enrollment.bookings.create!(
     description: "Brand guidelines document",
-    occupation_code: "7223.14",
-    rate_ore: 75000,
-    total_hours: 20,
-    work_start_date: 1.week.ago.to_date,
-    work_end_date: Date.current,
-    booking_type: :project_based,
-    status: :draft
+    status: :draft,
+    booking_lines_attributes: [{
+      description: "Brand guidelines document",
+      occupation_code: "7223.14",
+      booking_type: :project_based,
+      rate_ore: 75000,
+      total_hours: 20,
+      work_start_date: 1.week.ago.to_date,
+      work_end_date: Date.current,
+      position: 1
+    }]
   )
 
   # Paid bookings with payouts
   paid1 = active_enrollment.bookings.create!(
     description: "Initial consultation",
-    occupation_code: "2130112",
-    rate_ore: 90000,
-    hours: 2,
-    work_date: 2.weeks.ago.to_date,
-    booking_type: :time_based,
-    status: :paid
+    status: :paid,
+    booking_lines_attributes: [{
+      description: "Initial consultation",
+      occupation_code: "2130112",
+      booking_type: :time_based,
+      rate_ore: 90000,
+      hours: 2,
+      work_date: 2.weeks.ago.to_date,
+      position: 1
+    }]
   )
   paid1.create_payout!(
     pop_payout_id: "demo-payout-001",
@@ -122,12 +143,16 @@ unless active_enrollment.bookings.exists?
 
   paid2 = active_enrollment.bookings.create!(
     description: "Code review session",
-    occupation_code: "2130112",
-    rate_ore: 90000,
-    hours: 4,
-    work_date: 10.days.ago.to_date,
-    booking_type: :time_based,
-    status: :paid
+    status: :paid,
+    booking_lines_attributes: [{
+      description: "Code review session",
+      occupation_code: "2130112",
+      booking_type: :time_based,
+      rate_ore: 90000,
+      hours: 4,
+      work_date: 10.days.ago.to_date,
+      position: 1
+    }]
   )
   paid2.create_payout!(
     pop_payout_id: "demo-payout-002",
@@ -140,12 +165,16 @@ unless active_enrollment.bookings.exists?
 
   paid3 = active_enrollment.bookings.create!(
     description: "API integration support",
-    occupation_code: "2130151",
-    rate_ore: 95000,
-    hours: 6,
-    work_date: 1.week.ago.to_date,
-    booking_type: :time_based,
-    status: :paid
+    status: :paid,
+    booking_lines_attributes: [{
+      description: "API integration support",
+      occupation_code: "2130151",
+      booking_type: :time_based,
+      rate_ore: 95000,
+      hours: 6,
+      work_date: 1.week.ago.to_date,
+      position: 1
+    }]
   )
   paid3.create_payout!(
     pop_payout_id: "demo-payout-003",
