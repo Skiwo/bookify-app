@@ -84,16 +84,12 @@
         %thead.table-light
           %tr
             %th Description
-            %th Rate
-            %th Hours
             %th Total
             %th Status
         %tbody
           - @bookings.each do |booking|
             %tr
-              %td= link_to booking.description, booker_booking_path(booking)
-              %td= format_nok_value(booking.rate_nok)
-              %td= booking.hours
+              %td= link_to booking.summary, booker_booking_path(booking)
               %td.fw-bold= format_nok_value(booking.total_nok)
               %td
                 %span.badge{class: booking.has_payout? ? "bg-success" : booking.completed? ? "bg-primary" : "bg-secondary"}= booking.status.humanize
