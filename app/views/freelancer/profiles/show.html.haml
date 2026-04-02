@@ -16,7 +16,7 @@
                 %dd= value || "—"
           .col-md-6
             - if entry[:connect_url]
-              %a.btn.btn-primary{href: entry[:connect_url]} Update Profile on POP
+              %a.btn.btn-primary{href: entry[:connect_url], "data-turbo": "false"} Update Profile on POP
       - elsif entry[:error]
         .alert.alert-warning
           Could not load profile: #{entry[:error].message}

@@ -31,4 +31,4 @@
         %p.text-muted.small.mt-3
           You'll be redirected to Payout Partner to securely verify your identity.
 
-        = button_to "Accept and Set Up Your Profile", accept_invitation_path(token: @enrollment.invitation_token), method: :post, class: "btn btn-lg mt-3", style: "background-color: #0D9488; border-color: #0D9488; color: white;"
+        = button_to "Accept and Set Up Your Profile", accept_invitation_path(token: @enrollment.invitation_token), method: :post, class: "btn btn-lg mt-3", style: "background-color: #0D9488; border-color: #0D9488; color: white;", data: { turbo: false }
