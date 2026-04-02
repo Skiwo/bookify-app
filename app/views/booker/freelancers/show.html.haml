@@ -2,7 +2,7 @@
 
 .d-flex.justify-content-between.align-items-center.mb-4
   %h2= @enrollment.name
-  .btn-group
+  .d-flex.gap-2
     - if @enrollment.invited? || @enrollment.onboarding?
       = button_to "Resend Invitation", resend_invite_booker_freelancer_path(@enrollment), method: :post, class: "btn btn-outline-warning btn-sm"
     - if @enrollment.pop_synced?
