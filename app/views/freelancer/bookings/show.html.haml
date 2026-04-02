@@ -41,10 +41,10 @@
           %p.text-muted.mt-2.mb-0 Work is completed. Waiting for the booker to process payment.
 
   .col-md-7
-    %h5.mb-3 Lines
-    - @booking.booking_lines.each do |line|
-      .card.shadow-sm.border-0.mb-3
-        .card-body
+    .card.shadow-sm.border-0.mb-3
+      .card-header.bg-white.fw-bold Lines
+      - @booking.booking_lines.each_with_index do |line, i|
+        .card-body{class: i > 0 ? "border-top" : nil}
           .d-flex.justify-content-between.align-items-start.mb-2
             %h6.mb-0= line.description
             %span.badge.bg-light.text-dark= line.booking_type.humanize
