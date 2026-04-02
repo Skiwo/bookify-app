@@ -46,7 +46,7 @@ class PopApiClient
   end
 
   # Payouts
-  # Create a payout (invoice) for a freelancer.
+  # Create a payout (invoice) for a freelancer. Submitted immediately (no draft state).
   #
   # Invoice-level fields:
   #   worker_id       — required, the partner_worker_id for the freelancer
@@ -60,13 +60,16 @@ class PopApiClient
   #
   # Each line in `lines` accepts:
   #   description     — required, work description
+  #   line_type       — optional, defaults to "work". Allowed: work, benefit, expense, diet
   #   rate            — required, hourly/unit rate in NOK (not øre)
   #   quantity        — optional, defaults to 1
   #   occupation_code — optional, overrides invoice-level code for this line
-  #   work_started_at — optional, ISO8601 timestamp
+  #   work_started_at — optional, ISO8601 timestamp (required for work lines on individual invoices)
   #   work_ended_at   — optional, ISO8601 timestamp
   #   work_hours      — optional, used to calculate work_ended_at if not provided
   #   external_id     — optional, partner's line item reference
+  #   group           — optional, links non-work lines to a work line with the same group value
+  #   receipt_url     — optional, URL to a receipt file (must be publicly accessible)
   def create_payout(worker_id:, lines:, occupation_code: nil, invoiced_on: nil, due_on: nil,
                     buyer_reference: nil, order_reference: nil, external_note: nil, idempotency_key: nil)
     # Omit nil and blank strings — Hash#compact alone still sends "" which POP may reject as "blank".

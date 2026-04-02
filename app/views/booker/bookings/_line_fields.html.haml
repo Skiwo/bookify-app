@@ -3,6 +3,7 @@
 - line = lf.object
 - idx = lf.index || "NEW_RECORD"
 - is_project = line.project_based?
+- is_work = line.work?
 
 .card.shadow-sm.border-0.mb-3{"data-booking-form-target": "lineCard", "data-controller": "booking-line", "data-action": "input->booking-line#updateTotal booking-line:totalChanged->booking-form#lineTotalChanged"}
   = lf.hidden_field :id if line.persisted?
@@ -14,6 +15,13 @@
       %h6.mb-0{"data-line-number": true} Line 1
       %button.btn.btn-outline-danger.btn-sm{type: "button", "data-action": "click->booking-form#removeLine"}
         %i.bi.bi-trash
+
+    .mb-3
+      %label.form-label Line type
+      .btn-group.w-100{role: "group"}
+        - BookingLine.line_types.each_key do |lt|
+          %input.btn-check{"data-booking-line-target": "lineTypeRadio", "data-action": "change->booking-line#toggleLineType", type: "radio", name: "#{lf.object_name}[line_type]", id: "line-type-#{lt}-#{idx}", value: lt, checked: line.line_type == lt, autocomplete: "off"}
+          %label.btn.btn-outline-secondary{for: "line-type-#{lt}-#{idx}"}= lt.humanize
 
     .mb-3
       = lf.label :description, "Description", class: "form-label"
@@ -28,52 +36,71 @@
         - if occupation_codes_error
           %small.text-danger Could not load codes from POP. You can enter one manually.
 
-    .mb-3
-      %label.form-label Booking type
-      .btn-group.w-100{role: "group"}
-        %input.btn-check{"data-booking-line-target": "timeRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-time-#{idx}", value: "time_based", checked: !is_project, autocomplete: "off"}
-        %label.btn.btn-outline-primary{for: "type-time-#{idx}"} Time-based
-        %input.btn-check{"data-booking-line-target": "projectRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-project-#{idx}", value: "project_based", checked: is_project, autocomplete: "off"}
-        %label.btn.btn-outline-primary{for: "type-project-#{idx}"} Project-based
-
-    %div{"data-booking-line-target": "timeFields", style: is_project ? 'display:none' : ''}
-      .row
-        .col-md-6.mb-3
-          = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_time_#{idx}"
-          .input-group
-            %span.input-group-text kr
-            = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_time_#{idx}", "data-booking-line-target": "rate"
-        .col-md-6.mb-3
-          = lf.label :hours, "Quantity", class: "form-label", for: "hours_#{idx}"
-          = lf.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "hours_#{idx}", "data-booking-line-target": "hours"
+    -# Work-specific fields (hidden for non-work line types)
+    %div{"data-booking-line-target": "workFields", style: is_work ? '' : 'display:none'}
       .mb-3
-        = lf.label :work_date, "Work date", class: "form-label"
-        = lf.date_field :work_date, class: "form-control", value: line.work_date || Date.current
-      .row
-        .col-md-6.mb-3
-          = lf.label :start_time, "Start time", class: "form-label"
-          = lf.time_field :start_time, class: "form-control"
-        .col-md-6.mb-3
-          = lf.label :end_time, "End time", class: "form-label"
-          = lf.time_field :end_time, class: "form-control"
+        %label.form-label Booking type
+        .btn-group.w-100{role: "group"}
+          %input.btn-check{"data-booking-line-target": "timeRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-time-#{idx}", value: "time_based", checked: !is_project, autocomplete: "off"}
+          %label.btn.btn-outline-primary{for: "type-time-#{idx}"} Time-based
+          %input.btn-check{"data-booking-line-target": "projectRadio", "data-action": "change->booking-line#toggleFields", type: "radio", name: "#{lf.object_name}[booking_type]", id: "type-project-#{idx}", value: "project_based", checked: is_project, autocomplete: "off"}
+          %label.btn.btn-outline-primary{for: "type-project-#{idx}"} Project-based
 
-    %div{"data-booking-line-target": "projectFields", style: is_project ? '' : 'display:none'}
+      %div{"data-booking-line-target": "timeFields", style: is_project ? 'display:none' : ''}
+        .row
+          .col-md-6.mb-3
+            = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_time_#{idx}"
+            .input-group
+              %span.input-group-text kr
+              = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_time_#{idx}", "data-booking-line-target": "rate"
+          .col-md-6.mb-3
+            = lf.label :hours, "Quantity", class: "form-label", for: "hours_#{idx}"
+            = lf.number_field :hours, class: "form-control", step: "0.25", placeholder: "3", min: 0.25, id: "hours_#{idx}", "data-booking-line-target": "hours"
+        .mb-3
+          = lf.label :work_date, "Work date", class: "form-label"
+          = lf.date_field :work_date, class: "form-control", value: line.work_date || Date.current
+        .row
+          .col-md-6.mb-3
+            = lf.label :start_time, "Start time", class: "form-label"
+            = lf.time_field :start_time, class: "form-control"
+          .col-md-6.mb-3
+            = lf.label :end_time, "End time", class: "form-label"
+            = lf.time_field :end_time, class: "form-control"
+
+      %div{"data-booking-line-target": "projectFields", style: is_project ? '' : 'display:none'}
+        .row
+          .col-md-6.mb-3
+            = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_project_#{idx}"
+            .input-group
+              %span.input-group-text kr
+              = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project_#{idx}", "data-booking-line-target": "rateProject"
+          .col-md-6.mb-3
+            = lf.label :total_hours, "Quantity", class: "form-label", for: "total_hours_#{idx}"
+            = lf.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "total_hours_#{idx}", "data-booking-line-target": "totalHours"
+        .row
+          .col-md-6.mb-3
+            = lf.label :work_start_date, "Start date", class: "form-label"
+            = lf.date_field :work_start_date, class: "form-control", value: line.work_start_date || Date.current
+          .col-md-6.mb-3
+            = lf.label :work_end_date, "End date", class: "form-label"
+            = lf.date_field :work_end_date, class: "form-control"
+
+    -# Non-work line fields (amount only, no time tracking)
+    %div{"data-booking-line-target": "dependentFields", style: is_work ? 'display:none' : ''}
       .row
         .col-md-6.mb-3
-          = lf.label :rate_nok, "Rate (NOK)", class: "form-label", for: "rate_nok_project_#{idx}"
+          = lf.label :rate_nok, "Amount (NOK)", class: "form-label", for: "rate_nok_dep_#{idx}"
           .input-group
             %span.input-group-text kr
-            = lf.number_field :rate_nok, class: "form-control", placeholder: "600", min: 1, step: "0.01", id: "rate_nok_project_#{idx}", "data-booking-line-target": "rateProject"
+            = lf.number_field :rate_nok, class: "form-control", placeholder: "450", min: 1, step: "0.01", id: "rate_nok_dep_#{idx}", "data-booking-line-target": "rateDependent"
         .col-md-6.mb-3
-          = lf.label :total_hours, "Quantity", class: "form-label", for: "total_hours_#{idx}"
-          = lf.number_field :total_hours, class: "form-control", step: "0.25", placeholder: "40", min: 0.25, id: "total_hours_#{idx}", "data-booking-line-target": "totalHours"
-      .row
-        .col-md-6.mb-3
-          = lf.label :work_start_date, "Start date", class: "form-label"
-          = lf.date_field :work_start_date, class: "form-control", value: line.work_start_date || Date.current
-        .col-md-6.mb-3
-          = lf.label :work_end_date, "End date", class: "form-label"
-          = lf.date_field :work_end_date, class: "form-control"
+          = lf.label :hours, "Quantity", class: "form-label", for: "qty_dep_#{idx}"
+          = lf.number_field :hours, class: "form-control", step: "0.25", placeholder: "1", min: 0.25, value: line.hours || 1, id: "qty_dep_#{idx}", "data-booking-line-target": "hoursDependent"
+
+    .mb-3
+      = lf.label :receipt_url, "Receipt URL (optional)", class: "form-label"
+      = lf.url_field :receipt_url, class: "form-control", placeholder: "https://example.com/receipt.pdf"
+      %small.text-muted Link to receipt file (PDF or image). Must be accessible without login.
 
     .mb-3
       = lf.label :line_external_id, "Line external ID (optional)", class: "form-label"

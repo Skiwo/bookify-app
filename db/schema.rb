@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_200003) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
   create_schema "_heroku"
 
   # These are extensions that must be enabled in order to support this database
@@ -35,6 +35,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200003) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "line_type", default: 0, null: false
+    t.string "receipt_url"
     t.index ["booking_id", "position"], name: "index_booking_lines_on_booking_id_and_position"
   end
 

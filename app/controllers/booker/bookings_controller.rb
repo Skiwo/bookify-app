@@ -94,17 +94,29 @@ module Booker
       enrollment = @booking.enrollment
 
       lines = @booking.booking_lines.order(:position).map do |line|
-        work_started, work_ended = work_timestamps_for_line(line)
-        {
+        payout_line = {
           description: line.description,
+          line_type: line.line_type,
           rate: line.rate_ore / 100.0,
           quantity: line.effective_hours,
           occupation_code: line.occupation_code.presence,
-          work_started_at: work_started&.iso8601,
-          work_ended_at: work_ended&.iso8601,
-          work_hours: line.effective_hours,
-          external_id: line.line_external_id.presence
-        }.compact
+          external_id: line.line_external_id.presence,
+          receipt_url: line.receipt_url.presence
+        }
+
+        if line.work?
+          work_started, work_ended = work_timestamps_for_line(line)
+          payout_line[:work_started_at] = work_started&.iso8601
+          payout_line[:work_ended_at] = work_ended&.iso8601
+          payout_line[:work_hours] = line.effective_hours
+          payout_line[:group] = "line-#{line.position}"
+        else
+          # Dependent lines reference the first work line's group
+          first_work = @booking.booking_lines.order(:position).find(&:work?)
+          payout_line[:group] = "line-#{first_work.position}" if first_work
+        end
+
+        payout_line.compact
       end
 
       invoiced_on_date = @booking.invoiced_on.presence ||
@@ -155,9 +167,9 @@ module Booker
         :description, :order_reference, :invoiced_on, :due_on,
         :buyer_reference, :external_note,
         booking_lines_attributes: [
-          :id, :_destroy, :description, :occupation_code, :booking_type,
+          :id, :_destroy, :description, :occupation_code, :booking_type, :line_type,
           :rate_nok, :hours, :work_date, :start_time, :end_time,
-          :total_hours, :work_start_date, :work_end_date, :line_external_id, :position
+          :total_hours, :work_start_date, :work_end_date, :line_external_id, :receipt_url, :position
         ]
       )
     end

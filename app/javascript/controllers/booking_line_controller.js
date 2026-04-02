@@ -1,13 +1,39 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Manages a single booking line card: type toggle, per-line total, submit prep.
+// Manages a single booking line card: line type toggle, booking type toggle, per-line total, submit prep.
 // Each line card gets its own instance via data-controller="booking-line".
 export default class extends Controller {
-  static targets = ["timeFields", "projectFields", "timeRadio", "projectRadio",
-                    "rate", "hours", "rateProject", "totalHours", "lineTotal"]
+  static targets = ["workFields", "dependentFields", "lineTypeRadio",
+                    "timeFields", "projectFields", "timeRadio", "projectRadio",
+                    "rate", "hours", "rateProject", "totalHours",
+                    "rateDependent", "hoursDependent", "lineTotal"]
 
   connect() {
+    this.toggleLineType()
     this.toggleFields()
+  }
+
+  isWorkLine() {
+    const checked = this.lineTypeRadioTargets.find(r => r.checked)
+    return !checked || checked.value === "work"
+  }
+
+  toggleLineType() {
+    const isWork = this.isWorkLine()
+
+    if (this.hasWorkFieldsTarget) {
+      this.workFieldsTarget.style.display = isWork ? "" : "none"
+      this.workFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = !isWork })
+    }
+    if (this.hasDependentFieldsTarget) {
+      this.dependentFieldsTarget.style.display = isWork ? "none" : ""
+      this.dependentFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = isWork })
+    }
+
+    if (isWork) {
+      this.toggleFields()
+    }
+    this.updateTotal()
   }
 
   timeBasedSelected() {
@@ -34,12 +60,17 @@ export default class extends Controller {
     let rate = 0
     let hours = 0
 
-    if (this.timeBasedSelected()) {
-      if (this.hasRateTarget) rate = parseFloat(String(this.rateTarget.value).replace(",", ".")) || 0
-      if (this.hasHoursTarget) hours = parseFloat(String(this.hoursTarget.value).replace(",", ".")) || 0
+    if (this.isWorkLine()) {
+      if (this.timeBasedSelected()) {
+        if (this.hasRateTarget) rate = parseFloat(String(this.rateTarget.value).replace(",", ".")) || 0
+        if (this.hasHoursTarget) hours = parseFloat(String(this.hoursTarget.value).replace(",", ".")) || 0
+      } else {
+        if (this.hasRateProjectTarget) rate = parseFloat(String(this.rateProjectTarget.value).replace(",", ".")) || 0
+        if (this.hasTotalHoursTarget) hours = parseFloat(String(this.totalHoursTarget.value).replace(",", ".")) || 0
+      }
     } else {
-      if (this.hasRateProjectTarget) rate = parseFloat(String(this.rateProjectTarget.value).replace(",", ".")) || 0
-      if (this.hasTotalHoursTarget) hours = parseFloat(String(this.totalHoursTarget.value).replace(",", ".")) || 0
+      if (this.hasRateDependentTarget) rate = parseFloat(String(this.rateDependentTarget.value).replace(",", ".")) || 0
+      if (this.hasHoursDependentTarget) hours = parseFloat(String(this.hoursDependentTarget.value).replace(",", ".")) || 0
     }
 
     const total = rate * hours
@@ -53,20 +84,40 @@ export default class extends Controller {
   // Called by the parent form controller before submit: enable all fields,
   // then strip name from inactive section so duplicates aren't posted.
   prepareSubmit() {
-    const isTime = this.timeBasedSelected()
+    const isWork = this.isWorkLine()
 
-    if (this.hasTimeFieldsTarget) {
-      this.timeFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
+    // Enable all fields first
+    if (this.hasWorkFieldsTarget) {
+      this.workFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
     }
-    if (this.hasProjectFieldsTarget) {
-      this.projectFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
+    if (this.hasDependentFieldsTarget) {
+      this.dependentFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
     }
 
-    const inactive = isTime ? this.projectFieldsTarget : this.timeFieldsTarget
-    if (inactive) {
-      inactive.querySelectorAll("input, select, textarea").forEach((el) => {
+    // Strip names from inactive sections
+    const inactiveSection = isWork ? this.dependentFieldsTarget : this.workFieldsTarget
+    if (inactiveSection) {
+      inactiveSection.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.name) el.removeAttribute("name")
       })
+    }
+
+    // For work lines, also handle time/project toggle
+    if (isWork) {
+      const isTime = this.timeBasedSelected()
+      if (this.hasTimeFieldsTarget) {
+        this.timeFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
+      }
+      if (this.hasProjectFieldsTarget) {
+        this.projectFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
+      }
+
+      const inactive = isTime ? this.projectFieldsTarget : this.timeFieldsTarget
+      if (inactive) {
+        inactive.querySelectorAll("input, select, textarea").forEach((el) => {
+          if (el.name) el.removeAttribute("name")
+        })
+      }
     }
   }
 }

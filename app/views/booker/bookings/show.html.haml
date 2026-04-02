@@ -72,7 +72,10 @@
         .card-body
           .d-flex.justify-content-between.align-items-start.mb-2
             %h6.mb-0= line.description
-            %span.badge.bg-light.text-dark= line.booking_type.humanize
+            .d-flex.gap-1
+              - unless line.work?
+                %span.badge.bg-warning.text-dark= line.line_type.humanize
+              %span.badge.bg-light.text-dark= line.work? ? line.booking_type.humanize : "Dependent"
           .row.mb-2
             .col-4.text-muted Rate
             .col-8= format_nok_value(line.rate_nok)
@@ -83,7 +86,7 @@
             .col-4.text-muted Line total
             .col-8
               %strong= format_nok_value(line.total_nok)
-          - if line.time_based?
+          - if line.work? && line.time_based?
             .row.mb-2
               .col-4.text-muted Work date
               .col-8= line.work_date&.strftime("%b %d, %Y") || "—"
@@ -91,7 +94,7 @@
               .row.mb-2
                 .col-4.text-muted Time
                 .col-8= "#{line.start_time&.strftime('%H:%M')} – #{line.end_time&.strftime('%H:%M')}"
-          - if line.project_based?
+          - if line.work? && line.project_based?
             .row.mb-2
               .col-4.text-muted Period
               .col-8= "#{line.work_start_date&.strftime('%b %d')} – #{line.work_end_date&.strftime('%b %d, %Y')}"
@@ -99,6 +102,11 @@
             .row.mb-2
               .col-4.text-muted Occupation code
               .col-8= line.occupation_code
+          - if line.receipt_url.present?
+            .row.mb-2
+              .col-4.text-muted Receipt
+              .col-8
+                = link_to "View receipt", line.receipt_url, target: "_blank", rel: "noopener"
           - if line.line_external_id.present?
             .row
               .col-4.text-muted Line external ID
