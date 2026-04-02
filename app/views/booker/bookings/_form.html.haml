@@ -27,11 +27,18 @@
     = f.text_field :order_reference, class: "form-control", placeholder: "e.g. PO-2026-042"
 
   .mb-3.border.rounded.p-3.bg-light
-    %h6.text-muted.mb-3 POP payout / invoice (optional)
+    %h6.text-muted.mb-2 Invoice on POP (set here or at edit)
     %p.small.text-muted.mb-3
-      These map to
+      When you click
+      %strong Pay via POP
+      on this booking, Bookify sends
       %code POST /api/v2/partner/payouts
-      when you use Pay via POP. Worker is taken from the freelancer enrollment; idempotency is set automatically.
+      using the work details above plus the fields below.
+      %strong There is no other screen in Bookify
+      to enter these invoice fields—only this form and
+      %strong Edit booking
+      before you pay. Worker comes from the enrollment; idempotency is fixed per booking.
+      Any field you leave blank is filled from booking dates or POP defaults (see hints under each field).
     .row
       .col-md-6.mb-3
         = f.label :invoiced_on, "Invoiced on", class: "form-label"
