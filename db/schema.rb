@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_30_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_140000) do
   create_schema "_heroku"
 
   # These are extensions that must be enabled in order to support this database
@@ -35,6 +35,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_30_000002) do
     t.date "work_start_date"
     t.date "work_end_date"
     t.decimal "total_hours", precision: 8, scale: 2
+    t.date "invoiced_on"
+    t.date "due_on"
+    t.string "buyer_reference"
+    t.text "external_note"
+    t.string "line_external_id"
     t.index ["enrollment_id"], name: "index_bookings_on_enrollment_id"
     t.index ["status"], name: "index_bookings_on_status"
   end

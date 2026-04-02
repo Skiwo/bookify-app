@@ -54,9 +54,29 @@
             .col-5.text-muted Occupation code
             .col-7= @booking.occupation_code
         - if @booking.order_reference.present?
-          .row
+          .row.mb-2
             .col-5.text-muted Order reference
             .col-7= @booking.order_reference
+        - if @booking.invoiced_on.present?
+          .row.mb-2
+            .col-5.text-muted Invoiced on
+            .col-7= @booking.invoiced_on.strftime("%b %d, %Y")
+        - if @booking.due_on.present?
+          .row.mb-2
+            .col-5.text-muted Due on
+            .col-7= @booking.due_on.strftime("%b %d, %Y")
+        - if @booking.buyer_reference.present?
+          .row.mb-2
+            .col-5.text-muted Buyer reference
+            .col-7= @booking.buyer_reference
+        - if @booking.external_note.present?
+          .row.mb-2
+            .col-5.text-muted External note
+            .col-7{style: "white-space: pre-wrap"}= @booking.external_note
+        - if @booking.line_external_id.present?
+          .row
+            .col-5.text-muted Line external ID
+            .col-7= @booking.line_external_id
 
   .col-md-6
     - if @booking.payout

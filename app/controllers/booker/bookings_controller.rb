@@ -109,15 +109,24 @@ module Booker
         occupation_code: @booking.occupation_code,
         work_started_at: work_started&.iso8601,
         work_ended_at: work_ended&.iso8601,
-        work_hours: @booking.effective_hours
+        work_hours: @booking.effective_hours,
+        external_id: @booking.line_external_id.presence
       }.compact]
+
+      invoiced_on_date = @booking.invoiced_on.presence ||
+        @booking.work_date.presence ||
+        (@booking.project_based? ? @booking.work_start_date : nil) ||
+        Date.current
 
       result = pop_client.create_payout(
         worker_id: enrollment.pop_worker_id,
         lines: lines,
         occupation_code: @booking.occupation_code,
-        invoiced_on: (@booking.work_date || Date.current).iso8601,
+        invoiced_on: invoiced_on_date.iso8601,
+        due_on: @booking.due_on&.iso8601,
+        buyer_reference: @booking.buyer_reference.presence,
         order_reference: @booking.order_reference,
+        external_note: @booking.external_note.presence,
         idempotency_key: "booking-#{@booking.id}"
       )
 
@@ -149,7 +158,8 @@ module Booker
 
     def booking_params
       params.require(:booking).permit(:description, :occupation_code, :hours, :work_date, :order_reference,
-        :booking_type, :start_time, :end_time, :work_start_date, :work_end_date, :total_hours)
+        :booking_type, :start_time, :end_time, :work_start_date, :work_end_date, :total_hours,
+        :invoiced_on, :due_on, :buyer_reference, :external_note, :line_external_id)
     end
 
     def load_occupation_codes
