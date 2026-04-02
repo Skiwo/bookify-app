@@ -106,7 +106,7 @@ module Booker
         description: @booking.description,
         rate: @booking.rate_ore / 100.0,
         quantity: @booking.effective_hours,
-        occupation_code: @booking.occupation_code,
+        occupation_code: @booking.occupation_code.presence,
         work_started_at: work_started&.iso8601,
         work_ended_at: work_ended&.iso8601,
         work_hours: @booking.effective_hours,
@@ -121,11 +121,11 @@ module Booker
       result = pop_client.create_payout(
         worker_id: enrollment.pop_worker_id,
         lines: lines,
-        occupation_code: @booking.occupation_code,
+        occupation_code: @booking.occupation_code.presence,
         invoiced_on: invoiced_on_date.iso8601,
         due_on: @booking.due_on&.iso8601,
         buyer_reference: @booking.buyer_reference.presence,
-        order_reference: @booking.order_reference,
+        order_reference: @booking.order_reference.presence,
         external_note: @booking.external_note.presence,
         idempotency_key: "booking-#{@booking.id}"
       )

@@ -69,17 +69,19 @@ class PopApiClient
   #   external_id     — optional, partner's line item reference
   def create_payout(worker_id:, lines:, occupation_code: nil, invoiced_on: nil, due_on: nil,
                     buyer_reference: nil, order_reference: nil, external_note: nil, idempotency_key: nil)
+    # Omit nil and blank strings — Hash#compact alone still sends "" which POP may reject as "blank".
+    cleaned_lines = lines.map { |line| omit_blank_values(line) }
     body = {
       worker_id: worker_id,
-      occupation_code: occupation_code,
-      invoiced_on: invoiced_on || Date.current.iso8601,
-      due_on: due_on,
-      buyer_reference: buyer_reference,
-      order_reference: order_reference,
-      external_note: external_note,
+      invoiced_on: invoiced_on.presence || Date.current.iso8601,
       idempotency_key: idempotency_key,
-      lines: lines
-    }.compact
+      lines: cleaned_lines
+    }
+    body[:occupation_code] = occupation_code if occupation_code.present?
+    body[:due_on] = due_on if due_on.present?
+    body[:buyer_reference] = buyer_reference if buyer_reference.present?
+    body[:order_reference] = order_reference if order_reference.present?
+    body[:external_note] = external_note if external_note.present?
     post("/api/v2/partner/payouts", body)
   end
 
@@ -103,6 +105,15 @@ class PopApiClient
   end
 
   private
+
+  def omit_blank_values(hash)
+    hash.each_with_object({}) do |(key, value), acc|
+      next if value.nil?
+      next if value.is_a?(String) && value.strip.empty?
+
+      acc[key] = value
+    end
+  end
 
   def connection
     @connection ||= Faraday.new(url: base_url) do |f|

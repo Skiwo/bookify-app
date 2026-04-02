@@ -48,9 +48,29 @@ module ApplicationHelper
     raw = err["details"] || err["errors"] || body["errors"]
     case raw
     when String then raw.strip.presence
-    when Array then raw.map(&:to_s).reject(&:blank?).join("; ").presence
+    when Array then format_pop_error_detail_array(raw)
     when Hash
       raw.flat_map { |k, v| Array(v).map { |x| "#{k}: #{x}" } }.join("; ").presence
     end
+  end
+
+  def format_pop_error_detail_array(items)
+    parts = items.filter_map do |item|
+      case item
+      when Hash
+        field = item["field"].presence || item[:field].presence
+        msg = item["message"].presence || item[:message].presence
+        if field.present? && msg.present?
+          "#{field}: #{msg}"
+        elsif msg.present?
+          msg
+        elsif field.present?
+          field
+        end
+      else
+        item.to_s.presence
+      end
+    end
+    parts.join("; ").presence
   end
 end
