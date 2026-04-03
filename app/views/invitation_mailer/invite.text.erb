@@ -1,0 +1,17 @@
+<%= @booker.name.presence || "A Bookify user" %> invited you to Bookify
+=====================================================
+
+You've been invited to join Bookify so you can get paid for your work.
+
+Here's what happens next:
+
+  1. Click the link below to accept the invitation
+  2. Verify your identity through PayoutPartner (takes ~5 minutes)
+  3. You're set up and ready to get paid!
+
+Accept your invitation:
+<%= @invitation_url %>
+
+--
+If you have questions, contact <%= @booker.name.presence || "the person who invited you" %> directly.
+Didn't expect this? You can safely ignore this email.

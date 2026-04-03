@@ -2,7 +2,7 @@
 
 .d-flex.justify-content-between.align-items-center.mb-4
   %h2= @enrollment.name
-  .btn-group
+  .d-flex.gap-2
     - if @enrollment.invited? || @enrollment.onboarding?
       = button_to "Resend Invitation", resend_invite_booker_freelancer_path(@enrollment), method: :post, class: "btn btn-outline-warning btn-sm"
     - if @enrollment.pop_synced?
@@ -84,16 +84,12 @@
         %thead.table-light
           %tr
             %th Description
-            %th Rate
-            %th Hours
             %th Total
             %th Status
         %tbody
           - @bookings.each do |booking|
             %tr
-              %td= link_to booking.description, booker_booking_path(booking)
-              %td= format_nok_value(booking.rate_nok)
-              %td= booking.hours
+              %td= link_to booking.summary, booker_booking_path(booking)
               %td.fw-bold= format_nok_value(booking.total_nok)
               %td
                 %span.badge{class: booking.has_payout? ? "bg-success" : booking.completed? ? "bg-primary" : "bg-secondary"}= booking.status.humanize

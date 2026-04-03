@@ -14,12 +14,16 @@ module Booker
 
     private
 
+    CREDENTIAL_KEYS = %w[
+      pop_sandbox_api_key pop_sandbox_hmac_secret pop_sandbox_partner_id
+      pop_production_api_key pop_production_hmac_secret pop_production_partner_id
+    ].freeze
+
     def settings_params
       params.require(:user).permit(
         :pop_environment,
-        :pop_sandbox_api_key, :pop_sandbox_hmac_secret, :pop_sandbox_partner_id,
-        :pop_production_api_key, :pop_production_hmac_secret, :pop_production_partner_id
-      )
+        *CREDENTIAL_KEYS
+      ).reject { |k, v| CREDENTIAL_KEYS.include?(k) && v.blank? }
     end
   end
 end
