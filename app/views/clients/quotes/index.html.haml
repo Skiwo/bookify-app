@@ -1,0 +1,33 @@
+%h2.mb-4 Quotes
+
+- if @jobs.any?
+  .row.row-cols-1.row-cols-md-2.g-4
+    - @jobs.each do |job|
+      .col
+        .card.border-0.shadow-sm
+          .card-body
+            .d-flex.justify-content-between.align-items-start.mb-2
+              %h5.fw-bold.mb-0= job.title
+              - if job.quote_expired?
+                %span.badge.bg-secondary Expired
+              - else
+                %span.badge.bg-warning.text-dark Awaiting decision
+            %p.text-muted.small.mb-2= job.shop.name
+            - if job.work_amount_ore
+              .mb-2
+                %strong= format_nok(job.work_amount_ore)
+                %span.text-muted.small  + #{job.shop.commission_percent}% commission + 25% MVA
+            - if job.quote_expires_at
+              %p.text-muted.small.mb-3
+                %i.bi.bi-clock.me-1
+                Expires #{job.quote_expires_at.strftime("%d %b %Y %H:%M")}
+            .d-flex.gap-2
+              = link_to "View quote", clients_quote_path(job), class: "btn btn-outline-primary btn-sm"
+              - unless job.quote_expired?
+                = button_to "Accept", accept_clients_quote_path(job), method: :post, class: "btn btn-success btn-sm"
+                = button_to "Decline", decline_clients_quote_path(job), method: :post, class: "btn btn-outline-danger btn-sm"
+- else
+  .text-center.py-5
+    %i.bi.bi-file-earmark-text.display-3.text-muted
+    %h5.fw-bold.mt-3 No quotes yet
+    %p.text-muted= link_to "Browse shops", shops_path

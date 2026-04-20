@@ -1,0 +1,24 @@
+%h2.mb-1= @skill.humanize
+%p.text-muted.mb-4 Hire a #{@skill} through Bookify — payments handled by Payout Partner AS.
+
+- if @shops.any?
+  .row.row-cols-1.row-cols-md-3.g-4
+    - @shops.each do |shop|
+      .col
+        .card.h-100.border-0.shadow-sm
+          .card-body
+            %h5.card-title.fw-bold= shop.name
+            - if shop.city.present?
+              %p.text-muted.small.mb-2
+                %i.bi.bi-geo-alt.me-1
+                = shop.city
+            %p.card-text.text-muted.small= truncate(shop.description, length: 100)
+          .card-footer.bg-white.border-0.pb-3
+            = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
+              View shop
+              %i.bi.bi-arrow-right.ms-1
+- else
+  .text-center.py-5
+    %i.bi.bi-search.display-3.text-muted
+    %h5.fw-bold.mt-3 No shops for this skill yet
+    %p.text-muted= link_to "Browse all shops", shops_path

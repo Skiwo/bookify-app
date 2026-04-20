@@ -1,0 +1,39 @@
+%h2.mb-1 Find a freelancer
+%p.text-muted.mb-4 Norwegian professionals, payments handled by Payout Partner AS.
+
+= form_with url: shops_path, method: :get, local: true, class: "row g-2 mb-4" do |f|
+  .col-md-4
+    = f.text_field :city, value: params[:city], placeholder: "City", class: "form-control"
+  .col-md-4
+    = f.text_field :skill, value: params[:skill], placeholder: "Skill (e.g. kokker)", class: "form-control"
+  .col-auto
+    = f.submit "Search", class: "btn btn-primary"
+  - if params[:city].present? || params[:skill].present?
+    .col-auto
+      = link_to "Clear", shops_path, class: "btn btn-outline-secondary"
+
+- if @shops.any?
+  .row.row-cols-1.row-cols-md-3.g-4
+    - @shops.each do |shop|
+      .col
+        .card.h-100.border-0.shadow-sm
+          .card-body
+            %h5.card-title.fw-bold= shop.name
+            - if shop.city.present?
+              %p.text-muted.small.mb-2
+                %i.bi.bi-geo-alt.me-1
+                = shop.city
+            %p.card-text.text-muted.small= truncate(shop.description, length: 120)
+            - if shop.skill_tags.any?
+              .mb-3
+                - shop.skill_tags.first(4).each do |tag|
+                  %span.badge.bg-light.text-dark.border.me-1= tag
+          .card-footer.bg-white.border-0.pb-3
+            = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
+              View shop
+              %i.bi.bi-arrow-right.ms-1
+- else
+  .text-center.py-5
+    %i.bi.bi-shop.display-3.text-muted
+    %h5.fw-bold.mt-3 No shops found
+    %p.text-muted Try a different city or skill.

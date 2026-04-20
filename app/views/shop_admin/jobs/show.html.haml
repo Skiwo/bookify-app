@@ -1,0 +1,63 @@
+.d-flex.align-items-start.mb-4
+  .me-auto
+    = link_to "← Jobs", shop_jobs_path, class: "text-muted text-decoration-none small"
+    %h2.fw-bold.mt-1= @job.title
+    %p.text-muted= @job.client.org_name
+  .d-flex.gap-2
+    - if @job.draft?
+      = link_to "Issue quote", new_shop_quote_path(job_id: @job.id), class: "btn btn-primary"
+    - if @job.in_progress?
+      = button_to "Mark complete", mark_complete_shop_job_path(@job), method: :post, class: "btn btn-success"
+
+.row
+  .col-lg-7
+    .card.border-0.shadow-sm.mb-4
+      .card-header.bg-white.fw-bold Job details
+      .card-body
+        %dl.row.mb-0
+          %dt.col-sm-4 Status
+          %dd.col-sm-8
+            %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? ? "bg-success" : "bg-primary"}
+              = @job.status.humanize
+          %dt.col-sm-4 Client
+          %dd.col-sm-8= @job.client.org_name
+          %dt.col-sm-4 Assigned member
+          %dd.col-sm-8= @job.assigned_member&.name || "—"
+          - if @job.work_amount_ore
+            %dt.col-sm-4 Work amount
+            %dd.col-sm-8= format_nok(@job.work_amount_ore)
+          - if @job.commission_amount_ore
+            %dt.col-sm-4 Commission (#{@job.shop.commission_percent}%)
+            %dd.col-sm-8= format_nok(@job.commission_amount_ore)
+          - if @job.quote_expires_at
+            %dt.col-sm-4 Quote expires
+            %dd.col-sm-8= @job.quote_expires_at.strftime("%d %b %Y %H:%M")
+          - if @job.description.present?
+            %dt.col-sm-4 Description
+            %dd.col-sm-8= @job.description
+
+    = render "shared/job_chat", job: @job, messages: @messages
+
+  .col-lg-5
+    .card.border-0.shadow-sm
+      .card-header.bg-white.fw-bold Timeline
+      .card-body.py-2
+        .small.text-muted.mb-2
+          %i.bi.bi-circle-fill.me-2.text-primary
+          Request received #{time_ago_in_words(@job.created_at)} ago
+        - if @job.quoted? || @job.accepted? || @job.in_progress? || @job.pending_confirmation? || @job.invoiced?
+          .small.text-muted.mb-2
+            %i.bi.bi-circle-fill.me-2.text-primary
+            Quote issued
+        - if @job.in_progress? || @job.pending_confirmation? || @job.invoiced?
+          .small.text-muted.mb-2
+            %i.bi.bi-circle-fill.me-2.text-primary
+            Client accepted
+        - if @job.pending_confirmation? || @job.invoiced?
+          .small.text-muted.mb-2
+            %i.bi.bi-circle-fill.me-2.text-success
+            Marked complete
+        - if @job.invoiced?
+          .small.text-muted
+            %i.bi.bi-circle-fill.me-2.text-success
+            Invoice issued

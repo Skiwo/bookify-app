@@ -1,0 +1,28 @@
+%h2.mb-4 Jobs
+
+- if @jobs.any?
+  .table-responsive
+    %table.table.table-hover.align-middle
+      %thead.table-light
+        %tr
+          %th Job
+          %th Shop
+          %th Amount
+          %th Status
+          %th
+      %tbody
+        - @jobs.each do |job|
+          %tr
+            %td.fw-medium= job.title
+            %td.text-muted= job.shop.name
+            %td= job.work_amount_ore ? format_nok(job.work_amount_ore) : "—"
+            %td
+              %span.badge{class: job.disputed? ? "bg-danger" : job.invoiced? || job.completed? ? "bg-success" : "bg-primary"}
+                = job.status.humanize
+            %td.text-end
+              = link_to "View", clients_job_path(job), class: "btn btn-sm btn-outline-primary"
+- else
+  .text-center.py-5
+    %i.bi.bi-briefcase.display-3.text-muted
+    %h5.fw-bold.mt-3 No jobs yet
+    %p.text-muted= link_to "Browse shops to get started", shops_path

@@ -2,7 +2,7 @@ class BookingLine < ApplicationRecord
   belongs_to :booking, inverse_of: :booking_lines
 
   enum :booking_type, { time_based: 0, project_based: 1 }
-  enum :line_type, { work: 0, benefit: 1, expense: 2, diet: 3 }
+  enum :line_type, { work: 0, benefit: 1, expense: 2, diet: 3, commission: 4 }
 
   validates :description, presence: true
   validates :rate_ore, presence: true, numericality: { only_integer: true, greater_than: 0 }

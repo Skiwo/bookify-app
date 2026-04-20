@@ -1,0 +1,35 @@
+%h2.mb-4
+  Dashboard
+  %small.text-muted.fw-normal.ms-2= @client.org_name
+
+.row.mb-4
+  .col-md-6.mb-3
+    .card.border-0.shadow-sm.sidebar-tint
+      .card-body.text-center.py-3
+        %h3.text-primary.fw-bold.mb-0= @open_jobs.size
+        %p.text-muted.small.mb-0 Open Jobs
+  .col-md-6.mb-3
+    .card.border-0.shadow-sm.sidebar-tint
+      .card-body.text-center.py-3
+        %h3.text-primary.fw-bold.mb-0= @recent_jobs.size
+        %p.text-muted.small.mb-0 Total Jobs
+
+.card.border-0.shadow-sm
+  .card-header.bg-white.fw-bold Recent jobs
+  .card-body
+    - if @recent_jobs.any?
+      .list-group.list-group-flush
+        - @recent_jobs.each do |job|
+          = link_to clients_job_path(job), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
+            %div
+              %span.fw-medium= job.title
+              %br
+              %small.text-muted= job.shop.name
+            %span.badge{class: job.disputed? ? "bg-danger" : job.invoiced? || job.completed? ? "bg-success" : "bg-primary"}
+              = job.status.humanize
+    - else
+      .text-center.py-4
+        %p.text-muted.mb-3 No jobs yet.
+        = link_to shops_path, class: "btn btn-primary" do
+          %i.bi.bi-search.me-1
+          Browse shops

@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  enum :role, { booker: 0, freelancer: 1 }
+  enum :role, { booker: 0, freelancer: 1, client: 2, shop_owner: 3 }
 
   has_many :enrollments_as_booker, class_name: "Enrollment", foreign_key: :booker_id, dependent: :restrict_with_error, inverse_of: :booker
   has_many :enrollments_as_freelancer, class_name: "Enrollment", foreign_key: :freelancer_id, dependent: :nullify, inverse_of: :freelancer

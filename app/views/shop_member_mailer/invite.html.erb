@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; padding: 0; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #212529; -webkit-font-smoothing: antialiased; }
+    .wrapper { max-width: 480px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: #ffffff; border-radius: 12px; padding: 40px 32px; }
+    .logo { font-size: 22px; font-weight: 700; color: #059669; margin-bottom: 28px; text-align: center; }
+    .logo span { display: inline-block; width: 32px; height: 32px; background: #059669; color: #fff; border-radius: 8px; text-align: center; line-height: 32px; font-size: 18px; margin-right: 8px; vertical-align: middle; }
+    h1 { font-size: 20px; font-weight: 700; margin: 0 0 12px; text-align: center; }
+    .intro { color: #495057; font-size: 15px; margin: 0 0 28px; text-align: center; }
+    .shop-box { background: #ECFDF5; border-radius: 8px; padding: 16px 20px; margin: 0 0 28px; text-align: center; }
+    .shop-box strong { font-size: 17px; color: #065f46; }
+    .steps { background: #f8f9fa; border-radius: 8px; padding: 20px 20px 20px 16px; margin: 0 0 28px; }
+    .step { display: flex; align-items: flex-start; margin-bottom: 14px; font-size: 14px; color: #495057; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num { display: inline-block; min-width: 22px; height: 22px; background: #059669; color: #fff; border-radius: 50%; text-align: center; line-height: 22px; font-size: 12px; font-weight: 700; margin-right: 12px; margin-top: 1px; }
+    .btn-wrap { text-align: center; margin-bottom: 24px; }
+    .btn { display: inline-block; background: #059669; color: #ffffff !important; text-decoration: none; padding: 13px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; }
+    .divider { border: none; border-top: 1px solid #e9ecef; margin: 24px 0; }
+    .link-fallback { font-size: 13px; color: #6c757d; text-align: center; word-break: break-all; }
+    .link-fallback a { color: #059669; }
+    .footer { text-align: center; margin-top: 24px; color: #adb5bd; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="logo"><span>B</span> Bookify</div>
+
+      <h1>You've been invited to join a shop</h1>
+      <p class="intro"><%= @owner_name %> has added you to their roster on Bookify.</p>
+
+      <div class="shop-box">
+        <strong><%= @shop.name %></strong>
+        <% if @shop.city.present? %><br><span style="color:#6b7280;font-size:14px;"><%= @shop.city %></span><% end %>
+      </div>
+
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span>Click the button below to accept the invitation</div>
+        <div class="step"><span class="step-num">2</span>You'll be added to the roster and can start receiving job assignments</div>
+        <div class="step"><span class="step-num">3</span>Get paid as frilanser lønn through Payout Partner AS every Thursday</div>
+      </div>
+
+      <div class="btn-wrap">
+        <a href="<%= @invitation_url %>" class="btn">Accept invitation &rarr;</a>
+      </div>
+
+      <hr class="divider">
+
+      <p class="link-fallback">
+        Or copy this link:<br>
+        <a href="<%= @invitation_url %>"><%= @invitation_url %></a>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Payments handled by Payout Partner AS on behalf of <%= @shop.name %>.</p>
+      <p>Didn&rsquo;t expect this? You can safely ignore this email.</p>
+    </div>
+  </div>
+</body>
+</html>

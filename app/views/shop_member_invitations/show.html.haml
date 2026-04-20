@@ -1,0 +1,33 @@
+.row.justify-content-center.mt-5
+  .col-md-5
+    .card.border-0.shadow-sm.text-center
+      .card-body.py-5
+        %i.bi.bi-people.display-3.text-success.mb-3
+        %h4.fw-bold You've been invited to join a shop
+        %p.text-muted
+          %strong= @shop.owner.name.presence || @shop.name
+          has added you to the roster at
+          %strong= @shop.name
+
+        - if @shop.city.present?
+          %p.text-muted.small
+            %i.bi.bi-geo-alt.me-1
+            = @shop.city
+
+        .alert.alert-light.text-start.mb-4
+          %p.small.mb-2
+            %i.bi.bi-check-circle.text-success.me-1
+            You'll receive job assignments from the shop owner
+          %p.small.mb-2
+            %i.bi.bi-check-circle.text-success.me-1
+            Get paid as frilanser lønn every Thursday via Payout Partner AS
+          %p.small.mb-0
+            %i.bi.bi-check-circle.text-success.me-1
+            Arbeidsgiveravgift and tax handled automatically
+
+        - if @member.active?
+          .alert.alert-secondary You've already accepted this invitation.
+        - else
+          = button_to "Accept invitation", accept_shop_member_invitation_path(@member.invitation_token),
+              method: :post, class: "btn btn-success btn-lg w-100"
+          %p.text-muted.small.mt-3.mb-0 By accepting, you agree to Bookify's terms of service.

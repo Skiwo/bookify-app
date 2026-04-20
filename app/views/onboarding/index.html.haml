@@ -1,0 +1,50 @@
+.row.justify-content-center.mt-4
+  .col-lg-8
+    .text-center.mb-5
+      %h2.fw-bold Welcome to Bookify
+      %p.text-muted What do you want to do?
+
+    .row.g-4
+      .col-md-6
+        .card.border-0.shadow-sm.h-100{"data-bs-toggle": ""}
+          .card-body.text-center.py-5.px-4
+            .rounded-circle.bg-success.bg-opacity-10.d-inline-flex.align-items-center.justify-content-center.mb-4{style: "width:80px;height:80px"}
+              %i.bi.bi-shop.fs-1.text-success
+            %h4.fw-bold Offer services
+            %p.text-muted.mb-4
+              Open a shop on Bookify, invite your team, and get paid as frilanser lønn through Payout Partner AS.
+            %ul.list-unstyled.text-start.small.text-muted.mb-4
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-success.me-2
+                Your own shop page at bookify.app
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-success.me-2
+                Receive job requests from clients
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-success.me-2
+                Get paid every Thursday via Payout Partner AS
+            = link_to new_onboarding_shop_path, class: "btn btn-success btn-lg w-100" do
+              %i.bi.bi-shop.me-2
+              Open a shop
+
+      .col-md-6
+        .card.border-0.shadow-sm.h-100
+          .card-body.text-center.py-5.px-4
+            .rounded-circle.bg-primary.bg-opacity-10.d-inline-flex.align-items-center.justify-content-center.mb-4{style: "width:80px;height:80px"}
+              %i.bi.bi-building.fs-1.text-primary
+            %h4.fw-bold Hire freelancers
+            %p.text-muted.mb-4
+              Find and hire Norwegian freelancers. Get a proper MVA invoice from Payout Partner AS.
+            %ul.list-unstyled.text-start.small.text-muted.mb-4
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-primary.me-2
+                Browse shops by skill and city
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-primary.me-2
+                Request quotes from multiple shops
+              %li.mb-2
+                %i.bi.bi-check-circle-fill.text-primary.me-2
+                Net-14 invoice with 25% MVA
+            = link_to new_clients_registration_path, class: "btn btn-primary btn-lg w-100" do
+              %i.bi.bi-building.me-2
+              Register organisation

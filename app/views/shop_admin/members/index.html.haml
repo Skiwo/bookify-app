@@ -1,0 +1,41 @@
+.d-flex.justify-content-between.align-items-center.mb-4
+  %h2 Roster members
+  = link_to new_shop_member_path, class: "btn btn-primary" do
+    %i.bi.bi-plus-lg.me-1
+    Add member
+
+- if @members.any?
+  .table-responsive
+    %table.table.table-hover.align-middle
+      %thead.table-light
+        %tr
+          %th Name
+          %th Email
+          %th Status
+          %th Joined
+          %th
+      %tbody
+        - @members.each do |member|
+          %tr
+            %td.fw-medium= member.name
+            %td.text-muted= member.email
+            %td
+              %span.badge{class: member.active? ? "bg-success" : member.invited? ? "bg-warning text-dark" : "bg-secondary"}
+                = member.status.humanize
+            %td.text-muted= member.accepted_at&.strftime("%d %b %Y") || "—"
+            %td.text-end.d-flex.gap-1.justify-content-end
+              - if member.invited?
+                = link_to "Resend", shop_members_path(resend: member.id), class: "btn btn-sm btn-outline-secondary",
+                    data: { turbo_method: :post }
+              - if !member.inactive?
+                = button_to "Remove", shop_member_path(member), method: :delete,
+                    class: "btn btn-sm btn-outline-danger",
+                    data: { turbo_confirm: "Remove #{member.name} from the roster?" }
+- else
+  .text-center.py-5
+    %i.bi.bi-people.display-3.text-muted
+    %h5.fw-bold.mt-3 No members yet
+    %p.text-muted Add freelancers to your roster so you can assign them to jobs.
+    = link_to new_shop_member_path, class: "btn btn-primary" do
+      %i.bi.bi-plus-lg.me-1
+      Add first member

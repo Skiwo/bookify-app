@@ -1,0 +1,5 @@
+.mb-3{"data-message-id": message.id}
+  .d-flex.align-items-baseline.gap-2.mb-1
+    %span.fw-medium.small= message.sender.name || message.sender.email
+    %span.text-muted.small= message.created_at.strftime("%d %b %H:%M")
+  .bg-light.rounded.p-2.small= message.body

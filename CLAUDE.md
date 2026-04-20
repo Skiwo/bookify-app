@@ -1,84 +1,53 @@
-# CLAUDE.md — Bookify App
+# Bookify — CLAUDE.md
 
-Bookify is an open-source reference application built on the Payout Partner API v2. It demonstrates freelancer onboarding, booking management, payout creation, and invoice bundling.
+## Что такое Bookify
+Норвежский маркетплейс для найма фрилансеров (bookify.app).
+Владелец: Skiwo AS. Отдельный проект, отдельный репо.
 
-This is a **public repository** — do not add credentials, secrets, or internal-only information here.
+## Биллинг через Payout Partner
+Bookify **не обрабатывает платежи сам**. Всё идёт через
+Payout Partner (POP) — отдельный Rails-сервис.
 
-## Stack
+- Prod API: `https://core.payoutpartner.com/api/v2/partner`
+- Staging:  `https://rc.core.payoutpartner.com/api/v2/partner`
+- Auth: `Authorization: Bearer <API_KEY>`
+- Docs: `docs/api-guide.md`
 
-- Ruby 3.2.x, Rails 8.0
-- PostgreSQL
-- HAML templates, Importmap, Turbo, Stimulus
-- Passwordless authentication (magic link)
-- Deployed on Heroku
+## Bookify как партнёр на POP
+Bookify = один partner account на POP с `partner_api_v2 = true`.
+- Shop owner = freelancer, enrolled на этот account
+- Member = другой freelancer, enrolled на тот же account
+- Job = один Invoice с двумя строками
 
-## Run Locally
+## Ключевой API-флоу
+1. `POST /connect_tokens` → JWT → редирект фрилансера на POP онбординг
+2. После онбординга POP колбэчит: `callback_url?worker_id=X&status=approved`
+3. `POST /payouts` с двумя строками:
+   ```json
+   {
+     "worker_id": "member-id",
+     "source_params": { "job_id": "...", "shop_id": "..." },
+     "lines": [
+       { "line_type": "work", "rate": 9500, "description": "Job work" },
+       { "line_type": "commission", "rate": 500,
+         "payee_freelance_profile_id": "shop-owner-profile-uuid",
+         "description": "Shop commission 5%" }
+     ]
+   }
 
-### Prerequisites
+Три поля добавленные в POP для Bookify
+Invoice.source_params — { job_id, shop_id, booking_id, source }
+InvoiceLine.payee_freelance_profile_id — для commission строки
+InvoiceLine.line_type = "commission" — новый тип, считается как зарплата
+Правила разработки
+Все изменения на отдельных роутах — не трогать существующие
+Lønn only — никакого ENK/AS в Bookify
+Минимальный job: 600 NOK
+Shop owner комиссия: 5%
+POP fee: 4.9%, employer tax: 14.1%
 
-- Ruby 3.2.x (3.2.0+ works; Gemfile uses `~> 3.2.0`)
-- PostgreSQL running and accessible
-- Bundler
-
-### Setup
-
-```bash
-# Install gems (use local path if system Ruby lacks write permissions)
-bundle config set --local path vendor/bundle
-bundle install
-
-# Copy and edit environment variables
-cp .env.sample .env
-# Edit .env — set DATABASE_URL and SECRET_KEY_BASE at minimum
-
-# Create and migrate the database
-bundle exec rails db:create db:migrate db:seed
-
-# Start the server
-bundle exec rails s -p 3000
-# Visit http://localhost:3000
-```
-
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `SECRET_KEY_BASE` | Yes | Generate with `rails secret` |
-| `POP_BASE_URL` | No | POP API base URL (default: sandbox) |
-| `POP_API_KEY` | No | Per-booker in Settings, or set globally here |
-| `POP_HMAC_SECRET` | No | Per-booker in Settings, or set globally here |
-| `POP_PARTNER_ID` | No | Per-booker in Settings, or set globally here |
-
-Emails open in the browser via `letter_opener` in development — no SMTP needed locally.
-
-## Commands
-
-```bash
-bundle exec rails s              # Start dev server (port 3000)
-bundle exec rspec                # Run all specs
-bundle exec rspec spec/services/ # PopApiClient specs only
-bundle exec rspec spec/requests/ # Request specs only
-```
-
-## Architecture
-
-- **Users** are either bookers or freelancers (enum role)
-- **Enrollments** link a booker to a freelancer, track invitation status and POP worker ID (maps to POP's enrollment concept)
-- **Bookings** represent units of work with rate (stored in ore) and hours
-- **Payouts** are payments processed through POP, storing the full API response
-- All monetary values are in ore (1/100 NOK). `rate_ore = 60000` means 600.00 NOK/hr
-
-### Key Files
-
-| File | Purpose |
-|------|---------|
-| `app/services/pop_api_client.rb` | Wraps all POP API v2 endpoints |
-| `app/controllers/callbacks_controller.rb` | POP onboard/manage redirects |
-| `app/controllers/booker/` | Booker dashboard, freelancers, bookings, payouts |
-| `app/controllers/freelancer/` | Freelancer dashboard + profile |
-| `app/views/shared/_developer_notes.html.haml` | Slide-out API call panel |
-
-## Tests
-
-Tests use WebMock to stub POP API calls — no network required.
+Референсы
+docs/bookify-plan-presentation.html — полная презентация продукта
+docs/how-it-works.md — как POP работает
+docs/api-guide.md — API reference
+docs/norwegian-payroll.md — расчёт налогов

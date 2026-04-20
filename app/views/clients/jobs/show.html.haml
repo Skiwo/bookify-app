@@ -1,0 +1,56 @@
+= link_to "← Jobs", clients_jobs_path, class: "text-muted text-decoration-none small"
+%h2.fw-bold.mt-1.mb-1= @job.title
+%p.text-muted.mb-4= @job.shop.name
+
+.row
+  .col-lg-7
+    .card.border-0.shadow-sm.mb-4
+      .card-header.bg-white.fw-bold Job details
+      .card-body
+        %dl.row.mb-0
+          %dt.col-sm-4 Status
+          %dd.col-sm-8
+            %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : "bg-primary"}
+              = @job.status.humanize
+          - if @job.work_amount_ore
+            %dt.col-sm-4 Amount (excl. MVA)
+            %dd.col-sm-8= format_nok(@job.work_amount_ore)
+          %dt.col-sm-4 Shop
+          %dd.col-sm-8= @job.shop.name
+          %dt.col-sm-4 Member
+          %dd.col-sm-8= @job.assigned_member&.name || "—"
+
+    - if @job.pending_confirmation?
+      .card.border-0.shadow-sm.border-warning.mb-4
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-exclamation-triangle.me-1
+            Job marked complete
+          %p.small.mb-3 The shop has marked this job as complete. Please confirm or raise a dispute within 48 hours. Silence counts as confirmation.
+          - if @job.confirmation_deadline_at
+            %p.small.text-muted.mb-3 Deadline: #{@job.confirmation_deadline_at.strftime("%d %b %Y %H:%M")}
+          = button_to "Confirm completion", confirm_clients_job_path(@job), method: :post, class: "btn btn-success mb-2 w-100"
+          %hr.my-2
+          = form_with url: dispute_clients_job_path(@job), method: :post, local: true do |f|
+            .mb-2
+              = f.text_area "dispute[reason]", class: "form-control form-control-sm", rows: 2, placeholder: "Describe the issue…", required: true
+            = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
+
+    = render "shared/job_chat", job: @job, messages: @messages
+
+  .col-lg-5
+    .card.border-0.shadow-sm
+      .card-header.bg-white.fw-bold What happens next
+      .card-body.small
+        - case @job.status.to_sym
+        - when :accepted, :in_progress
+          %p Work is underway. Chat with the shop if you have questions.
+        - when :pending_confirmation
+          %p.fw-medium Please confirm or dispute the completion above.
+        - when :invoiced
+          %p.mb-2 Invoice issued by Payout Partner AS. Net 14 days payment.
+          %p.mb-0.text-muted You will receive the invoice by email.
+        - when :disputed
+          %p.text-danger A dispute has been raised. We will be in touch.
+        - else
+          %p Waiting for the shop to send a quote.

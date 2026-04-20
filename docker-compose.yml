@@ -16,7 +16,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "3003:3003"
     volumes:
       - .:/rails
       - bundle:/usr/local/bundle
@@ -25,8 +25,7 @@ services:
       SECRET_KEY_BASE: dev_secret_key_base_change_for_production
       RAILS_ENV: development
     env_file:
-      - path: .env
-        required: false
+      - .env
     depends_on:
       db:
         condition: service_healthy

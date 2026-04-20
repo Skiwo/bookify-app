@@ -1,0 +1,41 @@
+= link_to "← Back to job", shop_job_path(@job), class: "text-muted text-decoration-none small"
+%h2.fw-bold.mt-1.mb-4 Issue quote
+
+.row
+  .col-lg-6
+    .card.border-0.shadow-sm.mb-4
+      .card-header.bg-white.fw-bold Job
+      .card-body
+        %p.fw-medium.mb-1= @job.title
+        %p.text-muted.small.mb-0= @job.client.org_name
+        - if @job.description.present?
+          %p.text-muted.small.mt-2.mb-0= @job.description
+
+  .col-lg-6
+    .card.border-0.shadow-sm
+      .card-header.bg-white.fw-bold Quote details
+      .card-body
+        = form_with url: shop_quotes_path, method: :post, local: true do |f|
+          = f.hidden_field :job_id, value: @job.id
+
+          .mb-3
+            = f.label :work_amount_ore, "Work amount (NOK excl. MVA)", class: "form-label fw-medium"
+            .input-group
+              %span.input-group-text kr
+              = f.number_field :work_amount_ore, step: 100, min: 60000, class: "form-control",
+                  placeholder: "e.g. 1000000 = 10 000 kr", required: true
+            %div.form-text Minimum 600 kr (60 000 øre). Enter in øre (1 kr = 100 øre).
+
+          .mb-3
+            = f.label :assigned_member_id, "Assign member", class: "form-label fw-medium"
+            = f.select :assigned_member_id,
+                @members.map { |m| [m.name, m.id] },
+                { include_blank: "— Select member —" },
+                class: "form-select"
+
+          .alert.alert-info.small
+            %i.bi.bi-info-circle.me-1
+            Commission of #{current_shop.commission_percent}% will be added automatically.
+            Client pays via bank transfer. Net-14 invoice from Payout Partner AS.
+
+          = f.submit "Send quote (72h window)", class: "btn btn-primary w-100"

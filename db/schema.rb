@@ -10,12 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
-  create_schema "_heroku"
-
+ActiveRecord::Schema[8.0].define(version: 2026_04_20_000011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
 
   create_table "booking_lines", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -55,6 +52,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
     t.index ["status"], name: "index_bookings_on_status"
   end
 
+  create_table "clients", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id"
+    t.string "org_number", null: false
+    t.string "org_name", null: false
+    t.string "org_address"
+    t.datetime "verified_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["org_number"], name: "index_clients_on_org_number", unique: true
+    t.index ["user_id"], name: "index_clients_on_user_id"
+  end
+
+  create_table "disputes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_id", null: false
+    t.uuid "raised_by_id", null: false
+    t.text "reason", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id"], name: "index_disputes_on_job_id"
+    t.index ["raised_by_id"], name: "index_disputes_on_raised_by_id"
+  end
+
   create_table "enrollments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "booker_id", null: false
     t.uuid "freelancer_id"
@@ -70,10 +91,42 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["booker_id", "email"], name: "index_enrollments_on_booker_id_and_email", unique: true
-    t.index ["booker_id"], name: "index_enrollments_on_booker_id"
     t.index ["freelancer_id"], name: "index_enrollments_on_freelancer_id"
     t.index ["invitation_token"], name: "index_enrollments_on_invitation_token", unique: true
     t.index ["pop_worker_id"], name: "index_enrollments_on_pop_worker_id"
+  end
+
+  create_table "jobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "shop_id", null: false
+    t.uuid "client_id", null: false
+    t.uuid "assigned_member_id"
+    t.uuid "booking_id"
+    t.string "title", null: false
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.integer "work_amount_ore"
+    t.integer "commission_amount_ore"
+    t.datetime "quote_expires_at"
+    t.datetime "completion_marked_at"
+    t.datetime "confirmation_deadline_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_member_id"], name: "index_jobs_on_assigned_member_id"
+    t.index ["booking_id"], name: "index_jobs_on_booking_id"
+    t.index ["client_id"], name: "index_jobs_on_client_id"
+    t.index ["shop_id"], name: "index_jobs_on_shop_id"
+    t.index ["status"], name: "index_jobs_on_status"
+  end
+
+  create_table "messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_id", null: false
+    t.uuid "sender_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id", "created_at"], name: "index_messages_on_job_id_and_created_at"
+    t.index ["job_id"], name: "index_messages_on_job_id"
+    t.index ["sender_id"], name: "index_messages_on_sender_id"
   end
 
   create_table "passwordless_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -86,7 +139,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
     t.string "identifier", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["authenticatable_type", "authenticatable_id"], name: "authenticatable"
+    t.index ["authenticatable_type", "authenticatable_id"], name: "index_passwordless_on_authenticatable"
+    t.index ["identifier"], name: "index_passwordless_sessions_on_identifier"
+    t.index ["token_digest"], name: "index_passwordless_sessions_on_token_digest"
   end
 
   create_table "payouts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -101,6 +156,53 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
     t.datetime "updated_at", null: false
     t.index ["booking_id"], name: "index_payouts_on_booking_id", unique: true
     t.index ["pop_payout_id"], name: "index_payouts_on_pop_payout_id", unique: true
+  end
+
+  create_table "shop_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "shop_id", null: false
+    t.string "email", null: false
+    t.string "token", null: false
+    t.datetime "accepted_at"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id", "email"], name: "index_shop_invitations_on_shop_id_and_email", unique: true
+    t.index ["shop_id"], name: "index_shop_invitations_on_shop_id"
+    t.index ["token"], name: "index_shop_invitations_on_token", unique: true
+  end
+
+  create_table "shop_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "shop_id", null: false
+    t.uuid "enrollment_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "invited_at"
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "invitation_token"
+    t.index ["enrollment_id"], name: "index_shop_members_on_enrollment_id"
+    t.index ["invitation_token"], name: "index_shop_members_on_invitation_token", unique: true
+    t.index ["shop_id", "enrollment_id"], name: "index_shop_members_on_shop_id_and_enrollment_id", unique: true
+    t.index ["shop_id"], name: "index_shop_members_on_shop_id"
+  end
+
+  create_table "shops", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "owner_id", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.integer "visibility", default: 0, null: false
+    t.integer "commission_percent", default: 5, null: false
+    t.string "city"
+    t.string "skill_tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "pop_worker_id"
+    t.index ["owner_id"], name: "index_shops_on_owner_id"
+    t.index ["slug"], name: "index_shops_on_slug", unique: true
+    t.index ["status"], name: "index_shops_on_status"
+    t.index ["visibility"], name: "index_shops_on_visibility"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -124,7 +226,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_200004) do
 
   add_foreign_key "booking_lines", "bookings"
   add_foreign_key "bookings", "enrollments"
+  add_foreign_key "clients", "users"
+  add_foreign_key "disputes", "jobs"
+  add_foreign_key "disputes", "users", column: "raised_by_id"
   add_foreign_key "enrollments", "users", column: "booker_id"
   add_foreign_key "enrollments", "users", column: "freelancer_id"
+  add_foreign_key "jobs", "bookings"
+  add_foreign_key "jobs", "clients"
+  add_foreign_key "jobs", "shop_members", column: "assigned_member_id"
+  add_foreign_key "jobs", "shops"
+  add_foreign_key "messages", "jobs"
+  add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "payouts", "bookings"
+  add_foreign_key "shop_invitations", "shops"
+  add_foreign_key "shop_members", "enrollments"
+  add_foreign_key "shop_members", "shops"
+  add_foreign_key "shops", "users", column: "owner_id"
 end

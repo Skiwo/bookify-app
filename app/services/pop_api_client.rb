@@ -60,18 +60,23 @@ class PopApiClient
   #
   # Each line in `lines` accepts:
   #   description     — required, work description
-  #   line_type       — optional, defaults to "work". Allowed: work, benefit, expense, diet
-  #   rate            — required, hourly/unit rate in NOK (not øre)
-  #   quantity        — optional, defaults to 1
-  #   occupation_code — optional, overrides invoice-level code for this line
-  #   work_started_at — optional, ISO8601 timestamp (required for work lines on individual invoices)
-  #   work_ended_at   — optional, ISO8601 timestamp
-  #   work_hours      — optional, used to calculate work_ended_at if not provided
-  #   external_id     — optional, partner's line item reference
-  #   group           — optional, links non-work lines to a work line with the same group value
-  #   receipt_url     — optional, URL to a receipt file (must be publicly accessible)
+  #   line_type                  — optional, defaults to "work". Allowed: work, benefit, expense, diet, commission
+  #   rate                       — required, hourly/unit rate in NOK (not øre)
+  #   quantity                   — optional, defaults to 1
+  #   occupation_code            — optional, overrides invoice-level code for this line
+  #   payee_freelance_profile_id — optional, routes this line's payout to a specific freelancer profile
+  #   work_started_at            — optional, ISO8601 timestamp (required for work lines on individual invoices)
+  #   work_ended_at              — optional, ISO8601 timestamp
+  #   work_hours                 — optional, used to calculate work_ended_at if not provided
+  #   external_id                — optional, partner's line item reference
+  #   group                      — optional, links non-work lines to a work line with the same group value
+  #   receipt_url                — optional, URL to a receipt file (must be publicly accessible)
+  #
+  # Invoice-level:
+  #   source_params — optional, JSONB for traceability (e.g. { bookify_job_id: "..." })
   def create_payout(worker_id:, lines:, occupation_code: nil, invoiced_on: nil, due_on: nil,
-                    buyer_reference: nil, order_reference: nil, external_note: nil, idempotency_key: nil)
+                    buyer_reference: nil, order_reference: nil, external_note: nil,
+                    idempotency_key: nil, source_params: nil)
     # Omit nil and blank strings — Hash#compact alone still sends "" which POP may reject as "blank".
     cleaned_lines = lines.map { |line| omit_blank_values(line) }
     body = {
@@ -85,6 +90,7 @@ class PopApiClient
     body[:buyer_reference] = buyer_reference if buyer_reference.present?
     body[:order_reference] = order_reference if order_reference.present?
     body[:external_note] = external_note if external_note.present?
+    body[:source_params] = source_params if source_params.present?
     post("/api/v2/partner/payouts", body)
   end
 

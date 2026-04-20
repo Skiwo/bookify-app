@@ -1,0 +1,33 @@
+.row.justify-content-center
+  .col-md-6
+    %h2.fw-bold.mb-1 Register your organisation
+    %p.text-muted.mb-4 Norwegian B2B organisations only. Your org number is verified against BRREG.
+
+    .card.border-0.shadow-sm
+      .card-body
+        = form_with model: @client, url: clients_registration_path, method: :post, local: true do |f|
+          - if @client.errors.any?
+            .alert.alert-danger
+              %ul.mb-0
+                - @client.errors.full_messages.each do |msg|
+                  %li= msg
+
+          .mb-3
+            = f.label :org_number, "Organisasjonsnummer", class: "form-label fw-medium"
+            = f.text_field :org_number, class: "form-control", placeholder: "123456789",
+                maxlength: 9, pattern: "\\d{9}", required: true
+            %div.form-text 9-digit number from BRREG.
+
+          .mb-3
+            = f.label :org_name, "Organisation name", class: "form-label fw-medium"
+            = f.text_field :org_name, class: "form-control", required: true
+
+          .mb-3
+            = f.label :org_address, "Address", class: "form-label fw-medium"
+            = f.text_field :org_address, class: "form-control"
+
+          .alert.alert-info.small
+            %i.bi.bi-info-circle.me-1
+            Invoices will be issued by Payout Partner AS. Payment by bank transfer.
+
+          = f.submit "Register", class: "btn btn-primary w-100"

@@ -1,0 +1,75 @@
+!!!
+%html{lang: "no"}
+  %head
+    %meta{charset: "utf-8"}
+    %meta{name: "viewport", content: "width=device-width, initial-scale=1"}
+    %title Bookify — Shop Dashboard
+    %link{rel: "icon", type: "image/svg+xml", href: "/favicon.svg"}
+    %link{rel: "preconnect", href: "https://fonts.googleapis.com"}
+    %link{rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css", crossorigin: "anonymous"}
+    %link{rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css", crossorigin: "anonymous"}
+    = csrf_meta_tags
+    = csp_meta_tag
+    :css
+      :root { --brand: #059669; --brand-dark: #047857; }
+      body { background-color: #f8f9fa; font-family: 'Outfit', system-ui, -apple-system, sans-serif; }
+      .bg-primary, .btn-primary { background-color: var(--brand) !important; border-color: var(--brand) !important; }
+      .btn-primary:hover { background-color: var(--brand-dark) !important; border-color: var(--brand-dark) !important; }
+      .text-primary { color: var(--brand) !important; }
+      .badge.bg-primary { background-color: var(--brand) !important; }
+      .card { border-radius: 12px; }
+      .sidebar-tint { background-color: #ECFDF5; }
+      .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      .nav-link.active { border-bottom: 3px solid var(--brand); }
+      .status-badge { font-size: 0.75rem; }
+
+  %body
+    %nav.navbar.navbar-expand-lg.navbar-dark.bg-primary
+      .container-fluid.px-4
+        %a.navbar-brand.fw-bold{href: shop_dashboard_path}
+          %i.bi.bi-shop.me-2
+          Bookify Shop
+        %button.navbar-toggler{type: "button", "data-bs-toggle": "collapse", "data-bs-target": "#shopNav"}
+          %span.navbar-toggler-icon
+        #shopNav.collapse.navbar-collapse
+          %ul.navbar-nav.me-auto
+            %li.nav-item
+              %a.nav-link{href: shop_dashboard_path, class: nav_active?("shop_admin/dashboard")}
+                %i.bi.bi-speedometer2.me-1
+                Dashboard
+            %li.nav-item
+              %a.nav-link{href: shop_jobs_path, class: nav_active?("shop_admin/job")}
+                %i.bi.bi-briefcase.me-1
+                Jobs
+            %li.nav-item
+              %a.nav-link{href: shop_members_path, class: nav_active?("shop_admin/member")}
+                %i.bi.bi-people.me-1
+                Members
+            %li.nav-item
+              %a.nav-link{href: shop_settings_path, class: nav_active?("shop_admin/setting")}
+                %i.bi.bi-gear.me-1
+                Settings
+          %ul.navbar-nav
+            %li.nav-item
+              %span.nav-link.text-white-50
+                %i.bi.bi-person-circle.me-1
+                = current_user.name || current_user.email
+            %li.nav-item
+              = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-light btn-sm my-1"
+
+    .container-fluid.px-4.py-4
+      - if flash[:notice]
+        .alert.alert-success.alert-dismissible.fade.show
+          = flash[:notice]
+          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+      - if flash[:alert]
+        .alert.alert-danger.alert-dismissible.fade.show
+          = flash[:alert]
+          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
+
+      = yield
+
+    = javascript_importmap_tags
+    %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js", crossorigin: "anonymous", "data-turbo-eval": "false"}

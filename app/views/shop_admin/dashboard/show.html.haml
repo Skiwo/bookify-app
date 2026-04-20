@@ -1,0 +1,50 @@
+%h2.mb-4
+  = @shop.name
+  %span.badge.ms-2{class: @shop.active? ? "bg-success" : "bg-secondary"}= @shop.status.humanize
+
+.row.mb-4
+  .col-md-4.mb-3
+    .card.border-0.shadow-sm.sidebar-tint
+      .card-body.text-center.py-3
+        %h3.text-primary.fw-bold.mb-0= @pending_jobs.size
+        %p.text-muted.small.mb-0 New Requests
+  .col-md-4.mb-3
+    .card.border-0.shadow-sm.sidebar-tint
+      .card-body.text-center.py-3
+        %h3.text-primary.fw-bold.mb-0= @active_jobs.size
+        %p.text-muted.small.mb-0 Active Jobs
+  .col-md-4.mb-3
+    .card.border-0.shadow-sm.sidebar-tint
+      .card-body.text-center.py-3
+        %h3.text-primary.fw-bold.mb-0= @members_count
+        %p.text-muted.small.mb-0 Active Members
+
+.row
+  .col-md-6
+    .card.border-0.shadow-sm
+      .card-header.bg-white.fw-bold New Requests
+      .card-body
+        - if @pending_jobs.any?
+          .list-group.list-group-flush
+            - @pending_jobs.each do |job|
+              = link_to shop_job_path(job), class: "list-group-item list-group-item-action" do
+                .d-flex.justify-content-between
+                  %span.fw-medium= job.title
+                  %small.text-muted= time_ago_in_words(job.created_at) + " ago"
+                %small.text-muted= job.client.org_name
+        - else
+          %p.text-muted.mb-0.py-2 No new requests.
+
+  .col-md-6
+    .card.border-0.shadow-sm
+      .card-header.bg-white.fw-bold Active Jobs
+      .card-body
+        - if @active_jobs.any?
+          .list-group.list-group-flush
+            - @active_jobs.each do |job|
+              = link_to shop_job_path(job), class: "list-group-item list-group-item-action" do
+                .d-flex.justify-content-between
+                  %span.fw-medium= job.title
+                  %span.badge.bg-primary.rounded-pill= job.status.humanize
+        - else
+          %p.text-muted.mb-0.py-2 No active jobs.

@@ -1,0 +1,58 @@
+= link_to "← Back", onboarding_path, class: "text-muted text-decoration-none small"
+.row.justify-content-center.mt-2
+  .col-lg-7
+    .text-center.mb-4
+      %i.bi.bi-shop.display-4.text-success
+      %h3.fw-bold.mt-2 Set up your shop
+      %p.text-muted Your shop will be live immediately after creation.
+
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        = form_with model: @shop, url: onboarding_shop_path, method: :post, local: true do |f|
+          - if @shop.errors.any?
+            .alert.alert-danger
+              %ul.mb-0
+                - @shop.errors.full_messages.each do |msg|
+                  %li= msg
+
+          .row
+            .col-md-8.mb-3
+              = f.label :name, "Shop name", class: "form-label fw-medium"
+              = f.text_field :name, class: "form-control form-control-lg", placeholder: "e.g. Oslo Catering", required: true,
+                  data: { action: "input->slug-preview#update" }
+            .col-md-4.mb-3
+              = f.label :city, "City", class: "form-label fw-medium"
+              = f.text_field :city, class: "form-control form-control-lg", placeholder: "Oslo"
+
+          .mb-3
+            = f.label :description, "What do you offer?", class: "form-label fw-medium"
+            = f.text_area :description, class: "form-control", rows: 3,
+                placeholder: "Describe your services — clients will see this on your shop page."
+
+          .mb-3
+            = f.label :skill_tags, "Skills", class: "form-label fw-medium"
+            = f.text_field :skill_tags, value: @shop.skill_tags.join(", "),
+                class: "form-control", placeholder: "kokker, bartendere, servitorer"
+            %div.form-text Comma-separated. Used for category pages and search.
+
+          .row
+            .col-md-6.mb-3
+              = f.label :visibility, "Visibility", class: "form-label fw-medium"
+              = f.select :visibility,
+                  [["Public — anyone can find and request", "public_shop"],
+                   ["Private — invite only", "private_shop"]],
+                  {}, class: "form-select"
+            .col-md-6.mb-3
+              = f.label :commission_percent, "Your commission %", class: "form-label fw-medium"
+              .input-group
+                = f.number_field :commission_percent, min: 0, max: 100, class: "form-control"
+                %span.input-group-text %
+              %div.form-text 5% is standard. Paid to you as lønn on each job.
+
+          .alert.alert-light.border.small
+            %i.bi.bi-shield-check.text-success.me-1
+            All payments handled by
+            %strong Payout Partner AS
+            — invoices, MVA, employer's tax, and A-melding included.
+
+          = f.submit "Create my shop →", class: "btn btn-success btn-lg w-100 mt-2"

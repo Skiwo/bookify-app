@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookify × Payout Partner — Phase 2 plan</title>
+<style>
+  :root {
+    --bg: #FAFAF6;
+    --ink: #1A1A1A;
+    --ink-soft: #4A4A4A;
+    --ink-faint: #8A8A8A;
+    --rule: #E6E2D8;
+    --bookify: #D9573E;
+    --pop: #2C3E50;
+    --skiwo: #6B5B95;
+    --accent-soft: #F5EFE7;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", sans-serif;
+    --serif: "Iowan Old Style", "Palatino", "Georgia", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    font-family: var(--sans);
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .deck {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 6vh 9vw;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+  .slide-content {
+    max-width: 100%;
+    width: 100%;
+  }
+  .eyebrow {
+    font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-bottom: 2.5vh;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 5.8vw, 5.2rem);
+    font-weight: 500;
+    line-height: 1.05;
+    margin: 0 0 3vh;
+    letter-spacing: -0.02em;
+  }
+  h1.accent-bookify { color: var(--bookify); }
+  h1.accent-pop { color: var(--pop); }
+  h1.accent-skiwo { color: var(--skiwo); }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.6vw, 3.2rem);
+    font-weight: 500;
+    line-height: 1.15;
+    margin: 0 0 3vh;
+    letter-spacing: -0.015em;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 1vh;
+    letter-spacing: -0.005em;
+  }
+  p, li {
+    font-size: clamp(1.1rem, 1.7vw, 1.55rem);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0 0 1.5vh;
+  }
+  p.lead {
+    font-size: clamp(1.3rem, 2.2vw, 1.95rem);
+    color: var(--ink);
+    line-height: 1.4;
+    max-width: 50ch;
+  }
+  .slide ul {
+    margin: 0 0 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .slide ul li {
+    position: relative;
+    padding-left: 2.2em;
+    margin-bottom: 1.8vh;
+  }
+  .slide ul li::before {
+    content: "";
+    position: absolute;
+    left: 0.4em;
+    top: 0.75em;
+    width: 1em;
+    height: 1px;
+    background: var(--ink-faint);
+  }
+  .slide strong { color: var(--ink); font-weight: 600; }
+  .slide em { font-style: italic; color: var(--ink); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--accent-soft);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+  .columns { display: grid; gap: 3.5vw; grid-template-columns: 1fr 1fr; }
+  .columns-3 { display: grid; gap: 3vw; grid-template-columns: repeat(3, 1fr); }
+  .col h3 { margin-top: 0; color: var(--bookify); font-size: clamp(1.05rem, 1.6vw, 1.4rem); text-transform: uppercase; letter-spacing: 0.1em; }
+  .col.pop h3 { color: var(--pop); }
+  .col.skiwo h3 { color: var(--skiwo); }
+  .col p { font-size: clamp(1rem, 1.5vw, 1.35rem); }
+  .big-quote {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+    line-height: 1.18;
+    max-width: 24ch;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .big-quote .attrib {
+    display: block;
+    margin-top: 3vh;
+    font-family: var(--sans);
+    font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+    color: var(--ink-faint);
+    font-style: normal;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .flow {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1vh 2vw;
+    font-size: clamp(1rem, 1.5vw, 1.35rem);
+  }
+  .flow .n {
+    font-family: var(--mono);
+    color: var(--bookify);
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .money {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.8vh 2vw;
+    max-width: 48rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+  }
+  .money .label { color: var(--ink-soft); }
+  .money .amount { font-family: var(--mono); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .money .total { font-weight: 600; padding-top: 0.8vh; border-top: 1px solid var(--rule); margin-top: 0.5vh; }
+  .money .total .label, .money .total .amount { color: var(--ink); font-weight: 600; }
+  .money .sub .label { padding-left: 2em; font-size: 0.9em; color: var(--ink-faint); }
+  .money .sub .amount { color: var(--ink-faint); font-size: 0.9em; }
+  .two-leg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3vw;
+    margin-top: 2vh;
+  }
+  .leg h4 {
+    font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    margin: 0 0 1vh 0;
+    padding-bottom: 0.6vh;
+    border-bottom: 2px solid var(--bookify);
+  }
+  .leg.freelancer h4 { border-bottom-color: var(--pop); }
+  .leg .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5vw;
+    font-size: clamp(0.9rem, 1.25vw, 1.1rem);
+    padding: 0.35vh 0;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .leg .row .amount { font-family: var(--mono); text-align: right; color: var(--ink); }
+  .leg .row.deduct .amount { color: var(--ink-faint); }
+  .leg .row.final {
+    border-top: 1px solid var(--rule);
+    margin-top: 0.6vh;
+    padding-top: 0.8vh;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: clamp(0.95rem, 1.35vw, 1.2rem);
+  }
+  .leg .row.final .amount { color: var(--ink); }
+  .money-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1vw;
+    max-width: 46rem;
+    font-size: clamp(1rem, 1.4vw, 1.3rem);
+    padding-bottom: 1.5vh;
+    border-bottom: 1px solid var(--rule);
+  }
+  .money-top .label { color: var(--ink-soft); }
+  .money-top .amount { font-family: var(--mono); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .money-top .primary { font-weight: 600; color: var(--ink); font-size: clamp(1.1rem, 1.6vw, 1.4rem); padding-bottom: 0.5vh; }
+  .money-top .primary.amount { color: var(--ink); }
+  .money-top .sub { color: var(--ink-faint); font-size: 0.9em; padding-left: 1.5em; }
+  .money-top .sub.amount { color: var(--ink-faint); font-size: 0.9em; }
+  .money-caption {
+    margin-top: 2.5vh;
+    font-size: clamp(0.85rem, 1.1vw, 1rem);
+    color: var(--ink-faint);
+    max-width: 70ch;
+    line-height: 1.5;
+  }
+  .pill {
+    display: inline-block;
+    padding: 0.3em 0.8em;
+    border-radius: 2em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    font-size: 0.65em;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 0.5em;
+    vertical-align: middle;
+  }
+  .pill.bookify { background: var(--bookify); color: white; }
+  .pill.pop { background: var(--pop); color: white; }
+  .pill.skiwo { background: var(--skiwo); color: white; }
+  .pill.done { background: #dfe9d8; color: #3d5a2a; }
+  .pill.now { background: #f3e5c8; color: #6b4d14; }
+  .pill.later { background: #e6e2d8; color: #5a4a2a; }
+  .rule {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 2.5vh 0;
+  }
+  .two-by-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vh 3vw;
+  }
+  .two-by-two .cell { padding: 2vh 0; }
+  .two-by-two .cell h3 { font-size: clamp(1rem, 1.55vw, 1.3rem); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); margin-bottom: 0.8vh; }
+  .two-by-two .cell p { font-size: clamp(0.95rem, 1.4vw, 1.25rem); color: var(--ink-soft); }
+
+  .hud {
+    position: fixed;
+    bottom: 2.4vh;
+    right: 3vw;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .hud .sep { margin: 0 0.5em; color: var(--rule); }
+  .section-label {
+    position: fixed;
+    bottom: 2.4vh;
+    left: 3vw;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--bookify);
+    transition: width 0.25s ease;
+    z-index: 10;
+  }
+
+  /* title slide special */
+  .slide.title {
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .slide.title h1 {
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    line-height: 0.98;
+    max-width: 14ch;
+  }
+  .slide.title .subtitle {
+    font-size: clamp(1.2rem, 2vw, 1.7rem);
+    color: var(--ink-soft);
+    margin-top: 3vh;
+    max-width: 40ch;
+  }
+  .slide.title .meta {
+    margin-top: 6vh;
+    color: var(--ink-faint);
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .slide.title .bar {
+    width: 8vw;
+    height: 6px;
+    background: var(--bookify);
+    margin-bottom: 4vh;
+  }
+  .slide.section-break {
+    justify-content: center;
+    background: var(--ink);
+  }
+  .slide.section-break h1 {
+    color: white;
+    font-size: clamp(2.8rem, 6.5vw, 6rem);
+    max-width: 18ch;
+  }
+  .slide.section-break .eyebrow { color: rgba(255,255,255,0.5); }
+  .slide.section-break .bar { width: 6vw; height: 4px; background: var(--bookify); margin-bottom: 3vh; }
+
+  .help {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.92);
+    color: white;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    font-family: var(--mono);
+  }
+  .help.visible { display: flex; }
+  .help .help-content {
+    max-width: 500px;
+    font-size: 1rem;
+    line-height: 2;
+  }
+  .help kbd {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    margin-right: 0.5em;
+    min-width: 2em;
+    text-align: center;
+  }
+
+  @media print {
+    html, body { background: white; overflow: visible; height: auto; }
+    .deck { position: static; }
+    .slide { display: flex !important; page-break-after: always; height: 100vh; break-inside: avoid; }
+    .hud, .section-label, .progress, .help { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1. TITLE -->
+  <section class="slide title" data-section="Bookify">
+    <div class="slide-content">
+      <div class="bar"></div>
+      <h1>Bookify<br>&times; Payout Partner</h1>
+      <div class="subtitle">Our plan for turning Norway's freelance work into a marketplace, backed by the payroll infrastructure we already run.</div>
+      <div class="meta">Skiwo AS · Plan v2 · April 2026</div>
+    </div>
+  </section>
+
+  <!-- 2. TL;DR -->
+  <section class="slide" data-section="Overview">
+    <div class="slide-content">
+      <div class="eyebrow">In one page</div>
+      <h1 class="accent-skiwo">Two products, two companies, one codebase.</h1>
+      <div class="columns" style="margin-top: 4vh;">
+        <div class="col pop">
+          <h3>Payout Partner</h3>
+          <p><strong>B2B payroll and invoicing infrastructure.</strong> Shipped. Keeps running unchanged.</p>
+          <p style="color:var(--ink-faint); font-size: 0.9em;">payoutpartner.com &middot; Payout Partner AS</p>
+        </div>
+        <div class="col">
+          <h3>Bookify</h3>
+          <p><strong>A Norwegian marketplace for hiring freelancers</strong> &mdash; with payments handled by Payout Partner AS. Starts building now.</p>
+          <p style="color:var(--ink-faint); font-size: 0.9em;">bookify.app &middot; Skiwo AS</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. WHERE WE ARE -->
+  <section class="slide" data-section="Overview">
+    <div class="slide-content">
+      <div class="eyebrow">Where Skiwo AS is today</div>
+      <h2>We already run the payroll plumbing. Bookify adds the marketplace on top.</h2>
+      <div class="columns-3" style="margin-top: 5vh;">
+        <div class="col pop">
+          <h3>Now shipping</h3>
+          <p><strong>Payout Partner</strong> &mdash; lønn batching, MoR invoicing, BankID, BRREG, A-melding. Partners like catering operators, interpretation platforms, and future integrators use it to pay freelancers and invoice clients.</p>
+        </div>
+        <div class="col">
+          <h3>Building next</h3>
+          <p><strong>Bookify</strong> &mdash; public and private shops, quote flow, chat, dispute handling, shop lifecycle. Fills the gap between "I want work done" and "I want to get paid."</p>
+        </div>
+        <div class="col skiwo">
+          <h3>Rest of Skiwo</h3>
+          <p>Other Skiwo products &mdash; AccessTracker, ConsentKit, SkatteFUNN. Different codebases, unrelated to the Bookify / Payout Partner work. Mentioned only to frame the Skiwo family.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. THREE SIDES -->
+  <section class="slide" data-section="Overview">
+    <div class="slide-content">
+      <div class="eyebrow">Who's on the platform</div>
+      <h2>Three sides, each needing something different.</h2>
+      <div class="columns-3" style="margin-top: 5vh;">
+        <div class="col">
+          <h3>Freelancers</h3>
+          <p>Get paid as frilanser lønn. No invoicing hassle. Arbeidsgiveravgift, skattekort, and A-melding are all handled.</p>
+        </div>
+        <div class="col pop">
+          <h3>Shop owners</h3>
+          <p>Run a shop on bookify.app. Accept quotes. Assign jobs to yourself or a roster member. Take a small commission.</p>
+        </div>
+        <div class="col skiwo">
+          <h3>Clients</h3>
+          <p>Norwegian businesses. Find a shop, request a quote, accept, pay by bank transfer with a proper MVA invoice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. SECTION BREAK: Payout Partner -->
+  <section class="slide section-break" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="bar"></div>
+      <div class="eyebrow">Part one</div>
+      <h1>Payout Partner — the money layer.</h1>
+    </div>
+  </section>
+
+  <!-- 6. WHAT POP IS -->
+  <section class="slide" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="eyebrow">What Payout Partner does</div>
+      <h2 class="accent-pop">Money primitives, well-automated.</h2>
+      <ul style="margin-top: 4vh;">
+        <li><strong>MoR invoicing</strong> from Payout Partner AS to the client, with gapless Norwegian invoice numbering.</li>
+        <li><strong>Identity verification</strong> through BankID (via Criipto), with Folkeregister fallback.</li>
+        <li><strong>BRREG checks</strong> on client organizations at creation and before each invoice.</li>
+        <li><strong>Thursday lønn batch</strong> with arbeidsgiveravgift per municipality, skattekort-based withholding, and A-melding reporting to Skatteetaten.</li>
+        <li><strong>Credit notes, reconciliation, MVA remittance</strong> &mdash; all bokføringsloven-compliant.</li>
+        <li><strong>REST API (v2)</strong> so external integrators can build on top.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 7. WHO USES POP -->
+  <section class="slide" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="eyebrow">Who uses Payout Partner today</div>
+      <h2>Three kinds of customers. All continue unchanged.</h2>
+      <div class="columns-3" style="margin-top: 5vh;">
+        <div class="col pop">
+          <h3>Direct freelancers</h3>
+          <p>Sign up themselves at payoutpartner.com. Use it to invoice clients and get paid as lønn. Self-service.</p>
+        </div>
+        <div class="col pop">
+          <h3>B2B partners</h3>
+          <p>Staffers, Luado, Leii, the anchor catering operator, and similar companies. Bring their own clients; use Partner Portal to record bookings, invoice, and pay freelancers.</p>
+        </div>
+        <div class="col pop">
+          <h3>API integrators</h3>
+          <p>External platforms wanting Payout Partner as a payments backend. Consume the v2 REST API with a bearer token.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. WHAT'S MISSING -->
+  <section class="slide" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="eyebrow">Where the model stops short</div>
+      <h2>Payout Partner doesn't help anyone <em>find</em> each other.</h2>
+      <p class="lead" style="margin-top: 4vh;">It's a money layer. It assumes clients and freelancers already know each other, and just need the payroll handled.</p>
+      <p class="lead" style="margin-top: 3vh; color: var(--bookify);">That's the gap Bookify fills.</p>
+    </div>
+  </section>
+
+  <!-- 9. SECTION BREAK: Bookify -->
+  <section class="slide section-break" data-section="Bookify">
+    <div class="slide-content">
+      <div class="bar"></div>
+      <div class="eyebrow">Part two</div>
+      <h1>Bookify — the marketplace.</h1>
+    </div>
+  </section>
+
+  <!-- 10. BOOKIFY IN PAYOUT PARTNER TERMS -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">For Payout Partner people &mdash; the one-slide translation</div>
+      <h2>Bookify is a thin marketplace layer over the pop-core invoicing you already know.</h2>
+      <ul style="margin-top: 3vh;">
+        <li><strong>Bookify itself</strong> is a new account on Payout Partner. Owned by Payout Partner AS.</li>
+        <li><strong>Shop owner</strong> = a freelancer enrolled on that account who also runs a public shop page.</li>
+        <li><strong>Member</strong> = another freelancer enrolled on the same account.</li>
+        <li><strong>Client</strong> = a standard pop-core <code>Client</code> record (BRREG-verified), with a marketplace membership granting access to private shops.</li>
+        <li><strong>Job</strong> = one <code>Invoice</code> with per-line payees. Work lines route to the member; a <code>commission</code> line routes to the shop owner. The standard invoice state machine produces both lønn events.</li>
+      </ul>
+      <p style="margin-top: 3.5vh; color: var(--ink-soft); max-width: 58ch;">Everything Bookify-specific is a thin marketplace layer on top of the invoicing you've been building for years. The hard work already happened in the pop-core primitives.</p>
+    </div>
+  </section>
+
+  <!-- 11. INTRODUCING BOOKIFY -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">What Bookify is</div>
+      <div class="big-quote">
+        &ldquo;A Norwegian marketplace for hiring freelancers &mdash; with payments solved.&rdquo;
+        <span class="attrib">bookify.app · launching Phase 2</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. THE SHOP OWNER -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">The shop owner</div>
+      <h2 class="accent-bookify">One person, one shop, forever.</h2>
+      <ul style="margin-top: 4vh;">
+        <li>You own a shop at <code>bookify.app/nb/no/a/&lt;your-slug&gt;</code>. Skill pages like <code>/nb/no/kokker</code> list every shop tagged with that skill.</li>
+        <li>You decide whether your shop is <strong>public</strong> (browsable, SEO-indexed) or <strong>private</strong> (gated by invitation).</li>
+        <li>You can invite <strong>roster members</strong> who perform jobs alongside you.</li>
+        <li>Your shop takes <strong>5%</strong> on every job booked through it &mdash; paid to you as lønn, weekly.</li>
+        <li>You can pause or close the shop at any time.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 12. THE MEMBER -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">The roster member</div>
+      <h2 class="accent-bookify">You do the work. You get paid.</h2>
+      <ul style="margin-top: 4vh;">
+        <li>Accept roster invitations from one or many shops.</li>
+        <li>See jobs proposed to you; accept or decline.</li>
+        <li>BankID verification once, via Payout Partner. Never again.</li>
+        <li>Paid as lønn through the Thursday batch once the client pays the invoice.</li>
+        <li>All Norwegian employer-tax obligations handled by Payout Partner AS. You get a clean payslip.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 13. THE CLIENT -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">The client</div>
+      <h2 class="accent-bookify">You want work done. You want a proper invoice.</h2>
+      <ul style="margin-top: 4vh;">
+        <li>Norwegian business. Verified against BRREG on sign-up.</li>
+        <li>Submit a request on a shop page, or to up to five shops at once via the category page.</li>
+        <li>Get quotes. Accept one. Chat with the shop and assigned freelancer.</li>
+        <li>After the work is delivered, a <strong>Net-14 MoR invoice from Payout Partner AS</strong> arrives in your inbox. 25% MVA, fully compliant. The invoice explains that Payout Partner AS is the payments service for jobs booked on Bookify.</li>
+        <li>Pay by bank transfer with KID. That's it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 14. THE FLOW -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">End-to-end</div>
+      <h2>A job, step by step.</h2>
+      <div class="flow" style="margin-top: 4vh;">
+        <div class="n">01</div><div>Client submits a request on a shop page.</div>
+        <div class="n">02</div><div>Shop owner issues a quote with activities, price, and assigned member.</div>
+        <div class="n">03</div><div>Client accepts. Chat opens among all three parties.</div>
+        <div class="n">04</div><div>Work happens off-platform.</div>
+        <div class="n">05</div><div>Either party marks the job complete. Client has 48h to confirm or dispute.</div>
+        <div class="n">06</div><div>Invoice is issued, Net 14.</div>
+        <div class="n">07</div><div>Client pays by bank transfer.</div>
+        <div class="n">08</div><div>Next Thursday: member and shop owner are paid as lønn.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15. THE MONEY -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">The money, worked example</div>
+      <h2>A 10,000 kr job, broken out.</h2>
+
+      <div class="money-top" style="margin-top: 2.5vh;">
+        <div class="primary label">Client pays</div>
+        <div class="primary amount">12 500.00 kr</div>
+        <div class="sub label">Net invoice amount</div>
+        <div class="sub amount">10 000.00</div>
+        <div class="sub label">MVA at 25%</div>
+        <div class="sub amount">2 500.00</div>
+      </div>
+
+      <div class="two-leg">
+        <div class="leg">
+          <h4>Shop owner (5%)</h4>
+          <div class="row"><div>Amount</div><div class="amount">500.00</div></div>
+          <div class="row deduct"><div>PoP fee 4.9%</div><div class="amount">24.50</div></div>
+          <div class="row"><div>Remaining amount</div><div class="amount">475.50</div></div>
+          <div class="row deduct"><div>Employer's tax</div><div class="amount">58.76</div></div>
+          <div class="row"><div>Gross salary</div><div class="amount">416.74</div></div>
+          <div class="row deduct"><div>Salary tax (example 25%)</div><div class="amount">104.19</div></div>
+          <div class="row final"><div>Salary after tax</div><div class="amount">312.56</div></div>
+        </div>
+
+        <div class="leg freelancer">
+          <h4>Freelancer (95%)</h4>
+          <div class="row"><div>Amount</div><div class="amount">9 500.00</div></div>
+          <div class="row deduct"><div>PoP fee 4.9%</div><div class="amount">465.50</div></div>
+          <div class="row"><div>Remaining amount</div><div class="amount">9 034.50</div></div>
+          <div class="row deduct"><div>Employer's tax</div><div class="amount">1 116.45</div></div>
+          <div class="row"><div>Gross salary</div><div class="amount">7 918.05</div></div>
+          <div class="row deduct"><div>Salary tax (example 25%)</div><div class="amount">1 979.51</div></div>
+          <div class="row final"><div>Salary after tax</div><div class="amount">5 938.54</div></div>
+        </div>
+      </div>
+
+      <div class="money-caption">
+        MVA, employer's tax (arbeidsgiveravgift at 14.1%), and salary tax are all remitted to Skatteetaten by Payout Partner AS. Employer's tax is calculated on the gross salary, so the "remaining amount" splits into gross salary plus employer's tax. Salary tax is withheld per each person's skattekort; 25% is used here as a worked example.
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. PROPOSAL: BOOKIFY FEE -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">Proposal &mdash; for team discussion</div>
+      <h2>A flat <span class="accent-bookify" style="color: var(--bookify);">100 kr Bookify fee</span> per booking.</h2>
+      <p class="lead" style="margin-top: 2.5vh; max-width: 56ch;">Today all the money flows to Payout Partner AS, the shop owner, and the freelancer. Bookify generates the demand but captures no marketplace margin. A flat fee per booking would change that &mdash; transparent on the invoice, same pattern as the MVA or commission line.</p>
+
+      <div class="columns" style="margin-top: 4vh;">
+        <div class="col">
+          <h3>On a 10,000 kr job</h3>
+          <div class="money-top" style="margin-top: 1.5vh; max-width: none;">
+            <div class="label">Net work amount</div>
+            <div class="amount">10 000.00</div>
+            <div class="label" style="color: var(--bookify);">+ Bookify fee</div>
+            <div class="amount" style="color: var(--bookify);">100.00</div>
+            <div class="label">+ MVA at 25%</div>
+            <div class="amount">2 525.00</div>
+            <div class="primary label">Client pays</div>
+            <div class="primary amount">12 625.00 kr</div>
+          </div>
+          <p style="margin-top: 2vh; font-size: 0.95em; color: var(--ink-faint);">Freelancer and shop owner take-home are unchanged. The 100 kr is incremental revenue &mdash; Bookify's first marketplace margin.</p>
+        </div>
+        <div class="col">
+          <h3>Tradeoffs to discuss</h3>
+          <p style="margin-top: 1vh;"><strong>Pros.</strong> First real marketplace revenue line. Scales linearly with booking volume. Aligns incentives toward shipping a great bookify.app experience.</p>
+          <p style="margin-top: 2vh;"><strong>Cons.</strong> On a 600 kr minimum job the fee is 16.7% of the work value &mdash; disproportionate. Probably argues for a tiered or percentage-based model, or a minimum-job-size bump, rather than a flat 100 kr at every size.</p>
+          <p style="margin-top: 2vh; color: var(--ink-faint); font-size: 0.95em;">Not in the current spec. No engineering commitment. Bringing this to the team to discuss the shape of a Bookify-side fee.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17. NO-PAY-NO-PAYMENT -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">The rule everyone agrees to upfront</div>
+      <h1 class="accent-bookify">No client payment, no freelancer payment.</h1>
+      <p class="lead" style="margin-top: 3vh;">Payout Partner AS doesn't float the money. If a client doesn't pay, nobody gets paid.</p>
+      <p class="lead" style="margin-top: 3vh; color: var(--ink-soft);">Why it's safe: Norwegian B2B payment culture is predictable, and we only accept BRREG-verified clients.</p>
+    </div>
+  </section>
+
+  <!-- 17. MINIMUMS -->
+  <section class="slide" data-section="Bookify">
+    <div class="slide-content">
+      <div class="eyebrow">A few hard numbers</div>
+      <h2>The shape of a viable job.</h2>
+      <div class="two-by-two" style="margin-top: 5vh;">
+        <div class="cell">
+          <h3>Minimum job size</h3>
+          <p><strong>600 kr</strong> (excluding MVA). Below this the fees leave too little for the member.</p>
+        </div>
+        <div class="cell">
+          <h3>Quote expires</h3>
+          <p><strong>72 hours</strong> after issue.</p>
+        </div>
+        <div class="cell">
+          <h3>Feedback window</h3>
+          <p><strong>48 hours</strong> after completion. Silence counts as confirmation.</p>
+        </div>
+        <div class="cell">
+          <h3>Invoice terms</h3>
+          <p><strong>Net 14.</strong> No escrow, no inkasso.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18. SECTION BREAK: ARCHITECTURE -->
+  <section class="slide section-break" data-section="Architecture">
+    <div class="slide-content">
+      <div class="bar"></div>
+      <div class="eyebrow">Part three</div>
+      <h1>How we built it.</h1>
+    </div>
+  </section>
+
+  <!-- 19. THE CLEVER BIT -->
+  <section class="slide" data-section="Architecture">
+    <div class="slide-content">
+      <div class="eyebrow">The key architectural move</div>
+      <h2>Commission is a line on the invoice, not a separate system.</h2>
+      <p class="lead" style="margin-top: 3vh;">One invoice per job. Work lines pay the member. A single <code>commission</code> line pays the shop owner. The existing invoice-to-payout state machine handles both.</p>
+      <p style="margin-top: 3vh;"><strong>No new payment hooks. No duplicate invoices. No percentage math at runtime. No rounding-policy decisions.</strong></p>
+      <p style="color: var(--ink-faint); margin-top: 3vh;">The full plan started with several more moving parts. We simplified it down to this single, boring primitive &mdash; which is the whole point.</p>
+    </div>
+  </section>
+
+  <!-- 20. TWO BRANDS -->
+  <section class="slide" data-section="Architecture">
+    <div class="slide-content">
+      <div class="eyebrow">Two brands, one codebase</div>
+      <h2>Same Rails app, two domains, two stories.</h2>
+      <div class="columns" style="margin-top: 5vh;">
+        <div class="col pop">
+          <h3>payoutpartner.com</h3>
+          <p>B2B infrastructure. Trusted, boring, reliable. The brand partners like Staffers, Luado, and Leii build on.</p>
+        </div>
+        <div class="col">
+          <h3>bookify.app</h3>
+          <p>Consumer-facing marketplace. Owns the shop-quality story. Takes the reputational hits from marketplace incidents &mdash; protecting the infrastructure brand.</p>
+        </div>
+      </div>
+      <p style="margin-top: 5vh; color: var(--ink-faint); max-width: 54ch;">This is a deliberate brand separation. A management-facing pros-and-cons review on whether to eventually collapse into one brand is scheduled separately.</p>
+    </div>
+  </section>
+
+  <!-- 21. LEGAL STRUCTURE -->
+  <section class="slide" data-section="Architecture">
+    <div class="slide-content">
+      <div class="eyebrow">The legal picture</div>
+      <h2>Two companies. One money flow. Clearly explained to every user.</h2>
+      <ul style="margin-top: 4vh;">
+        <li><strong>Skiwo AS</strong> operates the Bookify product surface &mdash; the brand, the marketplace, the consumer-facing website at bookify.app. <strong>Skiwo AS owns Payout Partner AS 100%</strong> &mdash; a wholly-owned subsidiary.</li>
+        <li><strong>Payout Partner AS</strong> provides the payment and payroll infrastructure. It is the <strong>merchant of record</strong> on every invoice (both on bookify.app and on payoutpartner.com).</li>
+        <li>Clients pay Payout Partner AS by bank transfer. Freelancers are paid by Payout Partner AS as frilanser lønn.</li>
+        <li>Bookify's website and every invoice explain this plainly: <em>"Payout Partner AS handles payments and payroll for jobs booked on Bookify."</em></li>
+        <li><strong>Per-brand ToS and privacy notices.</strong> Each domain shows its own operating entity clearly.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 22. ONE WEEK TO LAUNCH -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">The engineering cost</div>
+      <h2 class="accent-bookify">One week to go live.</h2>
+      <p class="lead" style="margin-top: 3vh;">Building Bookify is cheap because almost everything already exists in Payout Partner. The launch is small; the hard part comes after.</p>
+      <div class="columns" style="margin-top: 4vh;">
+        <div class="col pop">
+          <h3>Three Payout Partner additions</h3>
+          <p><code>source_params</code> JSONB for traceability. <code>payee_freelance_profile_id</code> on invoice lines. New <code>commission</code> line type. That's it.</p>
+        </div>
+        <div class="col">
+          <h3>Minimal Bookify module</h3>
+          <p><code>bookify.app</code> domain, a shop listing page, shop detail pages, a client order form, and the invoicing wiring. Ship it. Learn from it. Iterate.</p>
+        </div>
+      </div>
+      <p style="margin-top: 4vh; color: var(--ink-soft);">Classic Payout Partner behaviour is unchanged for anyone not using these features. Existing partners (Staffers, Luado, Leii, and others) continue exactly as before.</p>
+    </div>
+  </section>
+
+  <!-- 23. THE HARD PART IS TRAFFIC -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">Where the real effort lives</div>
+      <h2>The hard part is traffic.</h2>
+      <p class="lead" style="margin-top: 3vh;">Once we launch, building more features is easy. The challenge is making Bookify a place clients actually come to hire, and freelancers actually come to list their services.</p>
+      <div class="two-by-two" style="margin-top: 4vh;">
+        <div class="cell">
+          <h3>Supply side</h3>
+          <p>Seed with the anchor catering operator. Invite existing Payout Partner freelancers who'd benefit from a marketplace presence. Open self-signup once the first flows work.</p>
+        </div>
+        <div class="cell">
+          <h3>Demand side</h3>
+          <p>SEO on skill and city pages is the long-term play. Paid acquisition and anchor-partner referrals bridge the gap while SEO warms up.</p>
+        </div>
+        <div class="cell">
+          <h3>Product iteration</h3>
+          <p>What we ship in week one is the minimum that works. Chat, disputes, public/private shop distinctions, shop lifecycle states &mdash; all added as use reveals which matter most.</p>
+        </div>
+        <div class="cell">
+          <h3>Learning loop</h3>
+          <p>Early jobs are the data. We watch what breaks, what friction shows up, and where clients drop off &mdash; and steer from there.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 24. NOT DOING -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">What Bookify deliberately excludes</div>
+      <h2>Discipline about scope.</h2>
+      <ul style="margin-top: 4vh;">
+        <li><strong>ENK/AS payouts &mdash; not now, not later.</strong> Bookify is lønn only. Operators who want ENK/AS use Payout Partner directly or go off-platform.</li>
+        <li><strong>Card payments.</strong> Bank transfer only. Stripe Connect comes later (if ever).</li>
+        <li><strong>B2C clients.</strong> Norwegian businesses with an organisasjonsnummer only.</li>
+        <li><strong>Auto-assignment of jobs.</strong> Manual only. We want humans deciding.</li>
+        <li><strong>Reviews, ratings, escrow, mobile apps, hours logging.</strong> Not in the first cut.</li>
+        <li><strong>Language and interpretation services.</strong> Excluded from the 60 supported skills for now.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 25. LØNN ONLY -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">A deliberate product constraint</div>
+      <h2 class="accent-bookify">Bookify is lønn only. No ENK/AS.</h2>
+      <p class="lead" style="margin-top: 3vh;">Every freelancer on Bookify &mdash; member or shop owner &mdash; is paid as frilanser lønn through the Thursday batch. No ENK/AS invoicing path. No alternate payout arrangements. Ever.</p>
+      <p style="margin-top: 3vh;"><strong>Why lønn-only:</strong> one payment model. One money pipeline. No "is this person an ENK?" branching. Dramatically simpler to build, to support, and to explain.</p>
+      <p style="margin-top: 3vh; color: var(--ink-soft);"><strong>What ENK/AS operators should do instead:</strong> use Payout Partner directly &mdash; the classic Partner Portal supports ENK/AS invoicing today. Or simply transact off-platform. Bookify doesn't police that; we just don't provide infrastructure for it.</p>
+    </div>
+  </section>
+
+  <!-- 26. RISKS -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">What could go wrong</div>
+      <h2>Risks we're watching.</h2>
+      <div class="two-by-two" style="margin-top: 4vh;">
+        <div class="cell">
+          <h3>Brand dilution</h3>
+          <p>Marketplace-quality complaints could leak to the payroll brand. Mitigated by the two-brand separation, but still worth monitoring early on.</p>
+        </div>
+        <div class="cell">
+          <h3>Supply/demand chicken-and-egg</h3>
+          <p>Building a marketplace is hard. Starting with an anchor partner seeds the supply side; demand comes from SEO and category pages.</p>
+        </div>
+        <div class="cell">
+          <h3>Partner confusion</h3>
+          <p>Existing Payout Partner customers might wonder if we compete with them. Mitigated by keeping Partner Portal and Bookify strictly separate in the UI.</p>
+        </div>
+        <div class="cell">
+          <h3>Regulatory drift</h3>
+          <p>EU Digital Services Act, upcoming platform-work directive. Small surface today; monitor as scope grows.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 27. TIMELINE -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">Timeline</div>
+      <h2>Where each piece sits.</h2>
+      <ul style="margin-top: 4vh; list-style: none; padding-left: 0;">
+        <li style="padding-left: 0;">
+          <span class="pill done">Done</span>
+          <strong>Payout Partner</strong> &mdash; shipped in pop-core. Classic partners live. v2 REST API live.
+        </li>
+        <li style="padding-left: 0;">
+          <span class="pill now">~1 week</span>
+          <strong>Go-live.</strong> Three Payout Partner additions + minimal Bookify module. Bank the launch; start learning.
+        </li>
+        <li style="padding-left: 0;">
+          <span class="pill now">Ongoing</span>
+          <strong>Growing traffic.</strong> The real work. Supply, demand, SEO, anchor partners, steady product iteration.
+        </li>
+        <li style="padding-left: 0;">
+          <span class="pill later">Later</span>
+          <strong>Phase 3+</strong> &mdash; card payments, B2C clients, reviews. <em>Not ENK/AS &mdash; that stays off Bookify forever.</em>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 28. WHAT THIS MEANS FOR YOU -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">What this means for each of you</div>
+      <h2>The parts that matter to your role.</h2>
+      <div class="two-by-two" style="margin-top: 4vh;">
+        <div class="cell">
+          <h3>Management</h3>
+          <p>A new consumer-facing revenue stream. Leverages existing infrastructure. No disruption to the existing Payout Partner business.</p>
+        </div>
+        <div class="cell">
+          <h3>Group controller</h3>
+          <p>One set of bokføringsloven-compliant records. Same MoR model as today. Commission as a standard line item &mdash; no new financial machinery.</p>
+        </div>
+        <div class="cell">
+          <h3>Product owners</h3>
+          <p>No impact on AccessTracker, ConsentKit, or other Skiwo products. Bookify lives entirely in pop-core.</p>
+        </div>
+        <div class="cell">
+          <h3>Freelancers &amp; clients</h3>
+          <p>A new channel for work and hiring, with payroll and invoicing already solved. BankID once, then just use the platform.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 29. OPEN QUESTIONS -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">Still to decide</div>
+      <h2>Open questions for the team.</h2>
+      <ul style="margin-top: 4vh;">
+        <li><strong>Brand strategy.</strong> Stay with two brands (Bookify + Payout Partner), or eventually collapse into one? A pros-and-cons doc is scheduled.</li>
+        <li><strong>Geography.</strong> Norway first. Other Nordics later, or stay focused?</li>
+        <li><strong>Go-to-market.</strong> Paid acquisition, SEO, anchor-partner referral &mdash; or all three?</li>
+        <li><strong>Beta timing.</strong> When do we open bookify.app to real freelancers and real clients?</li>
+        <li><strong>Pricing stability.</strong> 5% + 4.9% + MVA is the launch model. When &mdash; if ever &mdash; do we revisit?</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 30. CLOSE -->
+  <section class="slide title" data-section="Close">
+    <div class="slide-content">
+      <div class="bar"></div>
+      <h1>Questions.</h1>
+      <div class="subtitle" style="margin-top: 5vh;">Thanks for coming. This is a plan, not a promise &mdash; the shape will change as we learn.</div>
+      <div class="meta">Skiwo AS · Bookify × Payout Partner · April 2026</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hud">
+  <span id="current">1</span><span class="sep">/</span><span id="total">32</span>
+</div>
+<div class="section-label" id="sectionLabel"></div>
+
+<div class="help" id="help">
+  <div class="help-content">
+    <div><kbd>→</kbd> next slide</div>
+    <div><kbd>←</kbd> previous slide</div>
+    <div><kbd>Space</kbd> next slide</div>
+    <div><kbd>Home</kbd> first slide</div>
+    <div><kbd>End</kbd> last slide</div>
+    <div><kbd>F</kbd> toggle fullscreen</div>
+    <div><kbd>Esc</kbd> exit fullscreen</div>
+    <div><kbd>?</kbd> toggle this help</div>
+    <div style="margin-top: 1em; color: rgba(255,255,255,0.5);">Click anywhere to dismiss.</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var current = 0;
+    var currentEl = document.getElementById('current');
+    var totalEl = document.getElementById('total');
+    var sectionEl = document.getElementById('sectionLabel');
+    var progressEl = document.getElementById('progress');
+    var helpEl = document.getElementById('help');
+    totalEl.textContent = total;
+
+    function show(i) {
+      if (i < 0) i = 0;
+      if (i >= total) i = total - 1;
+      slides[current].classList.remove('active');
+      slides[i].classList.add('active');
+      current = i;
+      currentEl.textContent = i + 1;
+      sectionEl.textContent = slides[i].dataset.section || '';
+      progressEl.style.width = ((i + 1) / total * 100) + '%';
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', '#' + (i + 1));
+      }
+    }
+    function next() { show(current + 1); }
+    function prev() { show(current - 1); }
+    function first() { show(0); }
+    function last() { show(total - 1); }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen).call(document.documentElement);
+      } else {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      }
+    }
+    function toggleHelp() { helpEl.classList.toggle('visible'); }
+
+    document.addEventListener('keydown', function(e) {
+      if (helpEl.classList.contains('visible')) {
+        if (e.key === 'Escape' || e.key === '?') {
+          helpEl.classList.remove('visible');
+          e.preventDefault();
+          return;
+        }
+        helpEl.classList.remove('visible');
+      }
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'PageDown':
+        case ' ':
+        case 'Enter':
+        case 'n':
+        case 'j':
+          next(); e.preventDefault(); break;
+        case 'ArrowLeft':
+        case 'PageUp':
+        case 'p':
+        case 'k':
+          prev(); e.preventDefault(); break;
+        case 'Home':
+          first(); e.preventDefault(); break;
+        case 'End':
+          last(); e.preventDefault(); break;
+        case 'f':
+        case 'F':
+          toggleFullscreen(); e.preventDefault(); break;
+        case '?':
+          toggleHelp(); e.preventDefault(); break;
+      }
+    });
+    helpEl.addEventListener('click', function() { helpEl.classList.remove('visible'); });
+    document.addEventListener('click', function(e) {
+      if (helpEl.classList.contains('visible')) return;
+      // advance on click anywhere except links/buttons
+      if (e.target.closest('a, button, input, select')) return;
+      next();
+    });
+
+    // jump to hash on load
+    var h = parseInt((location.hash || '').replace('#',''), 10);
+    if (!isNaN(h) && h >= 1 && h <= total) {
+      show(h - 1);
+    } else {
+      show(0);
+    }
+  })();
+</script>
+
+</body>
+</html>

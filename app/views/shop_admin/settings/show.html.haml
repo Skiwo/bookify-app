@@ -1,0 +1,65 @@
+%h2.mb-4 Shop settings
+
+.card.border-0.shadow-sm
+  .card-body
+    = form_with model: @shop, url: shop_settings_path, method: :patch, local: true do |f|
+      .row
+        .col-md-6.mb-3
+          = f.label :name, "Shop name", class: "form-label fw-medium"
+          = f.text_field :name, class: "form-control", required: true
+
+        .col-md-6.mb-3
+          = f.label :city, "City", class: "form-label fw-medium"
+          = f.text_field :city, class: "form-control", placeholder: "Oslo"
+
+      .mb-3
+        = f.label :description, "Description", class: "form-label fw-medium"
+        = f.text_area :description, class: "form-control", rows: 4
+
+      .mb-3
+        = f.label :skill_tags, "Skills (comma-separated)", class: "form-label fw-medium"
+        = f.text_field :skill_tags, value: @shop.skill_tags.join(", "),
+            class: "form-control", placeholder: "kokker, bartendere"
+
+      .row
+        .col-md-6.mb-3
+          = f.label :visibility, "Visibility", class: "form-label fw-medium"
+          = f.select :visibility, [["Public", "public_shop"], ["Private (invite only)", "private_shop"]],
+              {}, class: "form-select"
+
+        .col-md-6.mb-3
+          = f.label :commission_percent, "Commission %", class: "form-label fw-medium"
+          .input-group
+            = f.number_field :commission_percent, min: 0, max: 100, class: "form-control"
+            %span.input-group-text %
+
+      .mb-4.border-top.pt-4
+        %h6.fw-bold.text-muted Payout Partner
+        .mb-3
+          = f.label :pop_worker_id, "Your POP Worker ID", class: "form-label fw-medium"
+          = f.text_field :pop_worker_id, class: "form-control font-monospace", placeholder: "wkr_..."
+          %div.form-text Used to route commission payouts to you via Payout Partner AS.
+
+      = f.submit "Save settings", class: "btn btn-primary"
+
+  .card-footer.bg-white
+    %h6.fw-bold.mb-3 Shop status
+    .d-flex.align-items-center.gap-3.flex-wrap
+      %span
+        Current status:
+        %span.badge.ms-1{class: @shop.active? ? "bg-success" : @shop.paused? ? "bg-warning text-dark" : @shop.closed? ? "bg-secondary" : "bg-light text-dark"}
+          = @shop.status.humanize
+      - if @shop.active?
+        = button_to "Pause shop", pause_shop_settings_path, method: :post,
+            class: "btn btn-sm btn-outline-warning",
+            data: { turbo_confirm: "Pause your shop? Clients won't be able to submit new requests." }
+        = button_to "Close shop", close_shop_settings_path, method: :post,
+            class: "btn btn-sm btn-outline-danger",
+            data: { turbo_confirm: "Close your shop? It will no longer appear in listings." }
+      - elsif @shop.paused?
+        = button_to "Reopen shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
+        = button_to "Close shop", close_shop_settings_path, method: :post,
+            class: "btn btn-sm btn-outline-danger",
+            data: { turbo_confirm: "Close your shop permanently?" }
+      - elsif @shop.closed? || @shop.draft?
+        = button_to "Reopen shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"

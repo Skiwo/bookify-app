@@ -1,0 +1,61 @@
+.row
+  .col-lg-8
+    .d-flex.align-items-start.mb-4
+      .me-auto
+        %h2.fw-bold.mb-1= @shop.name
+        - if @shop.city.present?
+          %p.text-muted.mb-2
+            %i.bi.bi-geo-alt.me-1
+            = @shop.city
+        - if @shop.skill_tags.any?
+          - @shop.skill_tags.each do |tag|
+            %span.badge.bg-light.text-dark.border.me-1= tag
+
+    - if @shop.description.present?
+      .card.border-0.shadow-sm.mb-4
+        .card-body
+          %p.mb-0= @shop.description
+
+    - if @members.any?
+      %h5.fw-bold.mb-3 Team members
+      .row.row-cols-1.row-cols-md-2.g-3.mb-4
+        - @members.each do |member|
+          .col
+            .card.border-0.shadow-sm
+              .card-body.d-flex.align-items-center
+                .rounded-circle.bg-light.d-flex.align-items-center.justify-content-center.me-3{style: "width:44px;height:44px;flex-shrink:0"}
+                  %i.bi.bi-person.fs-5.text-muted
+                %div
+                  %p.fw-medium.mb-0= member.name
+                  %p.text-muted.small.mb-0= member.email
+
+  .col-lg-4
+    - if @shop.paused?
+      .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
+        .card-body.text-center.py-4
+          %i.bi.bi-pause-circle.display-4.text-warning.mb-3
+          %h6.fw-bold This shop is temporarily paused
+          %p.text-muted.small.mb-0 The shop owner is not accepting new requests right now.
+
+    - elsif @shop.closed?
+      .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
+        .card-body.text-center.py-4
+          %i.bi.bi-x-circle.display-4.text-secondary.mb-3
+          %h6.fw-bold This shop is closed
+          %p.text-muted.small.mb-0 This shop is no longer accepting requests.
+
+    - else
+      .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
+        .card-header.fw-bold.bg-white Request work
+        .card-body
+          = form_with url: shop_requests_path(@shop.slug), method: :post, local: false do |f|
+            .mb-3
+              = f.label :title, "What do you need?", class: "form-label fw-medium"
+              = f.text_field :title, class: "form-control", placeholder: "e.g. Catering for 50 people", required: true, name: "job[title]"
+            .mb-3
+              = f.label :description, "Details", class: "form-label fw-medium"
+              = f.text_area :description, class: "form-control", rows: 4, placeholder: "Date, location, any specifics…", name: "job[description]"
+            = f.submit "Send request", class: "btn btn-primary w-100"
+          %p.text-muted.small.mt-3.mb-0
+            %i.bi.bi-shield-check.me-1
+            Payments handled by Payout Partner AS. MVA invoice issued on completion.

@@ -1,0 +1,16 @@
+.row.justify-content-center.mt-5
+  .col-md-5
+    .card.border-0.shadow-sm.text-center
+      .card-body.py-5
+        %i.bi.bi-shop.display-3.text-primary.mb-3
+        %h4.fw-bold= @shop.name
+        %p.text-muted You've been invited to view this private shop.
+        - if @invitation.expired?
+          .alert.alert-danger This invitation has expired.
+        - elsif @invitation.accepted?
+          .alert.alert-secondary This invitation has already been used.
+        - else
+          = button_to "Accept invitation", accept_shop_invitation_path(@invitation.token),
+              method: :post, class: "btn btn-primary btn-lg"
+          %p.text-muted.small.mt-3.mb-0
+            Expires #{@invitation.expires_at.strftime("%d %b %Y")}
