@@ -12,9 +12,16 @@ class JobMessagesController < ApplicationController
     @message = @job.messages.new(body: params[:message][:body], sender: current_user)
 
     if @message.save
-      redirect_to job_show_path(@job), notice: nil
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.append("chat-messages",
+            partial: "shared/job_message",
+            locals: { message: @message, current_user_id: current_user.id })
+        end
+        format.html { head :no_content }
+      end
     else
-      redirect_back fallback_location: root_path, alert: "Message cannot be blank."
+      head :unprocessable_entity
     end
   end
 

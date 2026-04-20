@@ -5,5 +5,10 @@ export default class extends Controller {
 
   reset() {
     if (this.hasInputTarget) this.inputTarget.value = ""
+    requestAnimationFrame(() => {
+      const msgs = document.querySelector("#chat-messages")
+      const last = msgs?.lastElementChild
+      if (last) last.scrollIntoView({ block: "end" })
+    })
   }
 }

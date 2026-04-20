@@ -4,22 +4,6 @@
 
 .row
   .col-lg-7
-    .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Job details
-      .card-body
-        %dl.row.mb-0
-          %dt.col-sm-4 Status
-          %dd.col-sm-8
-            %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : "bg-primary"}
-              = @job.status.humanize
-          - if @job.work_amount_ore
-            %dt.col-sm-4 Amount (excl. MVA)
-            %dd.col-sm-8= format_nok(@job.work_amount_ore)
-          %dt.col-sm-4 Shop
-          %dd.col-sm-8= @job.shop.name
-          %dt.col-sm-4 Member
-          %dd.col-sm-8= @job.assigned_member&.name || "—"
-
     - if @job.quoted?
       .card.border-0.shadow-sm.border-primary.mb-4
         .card-body
@@ -66,6 +50,22 @@
     = render "shared/job_chat", job: @job, messages: @messages
 
   .col-lg-5
+    .card.border-0.shadow-sm.mb-4
+      .card-header.bg-white.fw-bold Job details
+      .card-body
+        %dl.row.mb-0
+          %dt.col-sm-4 Status
+          %dd.col-sm-8
+            %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : "bg-primary"}
+              = @job.status.humanize
+          - if @job.work_amount_ore
+            %dt.col-sm-4 Amount (excl. MVA)
+            %dd.col-sm-8= format_nok(@job.work_amount_ore)
+          %dt.col-sm-4 Shop
+          %dd.col-sm-8= @job.shop.name
+          %dt.col-sm-4 Member
+          %dd.col-sm-8= @job.assigned_member&.name || "—"
+
     .card.border-0.shadow-sm
       .card-header.bg-white.fw-bold What happens next
       .card-body.small

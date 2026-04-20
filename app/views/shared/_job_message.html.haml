@@ -1,5 +1,7 @@
-.mb-3{"data-message-id": message.id}
-  .d-flex.align-items-baseline.gap-2.mb-1
-    %span.fw-medium.small= message.sender.name || message.sender.email
-    %span.text-muted.small= message.created_at.strftime("%d %b %H:%M")
-  .bg-light.rounded.p-2.small= message.body
+- mine = local_assigns[:current_user_id].present? && message.sender_id.to_s == local_assigns[:current_user_id].to_s
+.chat-msg{"data-sender-id": message.sender_id, "data-message-id": message.id, class: mine ? "mine" : "theirs"}
+  .chat-bubble
+    .chat-meta
+      %span.chat-sender= message.sender.name || message.sender.email
+      %span.chat-time= message.created_at.strftime("%H:%M")
+    .chat-body= message.body
