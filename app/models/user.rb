@@ -3,6 +3,7 @@ class User < ApplicationRecord
 
   has_many :enrollments_as_booker, class_name: "Enrollment", foreign_key: :booker_id, dependent: :restrict_with_error, inverse_of: :booker
   has_many :enrollments_as_freelancer, class_name: "Enrollment", foreign_key: :freelancer_id, dependent: :nullify, inverse_of: :freelancer
+  has_many :job_reads, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true

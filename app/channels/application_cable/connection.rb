@@ -9,8 +9,7 @@ module ApplicationCable
     private
 
     def find_verified_user
-      user_id = cookies.encrypted[:passwordless_session_id]
-      User.find_by(id: user_id) || reject_unauthorized_connection
+      User.find_by(id: cookies.encrypted[:cable_user_id]) || reject_unauthorized_connection
     end
   end
 end

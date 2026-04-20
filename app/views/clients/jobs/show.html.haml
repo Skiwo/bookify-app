@@ -47,7 +47,7 @@
               = f.text_area "dispute[reason]", class: "form-control form-control-sm", rows: 2, placeholder: "Describe the issue…", required: true
             = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
 
-    = render "shared/job_chat", job: @job, messages: @messages
+    = render "shared/job_chat", job: @job, messages: @messages, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
 
   .col-lg-5
     .card.border-0.shadow-sm.mb-4

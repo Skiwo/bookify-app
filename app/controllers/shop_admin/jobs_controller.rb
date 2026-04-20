@@ -1,5 +1,6 @@
 module ShopAdmin
   class JobsController < BaseController
+    include JobReadable
     def index
       @jobs = current_shop.jobs.includes(:client, :assigned_member).order(created_at: :desc)
       @jobs = @jobs.where(status: params[:status]) if params[:status].present?
@@ -8,6 +9,7 @@ module ShopAdmin
     def show
       @job = current_shop.jobs.includes(:client, assigned_member: :enrollment).find(params[:id])
       @messages = @job.messages.includes(:sender).order(:created_at)
+      load_read_data
     end
 
     def issue_quote

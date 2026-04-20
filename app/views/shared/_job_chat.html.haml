@@ -6,28 +6,40 @@
   .chat-bubble { padding: 8px 12px; border-radius: 16px; font-size: 0.875rem; line-height: 1.4; word-wrap: break-word; }
   .chat-msg.theirs .chat-bubble { background: #f0f0f0; color: #1a1a1a; border-bottom-left-radius: 4px; }
   .chat-msg.mine .chat-bubble { background: var(--brand, #2563EB); color: #fff; border-bottom-right-radius: 4px; }
-  .chat-meta { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
-  .chat-sender { font-weight: 600; font-size: 0.75rem; }
-  .chat-msg.theirs .chat-sender { color: #555; }
-  .chat-msg.mine .chat-sender { color: rgba(255,255,255,0.8); }
-  .chat-time { font-size: 0.675rem; }
+  .chat-footer { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px; }
+  .chat-time { font-size: 0.65rem; }
   .chat-msg.theirs .chat-time { color: #999; }
-  .chat-msg.mine .chat-time { color: rgba(255,255,255,0.6); }
+  .chat-msg.mine .chat-time { color: rgba(255,255,255,0.55); }
   .chat-body { white-space: pre-wrap; }
+  .chat-check { font-size: 0.7rem; margin-left: auto; color: rgba(255,255,255,0.45); }
+  .chat-check.read { color: #fff; }
+  .chat-new-divider { display: flex; align-items: center; gap: 8px; padding: 8px 0; align-self: stretch; max-width: 100%; }
+  .chat-new-divider::before, .chat-new-divider::after { content: ''; flex: 1; border-top: 1px solid #e74c3c; }
+  .chat-new-divider span { color: #e74c3c; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
   .chat-input-wrap { display: flex; gap: 8px; align-items: center; padding: 8px 16px; border-top: 1px solid #eee; }
   .chat-input-wrap .form-control { border-radius: 20px; border: 1px solid #ddd; }
-  .chat-input-wrap .btn { border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .chat-send-btn { border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; background: none; border: 1.5px solid var(--brand, #2563EB); color: var(--brand, #2563EB); cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .chat-send-btn:hover { background: var(--brand, #2563EB); color: #fff; }
 
 .card.border-0.shadow-sm
-  .card-header.bg-white.fw-bold
-    %i.bi.bi-chat.me-2
-    Chat
+  .card-header.bg-white.d-flex.align-items-center
+    %i.bi.bi-chat.me-2.text-muted
+    .lh-1
+      - if current_user&.shop_owner?
+        %span.fw-bold= job.client.user&.name || job.client.user&.email || job.client.org_name
+      - else
+        %span.fw-bold= job.shop.name
 
-  .card-body{"data-controller": "job-chat", "data-job-chat-job-id-value": job.id, "data-job-chat-user-id-value": current_user&.id.to_s, style: "max-height: 420px; overflow-y: auto;"}
+  .card-body{"data-controller": "job-chat", "data-job-chat-job-id-value": job.id, "data-job-chat-user-id-value": current_user&.id.to_s, "data-job-chat-read-url-value": job_reads_path, style: "max-height: 420px; overflow-y: auto;"}
     .chat-window#chat-messages
       - if messages.any?
+        - divider_shown = false
         - messages.each do |message|
-          = render "shared/job_message", message: message, current_user_id: current_user&.id
+          - if !divider_shown && local_assigns[:last_read_at].present? && message.created_at > local_assigns[:last_read_at] && message.sender_id != current_user&.id
+            - divider_shown = true
+            .chat-new-divider#new-messages-divider
+              %span New messages
+          = render "shared/job_message", message: message, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids]
       - else
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
           - if job.accepted? || job.in_progress? || job.pending_confirmation?
@@ -42,4 +54,5 @@
         = f.hidden_field :job_id, value: job.id
         = f.text_field "message[body]", class: "form-control", placeholder: "Type a message…",
             required: true, autocomplete: "off", data: { "chat-form-target": "input" }
-        = f.submit "", class: "btn btn-primary bi bi-send"
+        %button.chat-send-btn{type: "submit"}
+          %i.bi.bi-send-fill

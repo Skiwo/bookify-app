@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   end
 
   before_action :refresh_session_expiry
+  before_action :set_cable_cookie
 
   helper_method :current_user, :signed_in?, :pop_configured?, :pop_client
 
@@ -13,6 +14,10 @@ class ApplicationController < ActionController::Base
 
   def refresh_session_expiry
     session[:last_seen] = Time.current.to_i if signed_in?
+  end
+
+  def set_cable_cookie
+    cookies.encrypted[:cable_user_id] = current_user&.id
   end
 
   def current_user

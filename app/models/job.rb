@@ -16,9 +16,18 @@ class Job < ApplicationRecord
   belongs_to :assigned_member, class_name: "ShopMember", optional: true
   belongs_to :booking, optional: true
   has_many :messages, dependent: :destroy
+  has_many :job_reads, dependent: :destroy
   has_one :dispute, dependent: :destroy
 
   validates :title, presence: true
+
+  def participant_user_ids
+    ids = []
+    ids << client.user_id if client&.user_id
+    ids << shop.owner_id if shop&.owner_id
+    ids << assigned_member.enrollment.freelancer_id if assigned_member&.enrollment&.freelancer_id
+    ids.compact.uniq
+  end
 
   def minimum_job_amount_ore
     60_000 # 600 NOK minimum

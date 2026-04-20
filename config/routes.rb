@@ -108,6 +108,7 @@ Rails.application.routes.draw do
 
   # Three-party chat (accessible to all sides)
   resources :job_messages, only: [:create]
+  resources :job_reads, only: [:create]
 
   # Roster member invitations
   resources :shop_member_invitations, only: [:show], param: :token do

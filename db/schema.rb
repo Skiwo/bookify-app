@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_000011) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_20_200001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -94,6 +94,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_000011) do
     t.index ["freelancer_id"], name: "index_enrollments_on_freelancer_id"
     t.index ["invitation_token"], name: "index_enrollments_on_invitation_token", unique: true
     t.index ["pop_worker_id"], name: "index_enrollments_on_pop_worker_id"
+  end
+
+  create_table "job_reads", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_id", null: false
+    t.uuid "user_id", null: false
+    t.datetime "last_read_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id", "user_id"], name: "index_job_reads_on_job_id_and_user_id", unique: true
+    t.index ["job_id"], name: "index_job_reads_on_job_id"
+    t.index ["user_id"], name: "index_job_reads_on_user_id"
   end
 
   create_table "jobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -231,6 +242,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_000011) do
   add_foreign_key "disputes", "users", column: "raised_by_id"
   add_foreign_key "enrollments", "users", column: "booker_id"
   add_foreign_key "enrollments", "users", column: "freelancer_id"
+  add_foreign_key "job_reads", "jobs"
+  add_foreign_key "job_reads", "users"
   add_foreign_key "jobs", "bookings"
   add_foreign_key "jobs", "clients"
   add_foreign_key "jobs", "shop_members", column: "assigned_member_id"
