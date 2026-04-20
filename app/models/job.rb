@@ -37,6 +37,18 @@ class Job < ApplicationRecord
     (work_amount_ore || 0) + (commission_amount_ore || 0)
   end
 
+  def shop_completed?
+    shop_completed_at.present?
+  end
+
+  def client_completed?
+    client_completed_at.present?
+  end
+
+  def both_completed?
+    shop_completed? && client_completed?
+  end
+
   def confirmation_expired?
     confirmation_deadline_at.present? && confirmation_deadline_at < Time.current
   end

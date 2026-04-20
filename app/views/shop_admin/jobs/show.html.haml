@@ -6,7 +6,7 @@
   .d-flex.gap-2
     - if @job.draft?
       = link_to "Issue quote", new_shop_quote_path(job_id: @job.id), class: "btn btn-primary"
-    - if @job.in_progress?
+    - if (@job.in_progress? || @job.accepted?) && !@job.shop_completed? && @job.assigned_member.present?
       = button_to "Mark complete", mark_complete_shop_job_path(@job), method: :post, class: "btn btn-success"
 
 .row
@@ -14,6 +14,26 @@
     = render "shared/job_chat", job: @job, messages: @messages, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
 
   .col-lg-5
+    - if (@job.in_progress? || @job.accepted?) && (@job.shop_completed? || @job.client_completed?)
+      .card.border-0.shadow-sm.mb-4
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-check2-circle.me-1
+            Completion status
+          .d-flex.gap-4.mt-2
+            .d-flex.align-items-center.gap-2
+              - if @job.shop_completed?
+                %i.bi.bi-check-circle-fill.text-success
+              - else
+                %i.bi.bi-circle.text-muted
+              %span.small Shop
+            .d-flex.align-items-center.gap-2
+              - if @job.client_completed?
+                %i.bi.bi-check-circle-fill.text-success
+              - else
+                %i.bi.bi-circle.text-muted
+              %span.small Client
+
     .card.border-0.shadow-sm.mb-4
       .card-header.bg-white.fw-bold Job details
       .card-body
@@ -45,18 +65,22 @@
         .small.text-muted.mb-2
           %i.bi.bi-circle-fill.me-2.text-primary
           Request received #{time_ago_in_words(@job.created_at)} ago
-        - if @job.quoted? || @job.accepted? || @job.in_progress? || @job.pending_confirmation? || @job.invoiced?
+        - if @job.quoted? || @job.accepted? || @job.in_progress? || @job.invoiced?
           .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-primary
             Quote issued
-        - if @job.in_progress? || @job.pending_confirmation? || @job.invoiced?
+        - if @job.in_progress? || @job.invoiced?
           .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-primary
             Client accepted
-        - if @job.pending_confirmation? || @job.invoiced?
+        - if @job.shop_completed?
           .small.text-muted.mb-2
-            %i.bi.bi-circle-fill.me-2.text-success
-            Marked complete
+            %i.bi.bi-check-circle-fill.me-2.text-success
+            Shop confirmed
+        - if @job.client_completed?
+          .small.text-muted.mb-2
+            %i.bi.bi-check-circle-fill.me-2.text-success
+            Client confirmed
         - if @job.invoiced?
           .small.text-muted
             %i.bi.bi-circle-fill.me-2.text-success

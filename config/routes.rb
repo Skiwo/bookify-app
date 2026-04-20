@@ -100,7 +100,7 @@ Rails.application.routes.draw do
     end
     resources :jobs, only: [:index, :show] do
       member do
-        post :confirm
+        post :mark_complete
         post :dispute
       end
     end

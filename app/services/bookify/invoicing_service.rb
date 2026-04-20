@@ -27,7 +27,7 @@ module Bookify
     private
 
     def validate!
-      raise ArgumentError, "Job must be pending_confirmation" unless @job.pending_confirmation?
+      raise ArgumentError, "Job must be confirmed by both sides" unless @job.both_completed?
       raise ArgumentError, "No assigned member" unless @job.assigned_member
       raise ArgumentError, "No work amount" unless @job.work_amount_ore.to_i > 0
       raise ArgumentError, "Shop has no POP worker ID" unless @job.shop.pop_worker_id.present?

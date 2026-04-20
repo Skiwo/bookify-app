@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_200001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_20_200002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -122,6 +122,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_200001) do
     t.datetime "confirmation_deadline_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "shop_completed_at"
+    t.datetime "client_completed_at"
     t.index ["assigned_member_id"], name: "index_jobs_on_assigned_member_id"
     t.index ["booking_id"], name: "index_jobs_on_booking_id"
     t.index ["client_id"], name: "index_jobs_on_client_id"

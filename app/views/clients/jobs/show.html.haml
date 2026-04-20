@@ -31,25 +31,37 @@
           - else
             .alert.alert-secondary.mb-0 This quote has expired.
 
-    - if @job.pending_confirmation?
-      .card.border-0.shadow-sm.border-warning.mb-4
-        .card-body
-          %h6.fw-bold
-            %i.bi.bi-exclamation-triangle.me-1
-            Job marked complete
-          %p.small.mb-3 The shop has marked this job as complete. Please confirm or raise a dispute within 48 hours. Silence counts as confirmation.
-          - if @job.confirmation_deadline_at
-            %p.small.text-muted.mb-3 Deadline: #{@job.confirmation_deadline_at.strftime("%d %b %Y %H:%M")}
-          = button_to "Confirm completion", confirm_clients_job_path(@job), method: :post, class: "btn btn-success mb-2 w-100"
-          %hr.my-2
-          = form_with url: dispute_clients_job_path(@job), method: :post, local: true do |f|
-            .mb-2
-              = f.text_area "dispute[reason]", class: "form-control form-control-sm", rows: 2, placeholder: "Describe the issue…", required: true
-            = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
-
     = render "shared/job_chat", job: @job, messages: @messages, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
 
   .col-lg-5
+    - if (@job.in_progress? || @job.accepted?) && (@job.shop_completed? || @job.client_completed?)
+      .card.border-0.shadow-sm.mb-4
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-check2-circle.me-1
+            Completion status
+          .d-flex.gap-4.mt-2
+            .d-flex.align-items-center.gap-2
+              - if @job.shop_completed?
+                %i.bi.bi-check-circle-fill.text-success
+              - else
+                %i.bi.bi-circle.text-muted
+              %span.small Shop
+            .d-flex.align-items-center.gap-2
+              - if @job.client_completed?
+                %i.bi.bi-check-circle-fill.text-success
+              - else
+                %i.bi.bi-circle.text-muted
+              %span.small Client
+          - if !@job.client_completed?
+            .mt-3
+              = button_to "Mark complete", mark_complete_clients_job_path(@job), method: :post, class: "btn btn-success w-100"
+
+    - if (@job.in_progress? || @job.accepted?) && !@job.client_completed? && !@job.shop_completed? && @job.assigned_member.present?
+      .card.border-0.shadow-sm.mb-4
+        .card-body
+          = button_to "Mark complete", mark_complete_clients_job_path(@job), method: :post, class: "btn btn-success w-100"
+
     .card.border-0.shadow-sm.mb-4
       .card-header.bg-white.fw-bold Job details
       .card-body
@@ -75,12 +87,17 @@
           %ol.ps-3.mb-0.small
             %li.mb-1 Accept the quote to start the job.
             %li.mb-1 Chat with the shop and assigned freelancer.
-            %li.mb-1 After work is done, confirm completion.
+            %li.mb-1 Both sides mark the job as complete.
             %li You receive a Net-14 invoice from Payout Partner AS.
         - when :accepted, :in_progress
-          %p Work is underway. Chat with the shop if you have questions.
-        - when :pending_confirmation
-          %p.fw-medium Please confirm or dispute the completion above.
+          - if @job.both_completed?
+            %p.text-success Both sides confirmed. Invoice is being issued.
+          - elsif @job.shop_completed?
+            %p.fw-medium Shop has marked the job as complete. Please confirm when ready.
+          - elsif @job.client_completed?
+            %p Waiting for shop to confirm completion.
+          - else
+            %p Work is underway. When done, both sides mark the job as complete.
         - when :invoiced
           %p.mb-2 Invoice issued by Payout Partner AS. Net 14 days payment.
           %p.mb-0.text-muted You will receive the invoice by email.
