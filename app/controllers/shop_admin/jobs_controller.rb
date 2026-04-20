@@ -12,10 +12,11 @@ module ShopAdmin
 
     def issue_quote
       @job = current_shop.jobs.find(params[:id])
+      work_ore = (params[:work_amount_nok].to_f * 100).round
       attrs = {
         status: :quoted,
-        work_amount_ore: params[:work_amount_ore].to_i,
-        commission_amount_ore: (@job.shop.commission_percent.to_f / 100 * params[:work_amount_ore].to_f).round,
+        work_amount_ore: work_ore,
+        commission_amount_ore: (@job.shop.commission_percent.to_f / 100 * work_ore).round,
         assigned_member_id: params[:assigned_member_id],
         quote_expires_at: 72.hours.from_now
       }

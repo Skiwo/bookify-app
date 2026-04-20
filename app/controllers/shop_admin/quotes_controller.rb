@@ -7,7 +7,7 @@ module ShopAdmin
 
     def create
       @job = current_shop.jobs.find(params[:job_id])
-      work_ore = params[:work_amount_ore].to_i
+      work_ore = (params[:work_amount_nok].to_f * 100).round
       commission_ore = (@job.shop.commission_percent.to_f / 100 * work_ore).round
 
       if @job.update(

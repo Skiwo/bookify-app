@@ -20,6 +20,33 @@
           %dt.col-sm-4 Member
           %dd.col-sm-8= @job.assigned_member&.name || "—"
 
+    - if @job.quoted?
+      .card.border-0.shadow-sm.border-primary.mb-4
+        .card-body
+          %h6.fw-bold
+            %i.bi.bi-file-earmark-text.me-1
+            Quote received
+          %dl.row.mb-2
+            %dt.col-sm-5 Work amount (excl. MVA)
+            %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
+            %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
+            %dd.col-sm-7= format_nok(@job.commission_amount_ore)
+            %dt.col-sm-5 MVA (25%)
+            %dd.col-sm-7= format_nok((@job.total_amount_ore * 0.25).round)
+            %dt.col-sm-5.fw-bold Total incl. MVA
+            %dd.col-sm-7
+              %strong.fs-5= format_nok((@job.total_amount_ore * 1.25).round)
+          - if @job.quote_expires_at
+            %p.small.text-muted.mb-3
+              %i.bi.bi-clock.me-1
+              Expires #{@job.quote_expires_at.strftime("%d %b %Y %H:%M")}
+          - unless @job.quote_expired?
+            .d-flex.gap-3
+              = button_to "Accept quote", accept_clients_quote_path(@job), method: :post, class: "btn btn-success"
+              = button_to "Decline", decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
+          - else
+            .alert.alert-secondary.mb-0 This quote has expired.
+
     - if @job.pending_confirmation?
       .card.border-0.shadow-sm.border-warning.mb-4
         .card-body
@@ -43,6 +70,13 @@
       .card-header.bg-white.fw-bold What happens next
       .card-body.small
         - case @job.status.to_sym
+        - when :quoted
+          %p.fw-medium Review the quote and accept or decline.
+          %ol.ps-3.mb-0.small
+            %li.mb-1 Accept the quote to start the job.
+            %li.mb-1 Chat with the shop and assigned freelancer.
+            %li.mb-1 After work is done, confirm completion.
+            %li You receive a Net-14 invoice from Payout Partner AS.
         - when :accepted, :in_progress
           %p Work is underway. Chat with the shop if you have questions.
         - when :pending_confirmation

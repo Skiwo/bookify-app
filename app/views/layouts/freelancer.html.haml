@@ -13,27 +13,27 @@
     = csrf_meta_tags
     = csp_meta_tag
     :css
-      :root { --brand-teal: #0D9488; --brand-teal-dark: #0F766E; }
+      :root { --brand: #2563EB; --brand-dark: #1D4ED8; }
       body { background-color: #f8f9fa; font-family: 'Outfit', system-ui, -apple-system, sans-serif; }
-      .bg-primary, .btn-primary { background-color: var(--brand-teal) !important; border-color: var(--brand-teal) !important; }
-      .btn-primary:hover { background-color: var(--brand-teal-dark) !important; border-color: var(--brand-teal-dark) !important; }
-      .text-primary { color: var(--brand-teal) !important; }
-      .badge.bg-primary { background-color: var(--brand-teal) !important; }
+      .bg-primary, .btn-primary { background-color: var(--brand) !important; border-color: var(--brand) !important; }
+      .btn-primary:hover { background-color: var(--brand-dark) !important; border-color: var(--brand-dark) !important; }
+      .text-primary { color: var(--brand) !important; }
+      .badge.bg-primary { background-color: var(--brand) !important; }
       .card { border-radius: 12px; }
-      .sidebar-tint { background-color: #F0FDFA; }
+      .sidebar-tint { background-color: #EFF6FF; }
       .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     - if Rails.env.development?
       :css
         .dev-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: #1e1e2e; color: #cdd6f4; z-index: 1050; transition: right 0.3s ease; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
         .dev-panel.open { right: 0; }
         .dev-panel pre { color: #a6e3a1; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
-        .dev-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--brand-teal); color: white; border: none; font-size: 1.4rem; z-index: 1051; box-shadow: 0 4px 12px rgba(13,148,136,0.4); cursor: pointer; }
-        .dev-fab:hover { background: var(--brand-teal-dark); }
+        .dev-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--brand); color: white; border: none; font-size: 1.4rem; z-index: 1051; box-shadow: 0 4px 12px rgba(37,99,235,0.4); cursor: pointer; }
+        .dev-fab:hover { background: var(--brand-dark); }
         .dev-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1049; display: none; }
         .dev-overlay.open { display: block; }
 
   %body
-    %nav.navbar.navbar-expand-lg.navbar-dark{style: "background-color: var(--brand-teal);"}
+    %nav.navbar.navbar-expand-lg.navbar-dark.bg-primary
       .container-fluid.px-4
         %a.navbar-brand.fw-bold{href: freelancer_dashboard_path}
           %i.bi.bi-person-badge.me-2
