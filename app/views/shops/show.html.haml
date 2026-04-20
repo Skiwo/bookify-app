@@ -48,14 +48,21 @@
       .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
         .card-header.fw-bold.bg-white Request work
         .card-body
-          = form_with url: shop_requests_path(@shop.slug), method: :post, local: false do |f|
-            .mb-3
-              = f.label :title, "What do you need?", class: "form-label fw-medium"
-              = f.text_field :title, class: "form-control", placeholder: "e.g. Catering for 50 people", required: true, name: "job[title]"
-            .mb-3
-              = f.label :description, "Details", class: "form-label fw-medium"
-              = f.text_area :description, class: "form-control", rows: 4, placeholder: "Date, location, any specifics…", name: "job[description]"
-            = f.submit "Send request", class: "btn btn-primary w-100"
+          - if current_user&.client?
+            = form_with url: shop_requests_path(@shop.slug), method: :post, local: true do |f|
+              .mb-3
+                = f.label :title, "What do you need?", class: "form-label fw-medium"
+                = f.text_field "job[title]", class: "form-control", placeholder: "e.g. Catering for 50 people", required: true
+              .mb-3
+                = f.label :description, "Details", class: "form-label fw-medium"
+                = f.text_area "job[description]", class: "form-control", rows: 4, placeholder: "Date, location, any specifics…"
+              = f.submit "Send request", class: "btn btn-primary w-100"
+          - elsif signed_in?
+            %p.text-muted.small.mb-3 To submit a request, register your organisation first.
+            = link_to "Register organisation", new_clients_registration_path, class: "btn btn-primary w-100"
+          - else
+            %p.text-muted.small.mb-3 Sign in or register to submit a request.
+            = link_to "Sign in / Register", users_sign_in_path, class: "btn btn-primary w-100"
           %p.text-muted.small.mt-3.mb-0
             %i.bi.bi-shield-check.me-1
             Payments handled by Payout Partner AS. MVA invoice issued on completion.

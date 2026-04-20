@@ -6,7 +6,7 @@ module ShopAdmin
     end
 
     def show
-      @job = current_shop.jobs.find(params[:id])
+      @job = current_shop.jobs.includes(:client, assigned_member: :enrollment).find(params[:id])
       @messages = @job.messages.includes(:sender).order(:created_at)
     end
 

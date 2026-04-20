@@ -1,12 +1,12 @@
 module Clients
   class JobsController < BaseController
     def index
-      @jobs = current_client.jobs.order(created_at: :desc)
+      @jobs = current_client.jobs.includes(:shop).order(created_at: :desc)
       @jobs = @jobs.where(status: params[:status]) if params[:status].present?
     end
 
     def show
-      @job = current_client.jobs.find(params[:id])
+      @job = current_client.jobs.includes(:shop, assigned_member: :enrollment).find(params[:id])
       @messages = @job.messages.includes(:sender).order(:created_at)
     end
 
