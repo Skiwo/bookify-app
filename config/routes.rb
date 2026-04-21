@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   get "privacy", to: "pages#privacy"
 
   passwordless_for :users, at: "/", as: :users
+  resource :profile, only: [:edit, :update]
 
   resources :invitations, only: [:show], param: :token do
     member do

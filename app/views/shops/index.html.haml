@@ -18,11 +18,14 @@
       .col
         .card.h-100.border-0.shadow-sm
           .card-body
-            %h5.card-title.fw-bold= shop.name
-            - if shop.city.present?
-              %p.text-muted.small.mb-2
-                %i.bi.bi-geo-alt.me-1
-                = shop.city
+            .d-flex.align-items-center.gap-3.mb-2
+              = shop_avatar(shop, size: 48)
+              .lh-sm
+                %h5.card-title.fw-bold.mb-0= shop.name
+                - if shop.city.present?
+                  %span.text-muted.small
+                    %i.bi.bi-geo-alt.me-1
+                    = shop.city
             %p.card-text.text-muted.small= truncate(shop.description, length: 120)
             - if shop.skill_tags.any?
               .mb-3

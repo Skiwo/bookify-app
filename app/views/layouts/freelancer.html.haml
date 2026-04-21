@@ -56,8 +56,8 @@
                 Profile
           %ul.navbar-nav
             %li.nav-item
-              %span.nav-link.text-white-50
-                %i.bi.bi-person-circle.me-1
+              %a.nav-link.text-white-50.d-flex.align-items-center.gap-2{href: edit_profile_path}
+                = user_avatar(current_user, size: 24)
                 = current_user.name || current_user.email
             %li.nav-item
               = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-light btn-sm my-1"

@@ -2,7 +2,7 @@ class ShopsController < ApplicationController
   def index
     @shops = Shop.active.public_shop.order(:name)
     @shops = @shops.where("city ILIKE ?", "%#{params[:city]}%") if params[:city].present?
-    @shops = @shops.where("? = ANY(skill_tags)", params[:skill]) if params[:skill].present?
+    @shops = @shops.where("EXISTS (SELECT 1 FROM unnest(skill_tags) AS tag WHERE tag ILIKE ?)", "%#{params[:skill]}%") if params[:skill].present?
   end
 
   def show

@@ -29,7 +29,7 @@
   .card-header.bg-white.d-flex.align-items-center.gap-2
     - viewing_as_shop = current_user&.id == job.shop.owner_id
     - if viewing_as_shop
-      = user_avatar(job.client.org_name, size: 32)
+      = user_avatar(job.client.user, size: 32)
       .lh-1
         %span.fw-bold= job.client.org_name
     - else

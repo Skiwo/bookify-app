@@ -15,6 +15,11 @@ class Shop < ApplicationRecord
 
   before_validation :generate_slug, on: :create, if: -> { slug.blank? && name.present? }
 
+  def skill_tags=(value)
+    tags = value.is_a?(String) ? value.split(",") : Array(value)
+    super(tags.map { |t| t.strip.downcase }.reject(&:blank?))
+  end
+
   def active_members
     shop_members.active
   end

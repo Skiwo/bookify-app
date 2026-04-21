@@ -16,7 +16,7 @@ class SkillPagesController < ApplicationController
     raise ActionController::RoutingError, "Unknown skill" unless SUPPORTED_SKILLS.include?(@skill)
 
     @shops = Shop.active.public_shop
-                 .where("? = ANY(skill_tags)", @skill)
+                 .where("EXISTS (SELECT 1 FROM unnest(skill_tags) AS tag WHERE tag ILIKE ?)", @skill)
                  .order(:name)
   end
 end

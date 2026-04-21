@@ -1,0 +1,25 @@
+%h2.fw-bold.mb-4 Edit profile
+
+.row
+  .col-lg-6
+    .card.border-0.shadow-sm
+      .card-body
+        = form_with model: @user, url: profile_path, method: :patch,
+            data: { controller: "avatar-preview" } do |f|
+          .text-center.mb-4{"data-avatar-preview-target": "preview"}
+            = user_avatar(@user, size: 80)
+          .mb-3
+            = f.label :avatar, "Photo", class: "form-label fw-medium"
+            = f.file_field :avatar, accept: "image/*", class: "form-control",
+                data: { "avatar-preview-target": "input", action: "change->avatar-preview#update" }
+
+          .mb-3
+            = f.label :name, "Full name", class: "form-label fw-medium"
+            = f.text_field :name, class: "form-control", placeholder: "Ola Nordmann"
+
+          .mb-3
+            %label.form-label.fw-medium Email
+            %input.form-control{type: "email", value: @user.email, disabled: true}
+            %div.form-text Email cannot be changed.
+
+          = f.submit "Save", class: "btn btn-primary w-100"

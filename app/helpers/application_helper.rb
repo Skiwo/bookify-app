@@ -23,12 +23,21 @@ module ApplicationHelper
     end
   end
 
-  def user_avatar(name_or_email, size: 40)
-    initials = name_or_email.to_s.split(/[\s@]/).first(2).map { |w| w[0] }.join.upcase
-    initials = "?" if initials.blank?
-    content_tag :div, initials,
-      class: "rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold",
-      style: "width:#{size}px;height:#{size}px;font-size:#{size / 2.8}px;flex-shrink:0"
+  def user_avatar(name_or_email_or_user, size: 40)
+    user = name_or_email_or_user.is_a?(User) ? name_or_email_or_user : nil
+    label = user ? (user.name.presence || user.email) : name_or_email_or_user.to_s
+
+    if user&.avatar&.attached?
+      image_tag user.avatar,
+        class: "rounded-circle",
+        style: "width:#{size}px;height:#{size}px;object-fit:cover;flex-shrink:0"
+    else
+      initials = label.split(/[\s@]/).first(2).map { |w| w[0] }.join.upcase
+      initials = "?" if initials.blank?
+      content_tag :div, initials,
+        class: "rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold",
+        style: "width:#{size}px;height:#{size}px;font-size:#{size / 2.8}px;flex-shrink:0"
+    end
   end
 
   def shop_avatar(shop, size: 40)
