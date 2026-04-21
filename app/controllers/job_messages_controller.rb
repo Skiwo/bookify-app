@@ -9,7 +9,7 @@ class JobMessagesController < ApplicationController
       return
     end
 
-    @message = @job.messages.new(body: params[:message][:body], sender: current_user)
+    @message = @job.messages.new(message_params.merge(sender: current_user))
 
     if @message.save
       respond_to do |format|
@@ -26,6 +26,10 @@ class JobMessagesController < ApplicationController
   end
 
   private
+
+  def message_params
+    params.require(:message).permit(:body, :file)
+  end
 
   def authorized_for_job?(job)
     return true if current_user.client? && job.client.user_id == current_user.id

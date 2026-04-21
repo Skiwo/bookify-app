@@ -10,7 +10,17 @@
     - if first && !mine
       %span.chat-sender-name= sender_name
     .chat-bubble
-      .chat-body= message.body
+      - if message.body.present?
+        .chat-body= message.body
+      - if message.file.attached?
+        - blob_path = Rails.application.routes.url_helpers.rails_blob_path(message.file, only_path: true)
+        .chat-attachment
+          - if message.image_attachment?
+            %img{src: blob_path, loading: "lazy"}
+          - elsif message.pdf_attachment?
+            .d-flex.align-items-center.gap-2
+              %i.bi.bi-file-earmark-pdf.fs-5
+              %a{href: blob_path, target: "_blank", style: "color: inherit;"}= message.file.filename
       .chat-footer
         %span.chat-time= message.created_at.strftime("%H:%M")
         - if mine
