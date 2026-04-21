@@ -29,6 +29,17 @@
   .chat-input-wrap .form-control { border-radius: 20px; border: 1px solid #ddd; }
   .chat-send-btn { border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; background: none; border: 1.5px solid var(--brand, #2563EB); color: var(--brand, #2563EB); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .chat-send-btn:hover { background: var(--brand, #2563EB); color: #fff; }
+  .recording-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; animation: pulse-rec 1s infinite; }
+  .recording-stop { border-color: #ef4444 !important; color: #ef4444 !important; }
+  .recording-stop:hover { background: #ef4444 !important; color: #fff !important; }
+  @keyframes pulse-rec { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .voice-player { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-width: 180px; }
+  .voice-play-btn { background: none; border: none; padding: 0; font-size: 1.3rem; cursor: pointer; color: inherit; line-height: 1; flex-shrink: 0; }
+  .voice-track { flex: 1; height: 4px; background: rgba(128,128,128,0.3); border-radius: 2px; cursor: pointer; position: relative; }
+  .voice-track-fill { height: 100%; border-radius: 2px; width: 0%; transition: width 0.1s linear; }
+  .chat-msg.mine .voice-track-fill { background: rgba(255,255,255,0.7); }
+  .chat-msg.theirs .voice-track-fill { background: var(--brand, #2563EB); }
+  .voice-time { font-size: 0.65rem; min-width: 28px; text-align: right; }
   .chat-presence { position: relative; display: inline-block; }
   .chat-presence-dot { position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; }
   .chat-presence-dot.online { background: #22c55e; }
@@ -78,20 +89,32 @@
           Chat is open. Discuss details with the shop.
 
   - if signed_in? && !job.invoiced? && !job.paid? && !job.completed? && !job.disputed?
-    .chat-input-wrap
+    .chat-input-wrap{"data-controller": "voice-recorder"}
       = form_with url: job_messages_path, method: :post, class: "w-100",
           data: { controller: "chat-form", action: "turbo:submit-end->chat-form#reset" } do |f|
         = f.hidden_field :job_id, value: job.id
-        = f.file_field "message[file]", class: "d-none", accept: "image/png,image/jpeg,application/pdf",
-            data: { "chat-form-target": "fileInput", action: "change->chat-form#fileSelected" }
+        = f.file_field "message[file]", class: "d-none", accept: "image/png,image/jpeg,application/pdf,audio/webm,audio/ogg,audio/mp4",
+            data: { "chat-form-target": "fileInput", "voice-recorder-target": "fileInput", action: "change->chat-form#fileSelected" }
         .d-none.small.text-muted.d-flex.align-items-center.gap-1.px-2.pb-1{"data-chat-form-target": "filePreview"}
           %i.bi.bi-paperclip
           %span{"data-chat-form-target": "fileName"}
           %button.btn-close{type: "button", style: "font-size: 0.5rem;", data: { action: "click->chat-form#clearFile" }}
-        .d-flex.gap-2.align-items-center
+        /- Normal input row
+        .d-flex.gap-2.align-items-center{"data-voice-recorder-target": "normalUI"}
           = f.text_field "message[body]", class: "form-control", placeholder: "Type a message…",
               autocomplete: "off", data: { "chat-form-target": "input" }
           %button.chat-send-btn{type: "button", data: { action: "click->chat-form#pickFile" }}
             %i.bi.bi-paperclip
+          %button.chat-send-btn{type: "button", data: { action: "click->voice-recorder#toggle" }}
+            %i.bi.bi-mic
           %button.chat-send-btn{type: "submit"}
             %i.bi.bi-send-fill
+        /- Recording row
+        .d-none.d-flex.gap-2.align-items-center{"data-voice-recorder-target": "recordingUI"}
+          .d-flex.align-items-center.gap-2.flex-grow-1
+            %span.recording-dot
+            %span.small.fw-medium{"data-voice-recorder-target": "timer"} 0:00
+          %button.chat-send-btn{type: "button", data: { action: "click->voice-recorder#cancel" }}
+            %i.bi.bi-x-lg
+          %button.chat-send-btn.recording-stop{type: "button", data: { action: "click->voice-recorder#toggle" }}
+            %i.bi.bi-stop-fill

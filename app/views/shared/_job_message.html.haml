@@ -17,6 +17,15 @@
         .chat-attachment
           - if message.image_attachment?
             %img{src: blob_path, loading: "lazy"}
+          - elsif message.audio_attachment?
+            .voice-player{"data-controller": "audio-player"}
+              %audio{"data-audio-player-target": "audio", preload: "metadata"}
+                %source{src: blob_path, type: message.file.content_type}
+              %button.voice-play-btn{type: "button", "data-action": "click->audio-player#togglePlay"}
+                %i.bi.bi-play-fill{"data-audio-player-target": "playBtn"}
+              .voice-track{"data-audio-player-target": "progress", "data-action": "click->audio-player#seek"}
+                .voice-track-fill{"data-audio-player-target": "progressBar"}
+              %span.voice-time{"data-audio-player-target": "time"} 0:00
           - elsif message.pdf_attachment?
             .d-flex.align-items-center.gap-2
               %i.bi.bi-file-earmark-pdf.fs-5

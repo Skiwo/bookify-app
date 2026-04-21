@@ -8,7 +8,7 @@ class Message < ApplicationRecord
   validate :body_or_file_present, unless: :system_message?
   validate :acceptable_file, if: -> { file.attached? }
 
-  ALLOWED_TYPES = %w[image/png image/jpeg application/pdf].freeze
+  ALLOWED_TYPES = %w[image/png image/jpeg application/pdf audio/webm audio/ogg audio/mp4].freeze
   MAX_FILE_SIZE = 5.megabytes
 
   after_create_commit :broadcast_to_job
@@ -23,6 +23,10 @@ class Message < ApplicationRecord
 
   def pdf_attachment?
     file.attached? && file.content_type == "application/pdf"
+  end
+
+  def audio_attachment?
+    file.attached? && file.content_type.start_with?("audio/")
   end
 
   private
