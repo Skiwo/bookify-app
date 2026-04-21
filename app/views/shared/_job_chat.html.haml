@@ -1,8 +1,9 @@
 :css
-  .chat-window { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; }
-  .chat-msg { display: flex; flex-direction: column; max-width: 75%; }
+  .chat-window { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; }
+  .chat-msg { display: flex; flex-direction: column; max-width: 75%; margin-top: 0; }
   .chat-msg.mine { align-self: flex-end; }
   .chat-msg.theirs { align-self: flex-start; }
+  .chat-msg.grouped { margin-top: -4px; }
   .chat-bubble { padding: 8px 12px; border-radius: 16px; font-size: 0.875rem; line-height: 1.4; word-wrap: break-word; }
   .chat-msg.theirs .chat-bubble { background: #f0f0f0; color: #1a1a1a; border-bottom-left-radius: 4px; }
   .chat-msg.mine .chat-bubble { background: var(--brand, #2563EB); color: #fff; border-bottom-right-radius: 4px; }
@@ -17,6 +18,8 @@
   .chat-system-time { font-size: 0.65rem; color: #bbb; flex-shrink: 0; }
   .chat-check { font-size: 0.7rem; margin-left: auto; color: rgba(255,255,255,0.45); }
   .chat-check.read { color: #fff; }
+  .chat-date-divider { display: flex; justify-content: center; padding: 8px 0; align-self: stretch; max-width: 100%; }
+  .chat-date-divider span { font-size: 0.7rem; color: #888; background: #f0f0f0; border-radius: 10px; padding: 2px 12px; }
   .chat-new-divider { display: flex; align-items: center; gap: 8px; padding: 8px 0; align-self: stretch; max-width: 100%; }
   .chat-new-divider::before, .chat-new-divider::after { content: ''; flex: 1; border-top: 1px solid #e74c3c; }
   .chat-new-divider span { color: #e74c3c; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
@@ -26,7 +29,7 @@
   .chat-send-btn:hover { background: var(--brand, #2563EB); color: #fff; }
 
 .card.border-0.shadow-sm
-  .card-header.bg-white.d-flex.align-items-center.gap-2
+  .card-header.bg-white.d-flex.align-items-center.justify-content-center.gap-2
     - viewing_as_shop = current_user&.id == job.shop.owner_id
     - if viewing_as_shop
       = user_avatar(job.client.user, size: 32)
@@ -41,12 +44,23 @@
     .chat-window#chat-messages
       - if messages.any?
         - divider_shown = false
+        - prev_sender_id = nil
+        - prev_date = nil
         - messages.each do |message|
+          - msg_date = message.created_at.to_date
+          - if msg_date != prev_date
+            - prev_sender_id = nil
+            .chat-date-divider
+              %span= chat_date_label(msg_date)
+            - prev_date = msg_date
           - if !divider_shown && local_assigns[:last_read_at].present? && message.created_at > local_assigns[:last_read_at] && message.sender_id != current_user&.id
             - divider_shown = true
+            - prev_sender_id = nil
             .chat-new-divider#new-messages-divider
               %span New messages
-          = render "shared/job_message", message: message, job: job, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids]
+          - group_first = message.system_message? || message.sender_id != prev_sender_id
+          = render "shared/job_message", message: message, job: job, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids], group_first: group_first
+          - prev_sender_id = message.system_message? ? nil : message.sender_id
       - else
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
           Chat is open. Discuss details with the shop.

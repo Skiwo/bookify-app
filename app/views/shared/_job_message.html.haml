@@ -4,9 +4,10 @@
     %span.chat-system-time= message.created_at.strftime("%H:%M")
 - else
   - mine = local_assigns[:current_user_id].present? && message.sender_id.to_s == local_assigns[:current_user_id].to_s
+  - first = local_assigns.fetch(:group_first, true)
   - sender_name = local_assigns[:job].present? ? chat_sender_name(message, local_assigns[:job]) : (message.sender.name.presence || message.sender.email)
-  .chat-msg{"data-sender-id": message.sender_id, "data-message-id": message.id, "data-created-at": message.created_at.iso8601, class: mine ? "mine" : "theirs"}
-    - unless mine
+  .chat-msg{"data-sender-id": message.sender_id, "data-message-id": message.id, "data-created-at": message.created_at.iso8601, class: [mine ? "mine" : "theirs", first ? nil : "grouped"].compact.join(" ")}
+    - if first && !mine
       %span.chat-sender-name= sender_name
     .chat-bubble
       .chat-body= message.body

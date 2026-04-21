@@ -3,6 +3,19 @@ module ApplicationHelper
     controller.controller_path.start_with?(controller_prefix) ? "active" : ""
   end
 
+  def chat_date_label(date)
+    today = Date.current
+    if date == today
+      "Today"
+    elsif date == today - 1
+      "Yesterday"
+    elsif date > today - 7
+      date.strftime("%A")
+    else
+      date.strftime("%d %b %Y")
+    end
+  end
+
   def pop_environment_banner(pop_base_url)
     return nil unless pop_base_url.present?
     if pop_base_url.include?("sandbox") || pop_base_url.include?("localhost")
