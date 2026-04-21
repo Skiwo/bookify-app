@@ -8,11 +8,18 @@ class JobReadsController < ApplicationController
       return
     end
 
+    now = Time.current
     JobRead.upsert(
-      { job_id: job.id, user_id: current_user.id, last_read_at: Time.current,
-        created_at: Time.current, updated_at: Time.current },
+      { job_id: job.id, user_id: current_user.id, last_read_at: now,
+        created_at: now, updated_at: now },
       unique_by: [:job_id, :user_id]
     )
+
+    ActionCable.server.broadcast("job_#{job.id}", {
+      type: "read",
+      user_id: current_user.id,
+      read_at: now.iso8601
+    })
 
     head :ok
   end

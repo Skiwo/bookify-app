@@ -3,6 +3,10 @@ module ApplicationHelper
     controller.controller_path.start_with?(controller_prefix) ? "active" : ""
   end
 
+  def user_online?(user)
+    user&.last_online_at.present? && user.last_online_at > 2.minutes.ago
+  end
+
   def chat_date_label(date)
     today = Date.current
     if date == today

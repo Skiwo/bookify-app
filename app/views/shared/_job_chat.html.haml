@@ -16,7 +16,7 @@
   .chat-system { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0; align-self: stretch; max-width: 100%; }
   .chat-system span:first-child { font-size: 0.75rem; color: #888; background: #f0f0f0; border-radius: 10px; padding: 2px 10px; }
   .chat-system-time { font-size: 0.65rem; color: #bbb; flex-shrink: 0; }
-  .chat-check { font-size: 0.7rem; margin-left: auto; color: rgba(255,255,255,0.45); }
+  .chat-check { margin-left: auto; color: rgba(255,255,255,0.45); display: flex; align-items: center; }
   .chat-check.read { color: #fff; }
   .chat-date-divider { display: flex; justify-content: center; padding: 8px 0; align-self: stretch; max-width: 100%; }
   .chat-date-divider span { font-size: 0.7rem; color: #888; background: #f0f0f0; border-radius: 10px; padding: 2px 12px; }
@@ -27,16 +27,26 @@
   .chat-input-wrap .form-control { border-radius: 20px; border: 1px solid #ddd; }
   .chat-send-btn { border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; background: none; border: 1.5px solid var(--brand, #2563EB); color: var(--brand, #2563EB); cursor: pointer; transition: background 0.15s, color 0.15s; }
   .chat-send-btn:hover { background: var(--brand, #2563EB); color: #fff; }
+  .chat-presence { position: relative; display: inline-block; }
+  .chat-presence-dot { position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; }
+  .chat-presence-dot.online { background: #22c55e; }
+  .chat-presence-dot.offline { background: #d1d5db; }
 
 .card.border-0.shadow-sm
   .card-header.bg-white.d-flex.align-items-center.justify-content-center.gap-2
     - viewing_as_shop = current_user&.id == job.shop.owner_id
     - if viewing_as_shop
-      = user_avatar(job.client.user, size: 32)
+      - other_user = job.client.user
+      .chat-presence
+        = user_avatar(other_user, size: 32)
+        %span.chat-presence-dot{class: user_online?(other_user) ? "online" : "offline"}
       .lh-1
         %span.fw-bold= job.client.org_name
     - else
-      = shop_avatar(job.shop, size: 32)
+      - other_user = job.shop.owner
+      .chat-presence
+        = shop_avatar(job.shop, size: 32)
+        %span.chat-presence-dot{class: user_online?(other_user) ? "online" : "offline"}
       .lh-1
         %span.fw-bold= job.shop.name
 

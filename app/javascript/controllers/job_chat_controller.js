@@ -42,7 +42,9 @@ export default class extends Controller {
       )
       if (!hasNewMessages) return
       this.classifyAll()
+      this.groupAll()
       this.scrollToBottom()
+      this.scheduleMarkAsRead()
     })
     this.observer.observe(this.messagesEl, { childList: true })
   }
@@ -54,11 +56,29 @@ export default class extends Controller {
       const { default: consumer } = await import("channels/consumer")
       this.subscription = consumer.subscriptions.create(
         { channel: "JobChannel", job_id: this.jobIdValue },
-        { received: (data) => this.appendMessage(data.message_html) }
+        { received: (data) => this.handleCableData(data) }
       )
     } catch (e) {
       // ActionCable unavailable — Turbo Stream handles messages
     }
+  }
+
+  handleCableData(data) {
+    if (data.type === "read") {
+      this.onReadReceipt(data)
+    } else if (data.message_html) {
+      this.appendMessage(data.message_html)
+    }
+  }
+
+  onReadReceipt(data) {
+    // Ignore own read events
+    if (data.user_id === this.userIdValue) return
+
+    // Mark all my unread checkmarks as read
+    this.messagesEl.querySelectorAll(".chat-msg.mine .chat-check:not(.read)").forEach((el) => {
+      el.classList.add("read")
+    })
   }
 
   appendMessage(html) {
@@ -88,10 +108,32 @@ export default class extends Controller {
     })
   }
 
+  // --- Grouping ---
+
+  groupAll() {
+    let prevSenderId = null
+    this.messagesEl.querySelectorAll(".chat-msg, .chat-system, .chat-new-divider, .chat-date-divider").forEach((el) => {
+      if (el.classList.contains("chat-msg")) {
+        const senderId = el.dataset.senderId
+        if (senderId === prevSenderId) {
+          el.classList.add("grouped")
+          const nameEl = el.querySelector(".chat-sender-name")
+          if (nameEl) nameEl.remove()
+        }
+        prevSenderId = senderId
+      } else {
+        // Dividers and system messages reset grouping
+        prevSenderId = null
+      }
+    })
+  }
+
   // --- Read tracking ---
 
   scheduleMarkAsRead() {
     if (!this.readUrlValue) return
+    clearTimeout(this._readTimer)
+    this._markedRead = false
     this._readTimer = setTimeout(() => this.markAsRead(), 3000)
   }
 

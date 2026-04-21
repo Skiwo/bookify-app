@@ -13,8 +13,12 @@
       .chat-body= message.body
       .chat-footer
         %span.chat-time= message.created_at.strftime("%H:%M")
-        - if mine && local_assigns[:other_participant_ids].present?
-          - reads = local_assigns[:job_reads] || {}
-          - read_count = local_assigns[:other_participant_ids].count { |uid| reads[uid]&.last_read_at && reads[uid].last_read_at >= message.created_at }
-          - all_read = read_count == local_assigns[:other_participant_ids].size
-          %span.chat-check{class: all_read ? "read" : nil} ✓
+        - if mine
+          - if local_assigns[:other_participant_ids].present?
+            - reads = local_assigns[:job_reads] || {}
+            - read_count = local_assigns[:other_participant_ids].count { |uid| reads[uid]&.last_read_at && reads[uid].last_read_at >= message.created_at }
+            - all_read = read_count == local_assigns[:other_participant_ids].size
+          - else
+            - all_read = false
+          %span.chat-check{class: all_read ? "read" : nil}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 12l4 4 8-8" stroke="currentColor" stroke-width="2"/><path d="M8 12l4 4 8-8" stroke="currentColor" stroke-width="2"/></svg>

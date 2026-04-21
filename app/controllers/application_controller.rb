@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
 
   before_action :refresh_session_expiry
   before_action :set_cable_cookie
+  before_action :touch_online
 
   helper_method :current_user, :signed_in?, :pop_configured?, :pop_client, :client_registered?
 
@@ -18,6 +19,12 @@ class ApplicationController < ActionController::Base
 
   def set_cable_cookie
     cookies.encrypted[:cable_user_id] = current_user&.id
+  end
+
+  def touch_online
+    return unless signed_in?
+    return if current_user.last_online_at && current_user.last_online_at > 1.minute.ago
+    current_user.update_column(:last_online_at, Time.current)
   end
 
   def current_user

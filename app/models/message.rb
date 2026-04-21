@@ -17,7 +17,7 @@ class Message < ApplicationRecord
     ActionCable.server.broadcast("job_#{job_id}", {
       message_html: ApplicationController.renderer.render(
         partial: "shared/job_message",
-        locals: { message: self }
+        locals: { message: self, job: job }
       )
     })
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_100001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_21_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -270,6 +270,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100001) do
     t.string "pop_production_api_key"
     t.string "pop_production_hmac_secret"
     t.string "pop_production_partner_id"
+    t.datetime "last_online_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["role"], name: "index_users_on_role"
   end
