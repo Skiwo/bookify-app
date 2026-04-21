@@ -65,6 +65,9 @@
 
   .card-body{"data-controller": "job-chat", "data-job-chat-job-id-value": job.id, "data-job-chat-user-id-value": current_user&.id.to_s, "data-job-chat-read-url-value": job_reads_path, style: "max-height: 420px; overflow-y: auto;"}
     .chat-window#chat-messages
+      - if local_assigns[:older_count].to_i > 0
+        .text-center.py-2
+          = link_to "Load #{local_assigns[:older_count]} earlier messages", request.path + "?all=1", class: "small text-muted"
       - if messages.any?
         - divider_shown = false
         - prev_sender_id = nil

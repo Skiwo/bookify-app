@@ -9,7 +9,7 @@ module Clients
 
     def show
       @job = current_client.jobs.includes(:shop, assigned_member: :enrollment).find(params[:id])
-      @messages = @job.messages.includes(:sender).order(:created_at)
+      load_messages
       load_read_data
     end
 

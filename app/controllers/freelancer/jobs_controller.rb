@@ -1,8 +1,9 @@
 module Freelancer
   class JobsController < BaseController
+    include JobReadable
     def show
       @job = find_job
-      @messages = @job.messages.includes(:sender).order(:created_at)
+      load_messages
     end
 
     def sync_payout

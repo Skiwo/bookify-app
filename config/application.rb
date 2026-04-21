@@ -38,5 +38,8 @@ module BookifyApp
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Serve Active Storage files through proxy with browser caching
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
   end
 end

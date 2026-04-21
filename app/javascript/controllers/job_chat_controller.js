@@ -7,7 +7,9 @@ export default class extends Controller {
     this.messagesEl = this.element.querySelector("#chat-messages")
     this.classifyAll()
     this.scrollToStart()
+    this.scrollAfterMedia()
     this.observeMutations()
+    this.observeResize()
     this.scheduleMarkAsRead()
     this.connectCable()
   }
@@ -15,6 +17,7 @@ export default class extends Controller {
   disconnect() {
     this.subscription?.unsubscribe()
     this.observer?.disconnect()
+    this.resizeObserver?.disconnect()
     clearTimeout(this._readTimer)
   }
 
@@ -30,7 +33,28 @@ export default class extends Controller {
   }
 
   scrollToBottom() {
-    this.element.scrollTop = this.element.scrollHeight
+    requestAnimationFrame(() => {
+      this.element.scrollTop = this.element.scrollHeight
+    })
+  }
+
+  scrollAfterMedia() {
+    this.messagesEl.querySelectorAll("img, audio").forEach((el) => {
+      el.addEventListener("load", () => this.scrollToBottom(), { once: true })
+      el.addEventListener("loadedmetadata", () => this.scrollToBottom(), { once: true })
+    })
+  }
+
+  // --- Resize (images/audio loading after append) ---
+
+  observeResize() {
+    this.resizeObserver = new ResizeObserver(() => {
+      const { scrollTop, scrollHeight, clientHeight } = this.element
+      if (scrollHeight - scrollTop - clientHeight < 150) {
+        this.scrollToBottom()
+      }
+    })
+    this.resizeObserver.observe(this.messagesEl)
   }
 
   // --- Mutations (Turbo Stream appends) ---

@@ -8,7 +8,7 @@ module ShopAdmin
 
     def show
       @job = current_shop.jobs.includes(:client, assigned_member: :enrollment).find(params[:id])
-      @messages = @job.messages.includes(:sender).order(:created_at)
+      load_messages
       load_read_data
     end
 
