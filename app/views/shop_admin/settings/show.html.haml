@@ -2,7 +2,7 @@
 
 .card.border-0.shadow-sm
   .card-body
-    = form_with model: @shop, url: shop_settings_path, method: :patch, local: true do |f|
+    = form_with model: @shop, url: shop_settings_path, method: :patch, local: true, multipart: true do |f|
       .row
         .col-md-6.mb-3
           = f.label :name, "Shop name", class: "form-label fw-medium"
@@ -11,6 +11,16 @@
         .col-md-6.mb-3
           = f.label :city, "City", class: "form-label fw-medium"
           = f.text_field :city, class: "form-control", placeholder: "Oslo"
+
+      .mb-3
+        = f.label :avatar, "Shop logo", class: "form-label fw-medium"
+        .d-flex.align-items-center.gap-3
+          - if @shop.avatar.attached?
+            = image_tag @shop.avatar, class: "rounded-circle", style: "width:56px;height:56px;object-fit:cover"
+          - else
+            .rounded-circle.bg-light.d-flex.align-items-center.justify-content-center{style: "width:56px;height:56px;flex-shrink:0"}
+              %i.bi.bi-shop.text-muted.fs-4
+          = f.file_field :avatar, class: "form-control", accept: "image/*"
 
       .mb-3
         = f.label :description, "Description", class: "form-label fw-medium"
@@ -37,8 +47,23 @@
         %h6.fw-bold.text-muted Payout Partner
         .mb-3
           = f.label :pop_worker_id, "Your POP Worker ID", class: "form-label fw-medium"
-          = f.text_field :pop_worker_id, class: "form-control font-monospace", placeholder: "wkr_..."
-          %div.form-text Used to route commission payouts to you via Payout Partner AS.
+          .input-group
+            = f.text_field :pop_worker_id, class: "form-control font-monospace", disabled: true
+            = link_to bookify_onboarding_shop_path, class: "btn btn-outline-secondary" do
+              - if @shop.pop_worker_id.present?
+                %i.bi.bi-arrow-repeat.me-1
+                Re-enroll
+              - else
+                %i.bi.bi-box-arrow-up-right.me-1
+                Connect to Payout Partner
+          - if @shop.pop_worker_id.present?
+            %div.form-text.text-success
+              %i.bi.bi-check-circle.me-1
+              Enrolled. Commission payouts are active.
+          - else
+            %div.form-text.text-warning
+              %i.bi.bi-exclamation-triangle.me-1
+              Not enrolled. Connect to receive commission payouts.
 
       = f.submit "Save settings", class: "btn btn-primary"
 
@@ -52,14 +77,8 @@
       - if @shop.active?
         = button_to "Pause shop", pause_shop_settings_path, method: :post,
             class: "btn btn-sm btn-outline-warning",
-            data: { turbo_confirm: "Pause your shop? Clients won't be able to submit new requests." }
-        = button_to "Close shop", close_shop_settings_path, method: :post,
-            class: "btn btn-sm btn-outline-danger",
-            data: { turbo_confirm: "Close your shop? It will no longer appear in listings." }
+            data: { turbo_confirm: "Pause your shop? It will be removed from public listing. Existing clients can still access their jobs." }
       - elsif @shop.paused?
         = button_to "Reopen shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
-        = button_to "Close shop", close_shop_settings_path, method: :post,
-            class: "btn btn-sm btn-outline-danger",
-            data: { turbo_confirm: "Close your shop permanently?" }
-      - elsif @shop.closed? || @shop.draft?
-        = button_to "Reopen shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
+      - elsif @shop.draft?
+        = button_to "Publish shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"

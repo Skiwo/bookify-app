@@ -1,6 +1,12 @@
 = link_to "← Jobs", clients_jobs_path, class: "text-muted text-decoration-none small"
-%h2.fw-bold.mt-1.mb-1= @job.title
-%p.text-muted.mb-4= @job.shop.name
+.d-flex.align-items-start.mt-1.mb-4
+  .me-auto
+    %h2.fw-bold.mb-1= @job.title
+    %p.text-muted.mb-0= @job.shop.name
+  - if @job.draft? || @job.quoted?
+    = button_to "Cancel request", cancel_clients_job_path(@job), method: :post,
+        class: "btn btn-outline-danger btn-sm",
+        data: { turbo_confirm: "Cancel this request? The shop will be notified." }
 
 .row
   .col-lg-7
@@ -11,6 +17,11 @@
             %i.bi.bi-file-earmark-text.me-1
             Quote received
           %dl.row.mb-2
+            - if @job.rate_per_hour_ore.present?
+              %dt.col-sm-5 Hourly rate
+              %dd.col-sm-7= format_nok(@job.rate_per_hour_ore) + " / hour"
+              %dt.col-sm-5 Estimated hours
+              %dd.col-sm-7= "#{@job.estimated_hours}h"
             %dt.col-sm-5 Work amount (excl. MVA)
             %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
             %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
@@ -34,33 +45,32 @@
     = render "shared/job_chat", job: @job, messages: @messages, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
 
   .col-lg-5
-    - if (@job.in_progress? || @job.accepted?) && (@job.shop_completed? || @job.client_completed?)
-      .card.border-0.shadow-sm.mb-4
+    - if @job.pending_confirmation?
+      .card.border-0.shadow-sm.border-warning.mb-4
         .card-body
           %h6.fw-bold
-            %i.bi.bi-check2-circle.me-1
-            Completion status
-          .d-flex.gap-4.mt-2
-            .d-flex.align-items-center.gap-2
-              - if @job.shop_completed?
-                %i.bi.bi-check-circle-fill.text-success
-              - else
-                %i.bi.bi-circle.text-muted
-              %span.small Shop
-            .d-flex.align-items-center.gap-2
-              - if @job.client_completed?
-                %i.bi.bi-check-circle-fill.text-success
-              - else
-                %i.bi.bi-circle.text-muted
-              %span.small Client
-          - if !@job.client_completed?
-            .mt-3
-              = button_to "Mark complete", mark_complete_clients_job_path(@job), method: :post, class: "btn btn-success w-100"
-
-    - if (@job.in_progress? || @job.accepted?) && !@job.client_completed? && !@job.shop_completed? && @job.assigned_member.present?
-      .card.border-0.shadow-sm.mb-4
-        .card-body
-          = button_to "Mark complete", mark_complete_clients_job_path(@job), method: :post, class: "btn btn-success w-100"
+            %i.bi.bi-exclamation-triangle.me-1
+            Job marked complete
+          %p.small.mb-3 Please review the hours and confirm or raise a dispute.
+          - if @job.confirmation_deadline_at
+            %p.small.text-muted.mb-2
+              %i.bi.bi-clock.me-1
+              Deadline: #{@job.confirmation_deadline_at.strftime("%d %b %Y %H:%M")}
+          = form_with url: mark_complete_clients_job_path(@job), method: :post, local: true do |f|
+            .row.g-2.mb-3
+              .col-6
+                %label.form-label.small.fw-medium Work date
+                = f.date_field :work_date, value: @job.work_date || Date.current, max: Date.current, class: "form-control form-control-sm"
+              .col-6
+                %label.form-label.small.fw-medium Hours worked
+                = f.number_field :work_hours, value: @job.work_hours || 8, step: 0.5, min: 0.5, max: 24, class: "form-control form-control-sm"
+            = f.submit "Confirm completion", class: "btn btn-success w-100 mb-2"
+          %hr.my-2
+          = form_with url: dispute_clients_job_path(@job), method: :post, local: true do |f|
+            .mb-2
+              = f.text_area "dispute[reason]", class: "form-control form-control-sm", rows: 2,
+                  placeholder: "Describe the issue…", required: true
+            = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
 
     .card.border-0.shadow-sm.mb-4
       .card-header.bg-white.fw-bold Job details
@@ -68,8 +78,8 @@
         %dl.row.mb-0
           %dt.col-sm-4 Status
           %dd.col-sm-8
-            %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : "bg-primary"}
-              = @job.status.humanize
+            - badge = @job.cancelled? || @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : @job.draft? ? "bg-secondary" : "bg-primary"
+            %span.badge{class: badge}= @job.status.humanize
           - if @job.work_amount_ore
             %dt.col-sm-4 Amount (excl. MVA)
             %dd.col-sm-8= format_nok(@job.work_amount_ore)
@@ -90,18 +100,18 @@
             %li.mb-1 Both sides mark the job as complete.
             %li You receive a Net-14 invoice from Payout Partner AS.
         - when :accepted, :in_progress
-          - if @job.both_completed?
-            %p.text-success Both sides confirmed. Invoice is being issued.
-          - elsif @job.shop_completed?
-            %p.fw-medium Shop has marked the job as complete. Please confirm when ready.
-          - elsif @job.client_completed?
-            %p Waiting for shop to confirm completion.
-          - else
-            %p Work is underway. When done, both sides mark the job as complete.
-        - when :invoiced
+          %p Work is underway. Chat with the shop and assigned freelancer.
+        - when :pending_confirmation
+          %p.fw-medium Work has been marked complete — please confirm or raise a dispute above.
+        - when :invoiced, :paid, :completed
           %p.mb-2 Invoice issued by Payout Partner AS. Net 14 days payment.
-          %p.mb-0.text-muted You will receive the invoice by email.
+          %p.mb-3.text-muted You will receive the invoice by email.
+          = link_to shop_path(@job.shop.slug), class: "btn btn-primary w-100" do
+            %i.bi.bi-arrow-repeat.me-1
+            Book again
         - when :disputed
           %p.text-danger A dispute has been raised. We will be in touch.
+        - when :cancelled
+          %p.text-muted This request was cancelled.
         - else
           %p Waiting for the shop to send a quote.

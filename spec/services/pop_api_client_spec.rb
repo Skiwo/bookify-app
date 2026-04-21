@@ -128,7 +128,7 @@ RSpec.describe PopApiClient do
         callback_url: "https://bookify.app/callbacks/connect"
       )
 
-      expect(url).to start_with("https://sandbox.app.payoutpartner.com/freelancer/connect?token=")
+      expect(url).to start_with("https://sandbox.app.payoutpartner.com/f/connect?token=")
       token = url.split("token=").last
       decoded = JWT.decode(token, PopApiHelpers::POP_ENV["POP_HMAC_SECRET"], true, algorithm: "HS256").first
       expect(decoded["partner_worker_id"]).to eq("wk_123")

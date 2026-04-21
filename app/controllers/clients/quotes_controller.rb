@@ -17,12 +17,14 @@ module Clients
       end
 
       @job.update!(status: :accepted)
+      Message.post_system(@job, "✓ Quote accepted by #{current_client.org_name}. Chat is open.")
       redirect_to clients_job_path(@job), notice: "Quote accepted! Chat is now open."
     end
 
     def decline
       @job = current_client.jobs.quoted.find(params[:id])
       @job.update!(status: :draft)
+      Message.post_system(@job, "✗ Quote declined by #{current_client.org_name}.")
       redirect_to clients_quotes_path, notice: "Quote declined."
     end
   end

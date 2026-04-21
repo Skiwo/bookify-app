@@ -8,7 +8,8 @@ class Job < ApplicationRecord
     disputed: 5,
     invoiced: 6,
     paid: 7,
-    completed: 8
+    completed: 8,
+    cancelled: 9
   }
 
   belongs_to :shop

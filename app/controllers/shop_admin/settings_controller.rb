@@ -13,11 +13,9 @@ module ShopAdmin
       end
     end
 
-    private
-
     def pause
       current_shop.paused!
-      redirect_to shop_settings_path, notice: "Shop paused. Clients won't see a request form."
+      redirect_to shop_settings_path, notice: "Shop paused — removed from public listing. Existing clients can still access their jobs."
     end
 
     def close
@@ -30,8 +28,10 @@ module ShopAdmin
       redirect_to shop_settings_path, notice: "Shop is now active and accepting requests."
     end
 
+    private
+
     def shop_params
-      params.require(:shop).permit(:name, :description, :city, :visibility, :commission_percent, :pop_worker_id, skill_tags: [])
+      params.require(:shop).permit(:name, :description, :city, :visibility, :commission_percent, :pop_worker_id, :avatar, skill_tags: [])
     end
   end
 end

@@ -30,26 +30,30 @@ module ShopAdmin
       end
     end
 
+    def sync_payout
+      @job = current_shop.jobs.find(params[:id])
+      Bookify::PayoutSyncService.new(@job).call
+      redirect_to shop_job_path(@job), notice: "Payout status refreshed."
+    end
+
     def mark_complete
       @job = current_shop.jobs.find(params[:id])
 
       unless @job.assigned_member.present?
-        redirect_to shop_job_path(@job), alert: "Cannot complete: no freelancer assigned. Please issue a quote with an assigned member first."
+        redirect_to shop_job_path(@job), alert: "Cannot complete: no freelancer assigned."
         return
       end
 
-      @job.update!(shop_completed_at: Time.current)
-
-      if @job.both_completed?
-        result = Bookify::InvoicingService.new(@job).call
-        if result.success?
-          redirect_to shop_job_path(@job), notice: "Both sides confirmed. Invoice issued."
-        else
-          redirect_to shop_job_path(@job), alert: "Confirmation saved but invoicing failed: #{result.error&.message}"
-        end
-      else
-        redirect_to shop_job_path(@job), notice: "Marked as complete. Waiting for client confirmation."
-      end
+      hours = params[:work_hours].presence&.to_f || 8.0
+      @job.update!(
+        status: :pending_confirmation,
+        completion_marked_at: Time.current,
+        confirmation_deadline_at: 48.hours.from_now,
+        work_date: params[:work_date].presence&.to_date || Date.current,
+        work_hours: hours
+      )
+      Message.post_system(@job, "#{current_shop.name} marked the job as complete (#{hours}h). Client has 48h to confirm.")
+      redirect_to shop_job_path(@job), notice: "Job marked as complete. Client has 48 hours to confirm."
     end
   end
 end

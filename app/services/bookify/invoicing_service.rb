@@ -15,11 +15,11 @@ module Bookify
       result = submit_to_pop(booking)
 
       if result.success?
+        @job.update!(booking: booking, status: :invoiced)
         record_payout(booking, result.data)
         Result.new(success: true)
       else
         booking.destroy
-        @job.update!(status: :accepted)
         Result.new(success: false, error: result.error)
       end
     end
@@ -27,28 +27,27 @@ module Bookify
     private
 
     def validate!
-      raise ArgumentError, "Job must be confirmed by both sides" unless @job.both_completed?
       raise ArgumentError, "No assigned member" unless @job.assigned_member
       raise ArgumentError, "No work amount" unless @job.work_amount_ore.to_i > 0
-      raise ArgumentError, "Shop has no POP worker ID" unless @job.shop.pop_worker_id.present?
-      raise ArgumentError, "Member has no POP worker ID" unless member_enrollment.pop_worker_id.present?
+      raise ArgumentError, "Shop owner not enrolled in POP" unless @job.shop.pop_worker_id.present?
+      raise ArgumentError, "Member not enrolled in POP" unless member_pop_worker_id.present?
     end
 
-    def member_enrollment
-      @member_enrollment ||= @job.assigned_member.enrollment
+    def member_pop_worker_id
+      @job.assigned_member.bookify_pop_worker_id
     end
 
     def build_booking_in_db
       ActiveRecord::Base.transaction do
-        booking = Booking.create!(
-          enrollment: member_enrollment,
+        booking = Booking.new(
+          enrollment: @job.assigned_member.enrollment,
           description: @job.title,
           invoiced_on: Date.current,
           due_on: Date.current + 14.days,
           status: :completed
         )
 
-        booking.booking_lines.create!(
+        booking.booking_lines.build(
           description: @job.title,
           line_type: :work,
           booking_type: :project_based,
@@ -59,7 +58,7 @@ module Bookify
           position: 0
         )
 
-        booking.booking_lines.create!(
+        booking.booking_lines.build(
           description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
           line_type: :commission,
           booking_type: :project_based,
@@ -70,19 +69,21 @@ module Bookify
           position: 1
         )
 
-        @job.update!(booking: booking, status: :invoiced)
+        booking.save!
         booking
       end
     end
 
     def submit_to_pop(booking)
       pop_client.create_payout(
-        worker_id: member_enrollment.pop_worker_id,
+        worker_id: member_pop_worker_id,
         lines: pop_lines,
         invoiced_on: Date.current.iso8601,
         due_on: (Date.current + 14.days).iso8601,
-        order_reference: @job.id,
-        source_params: { bookify_job_id: @job.id },
+        order_reference: "bookify-job-#{@job.id}",
+        buyer_reference: @job.client.org_number,
+        external_note: @job.client.org_name,
+        source_params: { bookify_job_id: @job.id, shop_id: @job.shop_id },
         idempotency_key: "bookify-job-#{@job.id}"
       )
     end
@@ -94,8 +95,9 @@ module Bookify
           line_type: "work",
           rate: @job.work_amount_ore / 100.0,
           quantity: 1,
-          work_started_at: Date.current.beginning_of_day.iso8601,
-          work_ended_at: Date.current.end_of_day.iso8601,
+          work_started_at: work_started_at.iso8601,
+          work_ended_at: work_ended_at.iso8601,
+          work_hours: @job.work_hours,
           group: "job-work"
         },
         {
@@ -122,8 +124,17 @@ module Bookify
       end
     end
 
+    def work_started_at
+      date = @job.work_date || Date.current
+      Time.zone.local(date.year, date.month, date.day, 9, 0)
+    end
+
+    def work_ended_at
+      work_started_at + (@job.work_hours || 8.0).hours
+    end
+
     def pop_client
-      @pop_client ||= PopApiClient.for_user(@job.shop.owner)
+      @pop_client ||= PopApiClient.for_bookify
     end
   end
 end

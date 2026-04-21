@@ -3,14 +3,58 @@
   - if current_user.name.present?
     %small.text-muted.fw-normal= "— #{current_user.name}"
 
-- if @booker_count == 0
+- if @bookify_jobs.any?
+  .card.border-0.shadow-sm.mb-4
+    .card-header.bg-white.fw-bold
+      %i.bi.bi-shop.me-2
+      Bookify Jobs
+    .card-body
+      .list-group.list-group-flush
+        - @bookify_jobs.each do |job|
+          = link_to freelancer_job_path(job), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
+            %div
+              %span.fw-medium= job.title
+              %br
+              %small.text-muted= job.shop.name
+            .d-flex.align-items-center.gap-2
+              - if job.work_amount_ore
+                %span.text-muted.small= format_nok(job.work_amount_ore)
+              %span.badge{class: job.invoiced? || job.paid? ? "bg-success" : job.disputed? ? "bg-danger" : "bg-primary"}
+                = job.status.humanize
+
+- if @booker_count == 0 && @bookify_jobs.empty?
   .card.border-0.shadow-sm.text-center.py-5
     .card-body
       %i.bi.bi-envelope-open.display-3.text-muted.mb-3
       %h4.fw-bold Waiting for an invitation
       %p.text-muted.mb-0 When a booker invites you, you'll see your bookings and earnings here.
 
-- else
+- if @bookify_jobs.any?
+  .row.mb-4
+    - @bookify_shops.each do |shop|
+      - shop_jobs = @bookify_jobs.select { |j| j.shop_id == shop.id }
+      .col-md-4.mb-3
+        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3
+            .d-flex.align-items-center.justify-content-center.gap-2.mb-1
+              = shop_avatar(shop, size: 28)
+              %span.fw-bold.small= shop.name
+            %h3.fw-bold.mb-0{style: "color: #0D9488;"}= shop_jobs.size
+            %p.text-muted.small.mb-0 Total Jobs
+      .col-md-4.mb-3
+        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3
+            %h3.fw-bold.mb-0{style: "color: #0D9488;"}
+              = shop_jobs.count { |j| %w[accepted in_progress pending_confirmation].include?(j.status) }
+            %p.text-muted.small.mb-0 Active Jobs
+      .col-md-4.mb-3
+        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3
+            %h3.fw-bold.mb-0{style: "color: #0D9488;"}
+              = format_nok(shop_jobs.select { |j| %w[invoiced paid completed].include?(j.status) }.sum { |j| j.work_amount_ore.to_i })
+            %p.text-muted.small.mb-0 Total Earned (gross)
+
+- if @booker_count > 0 && @bookify_jobs.empty?
   .row
     .col-md-4.mb-3
       .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}

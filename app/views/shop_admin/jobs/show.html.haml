@@ -6,8 +6,15 @@
   .d-flex.gap-2
     - if @job.draft?
       = link_to "Issue quote", new_shop_quote_path(job_id: @job.id), class: "btn btn-primary"
-    - if (@job.in_progress? || @job.accepted?) && !@job.shop_completed? && @job.assigned_member.present?
-      = button_to "Mark complete", mark_complete_shop_job_path(@job), method: :post, class: "btn btn-success"
+    - if @job.in_progress? || @job.accepted?
+      = form_with url: mark_complete_shop_job_path(@job), method: :post, local: true, class: "d-flex gap-2 align-items-end" do |f|
+        .d-flex.flex-column
+          %label.form-label.small.mb-1.text-muted Work date
+          = f.date_field :work_date, value: @job.work_date || Date.current, max: Date.current, class: "form-control form-control-sm"
+        .d-flex.flex-column
+          %label.form-label.small.mb-1.text-muted Hours
+          = f.number_field :work_hours, value: @job.work_hours || 8, step: 0.5, min: 0.5, max: 24, class: "form-control form-control-sm", style: "width:80px"
+        = f.submit "Mark complete", class: "btn btn-success btn-sm"
 
 .row
   .col-lg-7
@@ -55,6 +62,12 @@
           - if @job.quote_expires_at
             %dt.col-sm-4 Quote expires
             %dd.col-sm-8= @job.quote_expires_at.strftime("%d %b %Y %H:%M")
+          - if @job.desired_date.present?
+            %dt.col-sm-4 Desired date
+            %dd.col-sm-8= @job.desired_date.strftime("%d %b %Y")
+          - if @job.desired_hours.present?
+            %dt.col-sm-4 Est. duration
+            %dd.col-sm-8= "#{@job.desired_hours}h"
           - if @job.description.present?
             %dt.col-sm-4 Description
             %dd.col-sm-8= @job.description
@@ -82,6 +95,15 @@
             %i.bi.bi-check-circle-fill.me-2.text-success
             Client confirmed
         - if @job.invoiced?
-          .small.text-muted
+          - payout = @job.booking&.payout
+          .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-success
             Invoice issued
+          - if payout
+            .small.text-muted.d-flex.align-items-center.gap-2
+              - if payout.pop_invoice_number.present?
+                %span Invoice ##{payout.pop_invoice_number} · #{payout.pop_status}
+              - else
+                %span.text-warning #{payout.pop_status} — invoice number pending
+              = button_to "↻ Sync", sync_payout_shop_job_path(@job), method: :post,
+                  class: "btn btn-link btn-sm p-0 text-muted"

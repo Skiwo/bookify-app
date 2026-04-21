@@ -12,6 +12,38 @@ module ApplicationHelper
     end
   end
 
+  def chat_sender_name(message, job)
+    sender = message.sender
+    if sender.id == job.shop.owner_id
+      job.shop.name
+    elsif sender.client? && job.client.user_id == sender.id
+      job.client.org_name
+    else
+      sender.name.presence || sender.email.split("@").first
+    end
+  end
+
+  def user_avatar(name_or_email, size: 40)
+    initials = name_or_email.to_s.split(/[\s@]/).first(2).map { |w| w[0] }.join.upcase
+    initials = "?" if initials.blank?
+    content_tag :div, initials,
+      class: "rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold",
+      style: "width:#{size}px;height:#{size}px;font-size:#{size / 2.8}px;flex-shrink:0"
+  end
+
+  def shop_avatar(shop, size: 40)
+    if shop.avatar.attached?
+      image_tag shop.avatar,
+        class: "rounded-circle",
+        style: "width:#{size}px;height:#{size}px;object-fit:cover;flex-shrink:0"
+    else
+      initials = shop.name.split.first(2).map { |w| w[0] }.join.upcase
+      content_tag :div, initials,
+        class: "rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold",
+        style: "width:#{size}px;height:#{size}px;font-size:#{size / 2.8}px;flex-shrink:0"
+    end
+  end
+
   def format_nok(ore_amount)
     return "—" unless ore_amount
     nok = ore_amount / 100.0

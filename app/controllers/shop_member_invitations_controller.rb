@@ -14,9 +14,8 @@ class ShopMemberInvitationsController < ApplicationController
       return
     end
 
-    @member.update!(status: :active, accepted_at: Time.current)
-    redirect_to shop_path(@member.shop.slug),
-      notice: "You've joined #{@member.shop.name}! You'll receive job assignments from the shop owner."
+    # Redirect to POP onboarding — callback will mark member as active
+    redirect_to bookify_onboarding_member_path(token: @member.invitation_token)
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Invalid or expired invitation."
   end

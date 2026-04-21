@@ -7,12 +7,15 @@ class ShopRequestsController < ApplicationController
     @job = @shop.jobs.new(
       title: params.dig(:job, :title),
       description: params.dig(:job, :description),
+      desired_date: params.dig(:job, :desired_date).presence,
+      desired_hours: params.dig(:job, :desired_hours).presence&.to_f,
       client: current_client,
       status: :draft
     )
 
     if @job.save
-      redirect_to clients_dashboard_path, notice: "Request sent to #{@shop.name}. They'll send you a quote shortly."
+      Message.post_system(@job, "Request submitted by #{current_client.org_name}.")
+      redirect_to clients_job_path(@job), notice: "Request sent to #{@shop.name}. Chat is open — feel free to discuss details."
     else
       @members = @shop.active_members.includes(:enrollment)
       render "shops/show", status: :unprocessable_entity

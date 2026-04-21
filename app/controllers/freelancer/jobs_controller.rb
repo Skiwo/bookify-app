@@ -1,0 +1,42 @@
+module Freelancer
+  class JobsController < BaseController
+    def show
+      @job = find_job
+      @messages = @job.messages.includes(:sender).order(:created_at)
+    end
+
+    def sync_payout
+      @job = find_job
+      Bookify::PayoutSyncService.new(@job).call
+      redirect_to freelancer_job_path(@job), notice: "Payout status refreshed."
+    end
+
+    def mark_complete
+      @job = find_job
+      unless @job.in_progress? || @job.accepted?
+        redirect_to freelancer_job_path(@job), alert: "Job cannot be marked complete at this stage."
+        return
+      end
+      hours = params[:work_hours].presence&.to_f || 8.0
+      @job.update!(
+        status: :pending_confirmation,
+        completion_marked_at: Time.current,
+        confirmation_deadline_at: 48.hours.from_now,
+        work_date: params[:work_date].presence&.to_date || Date.current,
+        work_hours: hours
+      )
+      name = current_user.name.presence || current_user.email.split("@").first
+      Message.post_system(@job, "#{name} marked the job as complete (#{hours}h). Client has 48h to confirm.")
+      redirect_to freelancer_job_path(@job), notice: "Job marked as complete. Client has 48 hours to confirm."
+    end
+
+    private
+
+    def find_job
+      Job.joins(assigned_member: :enrollment)
+         .where(enrollments: { freelancer_id: current_user.id })
+         .includes(:shop, :client, assigned_member: :enrollment)
+         .find(params[:id])
+    end
+  end
+end

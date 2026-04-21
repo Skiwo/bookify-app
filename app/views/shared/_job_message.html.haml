@@ -1,11 +1,19 @@
-- mine = local_assigns[:current_user_id].present? && message.sender_id.to_s == local_assigns[:current_user_id].to_s
-.chat-msg{"data-sender-id": message.sender_id, "data-message-id": message.id, "data-created-at": message.created_at.iso8601, class: mine ? "mine" : "theirs"}
-  .chat-bubble
-    .chat-body= message.body
-    .chat-footer
-      %span.chat-time= message.created_at.strftime("%H:%M")
-      - if mine && local_assigns[:other_participant_ids].present?
-        - reads = local_assigns[:job_reads] || {}
-        - read_count = local_assigns[:other_participant_ids].count { |uid| reads[uid]&.last_read_at && reads[uid].last_read_at >= message.created_at }
-        - all_read = read_count == local_assigns[:other_participant_ids].size
-        %span.chat-check{class: all_read ? "read" : nil} ✓
+- if message.system_message?
+  .chat-system{"data-message-id": message.id}
+    %span= message.body
+    %span.chat-system-time= message.created_at.strftime("%H:%M")
+- else
+  - mine = local_assigns[:current_user_id].present? && message.sender_id.to_s == local_assigns[:current_user_id].to_s
+  - sender_name = local_assigns[:job].present? ? chat_sender_name(message, local_assigns[:job]) : (message.sender.name.presence || message.sender.email)
+  .chat-msg{"data-sender-id": message.sender_id, "data-message-id": message.id, "data-created-at": message.created_at.iso8601, class: mine ? "mine" : "theirs"}
+    - unless mine
+      %span.chat-sender-name= sender_name
+    .chat-bubble
+      .chat-body= message.body
+      .chat-footer
+        %span.chat-time= message.created_at.strftime("%H:%M")
+        - if mine && local_assigns[:other_participant_ids].present?
+          - reads = local_assigns[:job_reads] || {}
+          - read_count = local_assigns[:other_participant_ids].count { |uid| reads[uid]&.last_read_at && reads[uid].last_read_at >= message.created_at }
+          - all_read = read_count == local_assigns[:other_participant_ids].size
+          %span.chat-check{class: all_read ? "read" : nil} ✓

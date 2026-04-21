@@ -29,5 +29,5 @@
           .alert.alert-secondary You've already accepted this invitation.
         - else
           = button_to "Accept invitation", accept_shop_member_invitation_path(@member.invitation_token),
-              method: :post, class: "btn btn-success btn-lg w-100"
+              method: :post, class: "btn btn-success btn-lg w-100", data: { turbo: false }
           %p.text-muted.small.mt-3.mb-0 By accepting, you agree to Bookify's terms of service.

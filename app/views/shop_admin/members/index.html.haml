@@ -23,14 +23,18 @@
               %span.badge{class: member.active? ? "bg-success" : member.invited? ? "bg-warning text-dark" : "bg-secondary"}
                 = member.status.humanize
             %td.text-muted= member.accepted_at&.strftime("%d %b %Y") || "—"
-            %td.text-end.d-flex.gap-1.justify-content-end
-              - if member.invited?
-                = link_to "Resend", shop_members_path(resend: member.id), class: "btn btn-sm btn-outline-secondary",
-                    data: { turbo_method: :post }
-              - if !member.inactive?
-                = button_to "Remove", shop_member_path(member), method: :delete,
-                    class: "btn btn-sm btn-outline-danger",
-                    data: { turbo_confirm: "Remove #{member.name} from the roster?" }
+            %td.text-end
+              .d-flex.gap-1.justify-content-end
+                - if member.enrollment.email == current_user.email
+                  %span.badge.bg-light.text-dark.border You
+                - else
+                  - if member.invited?
+                    = button_to "Resend", resend_shop_member_path(member), method: :post,
+                        class: "btn btn-sm btn-outline-secondary"
+                  - if !member.inactive?
+                    = button_to "Remove", shop_member_path(member), method: :delete,
+                        class: "btn btn-sm btn-outline-danger",
+                        data: { turbo_confirm: "Remove #{member.name} from the roster?" }
 - else
   .text-center.py-5
     %i.bi.bi-people.display-3.text-muted

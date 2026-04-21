@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :refresh_session_expiry
   before_action :set_cable_cookie
 
-  helper_method :current_user, :signed_in?, :pop_configured?, :pop_client
+  helper_method :current_user, :signed_in?, :pop_configured?, :pop_client, :client_registered?
 
   private
 
@@ -45,5 +45,9 @@ class ApplicationController < ActionController::Base
 
   def pop_client
     @pop_client ||= PopApiClient.for_user(current_user)
+  end
+
+  def client_registered?
+    @client_registered ||= current_user&.client? && Client.exists?(user: current_user)
   end
 end

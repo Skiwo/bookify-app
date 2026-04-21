@@ -18,13 +18,23 @@
         = form_with url: shop_quotes_path, method: :post, local: true do |f|
           = f.hidden_field :job_id, value: @job.id
 
-          .mb-3
-            = f.label :work_amount_nok, "Work amount (NOK excl. MVA)", class: "form-label fw-medium"
-            .input-group
-              %span.input-group-text kr
-              = f.number_field :work_amount_nok, step: 1, min: 600, class: "form-control",
-                  placeholder: "e.g. 10000", required: true
-            %div.form-text Minimum 600 kr.
+          .row.g-2.mb-3
+            .col-7
+              = f.label :rate_per_hour_nok, "Hourly rate (NOK)", class: "form-label fw-medium"
+              .input-group
+                %span.input-group-text kr
+                = f.number_field :rate_per_hour_nok, step: 1, min: 1, class: "form-control",
+                    placeholder: "e.g. 500", required: true
+            .col-5
+              = f.label :estimated_hours, "Est. hours", class: "form-label fw-medium"
+              = f.number_field :estimated_hours, step: 0.5, min: 0.5, class: "form-control",
+                  placeholder: "e.g. 8", required: true
+
+          .alert.alert-light.border.small.mb-3
+            %i.bi.bi-calculator.me-1
+            Total = rate × hours.
+            %strong#quote-total —
+            Client can adjust hours on confirmation.
 
           .mb-3
             = f.label :assigned_member_id, "Assign member", class: "form-label fw-medium"
@@ -35,7 +45,20 @@
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1
-            Commission of #{current_shop.commission_percent}% will be added automatically.
-            Client pays via bank transfer. Net-14 invoice from Payout Partner AS.
+            Commission of #{current_shop.commission_percent}% added automatically. Net-14 invoice from Payout Partner AS.
 
           = f.submit "Send quote (72h window)", class: "btn btn-primary w-100"
+
+:javascript
+  const rate = document.querySelector('[name="rate_per_hour_nok"]')
+  const hours = document.querySelector('[name="estimated_hours"]')
+  const total = document.querySelector('#quote-total')
+  function updateTotal() {
+    const r = parseFloat(rate.value) || 0
+    const h = parseFloat(hours.value) || 0
+    const t = r * h
+    total.textContent = t > 0 ? 'kr ' + t.toLocaleString('nb-NO', {minimumFractionDigits: 0}) : '—'
+  }
+  rate.addEventListener('input', updateTotal)
+  hours.addEventListener('input', updateTotal)
+  updateTotal()

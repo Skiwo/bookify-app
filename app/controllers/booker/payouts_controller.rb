@@ -31,6 +31,7 @@ module Booker
         if result.success?
           payout.update!(
             pop_status: result.data["status"],
+            pop_invoice_number: result.data["invoice_number"],
             pop_response: result.data,
             synced_at: Time.current
           )

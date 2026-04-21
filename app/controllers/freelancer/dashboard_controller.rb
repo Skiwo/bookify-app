@@ -29,6 +29,17 @@ module Freelancer
         .includes(booking: { enrollment: :booker })
         .order(created_at: :desc)
         .limit(10)
+
+      @bookify_jobs = Job.joins(assigned_member: :enrollment)
+        .where(enrollments: { freelancer_id: current_user.id })
+        .includes(:shop, :client)
+        .order(created_at: :desc)
+
+      @bookify_shops = @bookify_jobs.map(&:shop).uniq
+      @bookify_total_earned = Payout.joins(:booking)
+        .where(bookings: { enrollment_id: enrollment_ids })
+        .joins("INNER JOIN jobs ON jobs.booking_id = bookings.id")
+        .sum("payouts.amount_ore")
     end
   end
 end

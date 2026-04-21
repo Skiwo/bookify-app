@@ -2,6 +2,7 @@ class Shop < ApplicationRecord
   enum :status, { draft: 0, active: 1, paused: 2, closed: 3 }
   enum :visibility, { public_shop: 0, private_shop: 1 }
 
+  has_one_attached :avatar
   belongs_to :owner, class_name: "User"
   has_many :shop_members, dependent: :destroy
   has_many :jobs, dependent: :restrict_with_error

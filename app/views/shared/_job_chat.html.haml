@@ -11,6 +11,10 @@
   .chat-msg.theirs .chat-time { color: #999; }
   .chat-msg.mine .chat-time { color: rgba(255,255,255,0.55); }
   .chat-body { white-space: pre-wrap; }
+  .chat-sender-name { font-size: 0.7rem; color: #888; margin-bottom: 2px; padding-left: 4px; }
+  .chat-system { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0; align-self: stretch; max-width: 100%; }
+  .chat-system span:first-child { font-size: 0.75rem; color: #888; background: #f0f0f0; border-radius: 10px; padding: 2px 10px; }
+  .chat-system-time { font-size: 0.65rem; color: #bbb; flex-shrink: 0; }
   .chat-check { font-size: 0.7rem; margin-left: auto; color: rgba(255,255,255,0.45); }
   .chat-check.read { color: #fff; }
   .chat-new-divider { display: flex; align-items: center; gap: 8px; padding: 8px 0; align-self: stretch; max-width: 100%; }
@@ -22,12 +26,15 @@
   .chat-send-btn:hover { background: var(--brand, #2563EB); color: #fff; }
 
 .card.border-0.shadow-sm
-  .card-header.bg-white.d-flex.align-items-center
-    %i.bi.bi-chat.me-2.text-muted
-    .lh-1
-      - if current_user&.shop_owner?
-        %span.fw-bold= job.client.user&.name || job.client.user&.email || job.client.org_name
-      - else
+  .card-header.bg-white.d-flex.align-items-center.gap-2
+    - viewing_as_shop = current_user&.id == job.shop.owner_id
+    - if viewing_as_shop
+      = user_avatar(job.client.org_name, size: 32)
+      .lh-1
+        %span.fw-bold= job.client.org_name
+    - else
+      = shop_avatar(job.shop, size: 32)
+      .lh-1
         %span.fw-bold= job.shop.name
 
   .card-body{"data-controller": "job-chat", "data-job-chat-job-id-value": job.id, "data-job-chat-user-id-value": current_user&.id.to_s, "data-job-chat-read-url-value": job_reads_path, style: "max-height: 420px; overflow-y: auto;"}
@@ -39,15 +46,12 @@
             - divider_shown = true
             .chat-new-divider#new-messages-divider
               %span New messages
-          = render "shared/job_message", message: message, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids]
+          = render "shared/job_message", message: message, job: job, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids]
       - else
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
-          - if job.accepted? || job.in_progress? || job.pending_confirmation?
-            Chat is open. Send a message to the other parties.
-          - else
-            Chat opens after the quote is accepted.
+          Chat is open. Discuss details with the shop.
 
-  - if signed_in? && (job.accepted? || job.in_progress? || job.pending_confirmation?)
+  - if signed_in? && !job.invoiced? && !job.paid? && !job.completed? && !job.disputed?
     .chat-input-wrap
       = form_with url: job_messages_path, method: :post, class: "d-flex gap-2 w-100 align-items-center",
           data: { controller: "chat-form", action: "turbo:submit-end->chat-form#reset" } do |f|

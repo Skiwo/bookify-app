@@ -48,6 +48,20 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#show"
     resource :profile, only: [:show]
     resources :bookings, only: [:index, :show]
+    resources :jobs, only: [:show] do
+      member do
+        post :mark_complete
+        post :sync_payout
+      end
+    end
+  end
+
+  # ─── Bookify × POP ──────────────────────────────────────────────────────────
+  namespace :bookify do
+    get "onboarding/shop",   to: "onboarding#shop",        as: :onboarding_shop
+    get "onboarding/member", to: "onboarding#member",      as: :onboarding_member
+    get "callbacks/shop",    to: "callbacks#shop_owner",   as: :callback_shop
+    get "callbacks/member",  to: "callbacks#member",       as: :callback_member
   end
 
   # ─── Onboarding ─────────────────────────────────────────────────────────────
@@ -62,6 +76,7 @@ Rails.application.routes.draw do
   get "shops",       to: "shops#index", as: :shops
   get "shops/:slug", to: "shops#show",  as: :shop
   post "shops/:slug/requests", to: "shop_requests#create", as: :shop_requests
+  post "shops/:slug/join",     to: "shop_joins#create",    as: :shop_join
 
   # Skill category pages (SEO)
   get "nb/no/:skill", to: "skill_pages#show", as: :skill_page
@@ -77,11 +92,19 @@ Rails.application.routes.draw do
       end
     end
     resource :profile, only: [:show, :edit, :update]
-    resources :members, only: [:index, :new, :create, :destroy]
+    resources :members, only: [:index, :new, :create, :destroy] do
+      collection do
+        post :invite
+      end
+      member do
+        post :resend
+      end
+    end
     resources :jobs, only: [:index, :show] do
       member do
         post :issue_quote
         post :mark_complete
+        post :sync_payout
       end
     end
     resources :quotes, only: [:new, :create, :show]
@@ -102,6 +125,7 @@ Rails.application.routes.draw do
       member do
         post :mark_complete
         post :dispute
+        post :cancel
       end
     end
   end

@@ -1,16 +1,16 @@
 = link_to "← Members", shop_members_path, class: "text-muted text-decoration-none small"
-%h2.fw-bold.mt-1.mb-4 Add roster member
+%h2.fw-bold.mt-1.mb-4 Invite roster member
 
-.card.border-0.shadow-sm
-  .card-body
-    = form_with url: shop_members_path, method: :post, local: true do |f|
-      .mb-3
-        %label.form-label.fw-medium Select enrolled freelancer
-        = select_tag "shop_member[enrollment_id]",
-            options_from_collection_for_select(current_user.enrollments_as_booker.active, :id, :name),
-            class: "form-select",
-            include_blank: "— Choose freelancer —",
-            required: true
-        %div.form-text Only active POP enrollments are listed.
-
-      = f.submit "Add to roster", class: "btn btn-primary"
+.row.justify-content-center
+  .col-md-6
+    .card.border-0.shadow-sm
+      .card-body
+        %p.text-muted.small.mb-3 They'll receive an email with an onboarding link to verify their identity on Payout Partner and join your roster.
+        = form_with url: invite_shop_members_path, method: :post, local: true do |f|
+          .mb-3
+            %label.form-label.fw-medium Email
+            = text_field_tag :email, nil, class: "form-control", placeholder: "freelancer@example.com", required: true, type: "email"
+          .mb-3
+            %label.form-label.fw-medium Name
+            = text_field_tag :name, nil, class: "form-control", placeholder: "Full name (optional)"
+          = f.submit "Send invitation", class: "btn btn-primary w-100"

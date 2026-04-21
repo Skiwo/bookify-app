@@ -14,6 +14,16 @@ class PopApiClient
     new(user.pop_credentials)
   end
 
+  def self.for_bookify
+    new({
+      api_key:    ENV.fetch("BOOKIFY_POP_API_KEY"),
+      hmac_secret: ENV.fetch("BOOKIFY_POP_HMAC_SECRET"),
+      partner_id: ENV.fetch("BOOKIFY_POP_PARTNER_ID"),
+      base_url:   ENV.fetch("POP_BASE_URL", "https://sandbox.core.payoutpartner.com"),
+      app_url:    ENV.fetch("POP_APP_URL", "https://sandbox.app.payoutpartner.com")
+    })
+  end
+
   # Enrollments
   def list_enrollments(page: 1, per_page: 25)
     get("/api/v2/partner/enrollments", page: page, per_page: per_page)
@@ -110,7 +120,7 @@ class PopApiClient
       partner_worker_id: worker_id,
       callback_url: callback_url
     )
-    "#{app_url}/freelancer/connect?token=#{jwt}"
+    "#{app_url}/f/connect?token=#{jwt}"
   end
 
   private

@@ -16,7 +16,7 @@ class JobMessagesController < ApplicationController
         format.turbo_stream do
           render turbo_stream: turbo_stream.append("chat-messages",
             partial: "shared/job_message",
-            locals: { message: @message, current_user_id: current_user.id })
+            locals: { message: @message, job: @job, current_user_id: current_user.id })
         end
         format.html { head :no_content }
       end
