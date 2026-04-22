@@ -10,6 +10,9 @@
 
 .row
   .col-lg-7
+    = render "shared/job_chat", job: @job, messages: @messages, older_count: @older_count, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
+
+  .col-lg-5
     - if @job.quoted?
       .card.border-0.shadow-sm.border-primary.mb-4
         .card-body
@@ -41,10 +44,6 @@
               = button_to "Decline", decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
           - else
             .alert.alert-secondary.mb-0 This quote has expired.
-
-    = render "shared/job_chat", job: @job, messages: @messages, older_count: @older_count, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
-
-  .col-lg-5
     - if @job.pending_confirmation?
       .card.border-0.shadow-sm.border-warning.mb-4
         .card-body

@@ -75,7 +75,7 @@
             %i.bi.bi-shield-check.me-1
             Payments handled by Payout Partner AS. MVA invoice issued on completion.
 
-    - if @shop.active? && @shop.public_shop?
+    - if @shop.active? && @shop.public_shop? && !current_user&.client? && !current_user&.shop_owner?
       .card.border-0.shadow-sm.mt-3
         .card-body
           %h6.fw-bold.mb-1
