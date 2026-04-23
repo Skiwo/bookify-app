@@ -13,6 +13,16 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     build: .
     ports:
@@ -22,6 +32,7 @@ services:
       - bundle:/usr/local/bundle
     environment:
       DATABASE_URL: postgres://bookify:bookify@db/bookify_development
+      REDIS_URL: redis://redis:6379/0
       SECRET_KEY_BASE: dev_secret_key_base_change_for_production
       RAILS_ENV: development
     env_file:
@@ -29,9 +40,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     stdin_open: true
     tty: true
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/rails
+      - bundle:/usr/local/bundle
+    environment:
+      DATABASE_URL: postgres://bookify:bookify@db/bookify_development
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY_BASE: dev_secret_key_base_change_for_production
+      RAILS_ENV: development
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
   bundle:
+  redis_data:
