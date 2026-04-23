@@ -1,6 +1,6 @@
 # Bookify Phase 2 — Progress Tracker
 
-Last updated: 2026-04-22
+Last updated: 2026-04-23
 
 Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 
@@ -42,6 +42,9 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 - [x] Active navbar tab indicator (white underline, all layouts)
 - [x] Amount input in NOK (auto convert to øre for POP)
 - [x] Skill tags — comma-separated input, lowercase normalization, ILIKE search
+- [x] Quote line items (activities) — QuoteLine model, Stimulus controller, add/remove UI, auto-calc, invoicing service sends each line as separate work item to POP
+- [x] Shop admin dispute view — see dispute reason, respond (respond! / resolve! + UI in shop_admin/jobs/show)
+- [x] Dispute resolution workflow — admin can respond and resolve, system message posted to chat on each action
 
 ---
 
@@ -50,19 +53,12 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 ### BRREG verification
 - [x] Client provides org_number (9-digit format validation)
 - [x] Sets verified_at on registration
-- [ ] Actual BRREG API call to verify org exists and is active
-- [ ] Re-check before each invoice (presentation mentions this)
+- [x] Actual BRREG API call to verify org exists and is active (BrregService via Faraday; checks slettedato/konkurs/underAvvikling; auto-fills org_name + org_address from registry; Stimulus lookup on keystroke)
+- [x] Re-check before each invoice (presentation mentions this)
 
 ### Dispute flow
 - [x] Client can raise a dispute (sets status, creates Dispute record with reason)
-- [ ] Shop admin dispute view — see dispute reason, respond
-- [ ] Resolution workflow — admin can resolve/close dispute
-- [ ] Notification to both parties on resolution
-
-### Quote activities
-- [x] Hourly rate + estimated hours
-- [ ] Itemized activities/line items on quote (presentation: "activities, price, and assigned member")
-- [ ] Multiple activity types per quote
+- [ ] Email notification to both parties on resolution (in-chat system message is there, email is not)
 
 ### Feedback window (48h)
 - [x] Dual confirmation implemented (shop + client both mark complete)

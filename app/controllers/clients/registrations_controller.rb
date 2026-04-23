@@ -9,7 +9,18 @@ module Clients
     end
 
     def create
-      @client = ::Client.new(client_params.merge(user: current_user, verified_at: Time.current))
+      @client = ::Client.new(client_params.merge(user: current_user))
+
+      brreg = BrregService.lookup(@client.org_number.to_s)
+      unless brreg.success?
+        @client.errors.add(:org_number, brreg.error)
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      @client.org_name    = brreg.name
+      @client.org_address = brreg.address.presence || @client.org_address
+      @client.verified_at = Time.current
 
       if @client.save
         current_user.update!(role: :client)

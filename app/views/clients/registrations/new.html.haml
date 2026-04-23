@@ -5,7 +5,8 @@
 
     .card.border-0.shadow-sm
       .card-body
-        = form_with model: @client, url: clients_registration_path, method: :post, local: true do |f|
+        = form_with model: @client, url: clients_registration_path, method: :post, local: true,
+            data: { controller: "brreg-lookup" } do |f|
           - if @client.errors.any?
             .alert.alert-danger
               %ul.mb-0
@@ -15,16 +16,22 @@
           .mb-3
             = f.label :org_number, "Organisasjonsnummer", class: "form-label fw-medium"
             = f.text_field :org_number, class: "form-control", placeholder: "123456789",
-                maxlength: 9, pattern: "\\d{9}", required: true
-            %div.form-text 9-digit number from BRREG.
+                maxlength: 9, pattern: "\\d{9}", required: true,
+                autocomplete: "off",
+                data: { "brreg-lookup-target": "orgNumber", action: "input->brreg-lookup#fetch" }
+            %div.form-text{ data: { "brreg-lookup-target": "status" } } 9-digit number — we'll look it up automatically.
 
           .mb-3
             = f.label :org_name, "Organisation name", class: "form-label fw-medium"
-            = f.text_field :org_name, class: "form-control", required: true
+            = f.text_field :org_name, class: "form-control", readonly: true,
+                placeholder: "Filled from BRREG",
+                data: { "brreg-lookup-target": "name" }
 
           .mb-3
             = f.label :org_address, "Address", class: "form-label fw-medium"
-            = f.text_field :org_address, class: "form-control"
+            = f.text_field :org_address, class: "form-control", readonly: true,
+                placeholder: "Filled from BRREG",
+                data: { "brreg-lookup-target": "address" }
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1

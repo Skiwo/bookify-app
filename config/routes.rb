@@ -121,6 +121,7 @@ Rails.application.routes.draw do
   namespace :clients do
     get "dashboard", to: "dashboard#show"
     resource :registration, only: [:new, :create]
+    resource :brreg_lookup, only: [:show]
     resources :requests, only: [:index, :show]
     resources :quotes, only: [:index, :show] do
       member do
