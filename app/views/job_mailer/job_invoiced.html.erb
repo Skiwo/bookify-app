@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "Invoice issued",
+  body_text: "#{@job.title} for #{@job.client.org_name} has been invoiced via Payout Partner AS. Net-14 payment.",
+  amount_ore: @job.work_amount_ore,
+  cta_text: "View job",
+  cta_url: shop_job_url(@job, host: @pop_host),
+  btn_class: "btn-success" %>

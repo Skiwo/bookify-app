@@ -1,0 +1,9 @@
+Invoice issued — <%= @job.title %>
+
+<%= @job.title %> for <%= @job.client.org_name %> has been invoiced via Payout Partner AS.
+Amount: kr <%= @job.work_amount_ore / 100 %> — Net-14 payment.
+
+View job: <%= shop_job_url(@job) %>
+
+---
+Bookify

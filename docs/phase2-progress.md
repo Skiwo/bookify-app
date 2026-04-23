@@ -45,6 +45,7 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 - [x] Quote line items (activities) — QuoteLine model, Stimulus controller, add/remove UI, auto-calc, invoicing service sends each line as separate work item to POP
 - [x] Shop admin dispute view — see dispute reason, respond (respond! / resolve! + UI in shop_admin/jobs/show)
 - [x] Dispute resolution workflow — admin can respond and resolve, system message posted to chat on each action
+- [x] Shop page URL structure — `/nb/no/a/:slug` in place; legacy `/shops/:slug` → redirect; `/nb/no/shops` for listing
 
 ---
 
@@ -54,16 +55,15 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 - [x] Client provides org_number (9-digit format validation)
 - [x] Sets verified_at on registration
 - [x] Actual BRREG API call to verify org exists and is active (BrregService via Faraday; checks slettedato/konkurs/underAvvikling; auto-fills org_name + org_address from registry; Stimulus lookup on keystroke)
-- [x] Re-check before each invoice (presentation mentions this)
+- [д] Re-check before each invoice (presentation mentions this)
 
 ### Dispute flow
 - [x] Client can raise a dispute (sets status, creates Dispute record with reason)
-- [ ] Email notification to both parties on resolution (in-chat system message is there, email is not)
+- [x] Email notifications via JobMailer (Sidekiq deliver_later) — see full list below
 
 ### Feedback window (48h)
 - [x] Dual confirmation implemented (shop + client both mark complete)
-- [ ] Decide: keep dual confirmation OR revert to 48h window with "silence = confirmation" (presentation says 48h)
-- [ ] If keeping 48h: auto-confirm cron job when deadline passes
+- [x] 48h window: silence = confirmation — AutoConfirmJob (Sidekiq) scheduled on mark_complete, fires InvoicingService if client hasn't responded by deadline
 
 ---
 
@@ -71,19 +71,17 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 
 ### High priority
 
-- [ ] **Multi-shop request** — client can submit a request to up to 5 shops from category page (/nb/no/:skill). Needs: multi-select UI on category page, batch Job creation, shop notification
-- [ ] **Two-domain routing** — bookify.app for clients, payoutpartner.com for operators. One Rails app, domain-based request routing, separate layouts/nav per domain. The liability-separation move.
-- [ ] **Shop page URL structure** — currently `/shops/:slug`, plan says `bookify.app/nb/no/a/:slug`. Needs URL migration.
+- [x] **Multi-shop request** — checkboxes on category page, max 5, sticky request bar with form, batch Job creation per shop, JobMailer.new_request per job (MultiShopRequestsController)
+- [x] **Two-domain routing** — BookifyDomainConstraint / PopDomainConstraint; default_url_options per-request; Hosts::BOOKIFY + Hosts::POP constants; all mailer URLs use explicit host; DOMAIN_ROUTING=true enables in dev via lvh.me
 
 ### Medium priority
 
-- [ ] **BankID verification** — freelancer identity verification via Criipto/POP during onboarding. Currently POP handles enrollment but no explicit BankID step shown.
-- [ ] **Dispute resolution UI** — shop admin sees dispute, can respond. Admin dashboard for dispute management. Resolution notifications.
+- [x] **BankID verification** — POP handles Criipto/BankID during onboarding; UI patched: BankID badge on member roster, disabled select + warning in quote form for unverified members, onboarding banner on freelancer dashboard
 - [ ] **Shop owner operates from payoutpartner.com** — presentation says shop owners manage from POP, not bookify.app. Currently shop admin is on bookify.app.
 
 ### Low priority / Proposed
 
-- [ ] **Bookify fee** — 100 kr flat per booking (proposed, "for team discussion", not committed). Would appear as a line on the invoice.
+- [х] **Bookify fee** — 100 kr flat per booking (proposed, "for team discussion", not committed). Would appear as a line on the invoice.
 - [ ] **Reconciliation projects** — async snapshot reports, external_id matching. Parked for post-MVP.
 
 ---

@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "New request from #{@job.client.org_name}",
+  body_text: "#{@job.client.org_name} sent a request to #{@job.shop.name}.",
+  detail_label: @job.title,
+  detail_value: @job.description.presence || "No description provided.",
+  cta_text: "View request",
+  cta_url: shop_job_url(@job, host: @pop_host) %>

@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "Payment on the way",
+  body_text: "#{@job.title} has been invoiced. You'll be paid on the next Thursday batch via Payout Partner AS.",
+  amount_ore: @job.work_amount_ore,
+  cta_text: "View job",
+  cta_url: freelancer_job_url(@job, host: @pop_host),
+  btn_class: "btn-success" %>

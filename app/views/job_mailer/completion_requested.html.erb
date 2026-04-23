@@ -1,0 +1,8 @@
+<%= render "email",
+  heading: "Please confirm completion",
+  body_text: "#{@job.shop.name} marked #{@job.title} as complete (#{@job.work_hours}h). You have 48 hours to confirm or raise a dispute.",
+  detail_label: "Deadline",
+  detail_value: @job.confirmation_deadline_at&.strftime("%d %b %Y %H:%M") || "—",
+  cta_text: "Review and confirm",
+  cta_url: clients_job_url(@job, host: @bookify_host),
+  btn_class: "btn-amber" %>

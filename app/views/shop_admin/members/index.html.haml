@@ -22,6 +22,14 @@
             %td
               %span.badge{class: member.active? ? "bg-success" : member.invited? ? "bg-warning text-dark" : "bg-secondary"}
                 = member.status.humanize
+              - if member.bookify_pop_worker_id.present?
+                %span.badge.bg-light.text-success.border.border-success.ms-1
+                  %i.bi.bi-shield-check.me-1
+                  BankID
+              - elsif member.active?
+                %span.badge.bg-light.text-warning.border.border-warning.ms-1
+                  %i.bi.bi-shield-exclamation.me-1
+                  Not enrolled
             %td.text-muted= member.accepted_at&.strftime("%d %b %Y") || "—"
             %td.text-end
               .d-flex.gap-1.justify-content-end

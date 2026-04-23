@@ -1,0 +1,11 @@
+Quote received for <%= @job.title %>
+
+<%= @job.shop.name %> sent you a quote. Valid for 72 hours.
+
+Total (excl. MVA): kr <%= @job.total_amount_ore / 100 %>
+Assigned member: <%= @job.assigned_member&.name || "—" %>
+
+Review quote: <%= clients_quote_url(@job) %>
+
+---
+Bookify

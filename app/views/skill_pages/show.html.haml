@@ -2,21 +2,59 @@
 %p.text-muted.mb-4 Hire a #{@skill} through Bookify — payments handled by Payout Partner AS.
 
 - if @shops.any?
-  .row.row-cols-1.row-cols-md-3.g-4
-    - @shops.each do |shop|
-      .col
-        .card.h-100.border-0.shadow-sm
-          .card-body
-            %h5.card-title.fw-bold= shop.name
-            - if shop.city.present?
-              %p.text-muted.small.mb-2
-                %i.bi.bi-geo-alt.me-1
-                = shop.city
-            %p.card-text.text-muted.small= truncate(shop.description, length: 100)
-          .card-footer.bg-white.border-0.pb-3
-            = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
-              View shop
-              %i.bi.bi-arrow-right.ms-1
+  %p.text-muted.small.mb-3
+    %i.bi.bi-info-circle.me-1
+    Select up to 5 shops and send one request to all of them.
+
+  %div{"data-controller": "shop-selector"}
+    .row.row-cols-1.row-cols-md-3.g-4.mb-6
+      - @shops.each do |shop|
+        .col
+          .card.h-100.border-0.shadow-sm
+            .card-body
+              .d-flex.align-items-start.gap-3.mb-2
+                .form-check.mt-1
+                  %input.form-check-input{
+                    type: "checkbox",
+                    data: { "shop-selector-target": "checkbox", slug: shop.slug, action: "change->shop-selector#toggle" }
+                  }
+                .lh-sm
+                  %h5.card-title.fw-bold.mb-0= shop.name
+                  - if shop.city.present?
+                    %span.text-muted.small
+                      %i.bi.bi-geo-alt.me-1
+                      = shop.city
+              %p.card-text.text-muted.small.mb-0= truncate(shop.description, length: 100)
+            .card-footer.bg-white.border-0.pb-3
+              = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
+                View shop
+                %i.bi.bi-arrow-right.ms-1
+
+    / Request bar — hidden until at least one shop selected
+    .d-none{"data-shop-selector-target": "bar", style: "position:fixed; bottom:0; left:0; right:0; z-index:200; background:rgba(255,255,255,0.97); border-top:1px solid #e9ecef; box-shadow:0 -4px 16px rgba(0,0,0,0.1);"}
+      = form_with url: multi_shop_requests_path, method: :post, local: true, class: "container py-3" do |f|
+        %div{"data-shop-selector-target": "slugContainer"}
+        .row.g-2.align-items-center
+          .col-auto
+            .fw-semibold.text-primary.small
+              %i.bi.bi-check2-square.me-1
+              %span{"data-shop-selector-target": "count"} 0
+              shops selected
+            .text-warning.small.d-none{"data-shop-selector-target": "limitNotice"}
+              %i.bi.bi-exclamation-triangle.me-1
+              Maximum 5 shops
+          .col.col-md-3
+            = f.text_field "job[title]", placeholder: "What do you need?", class: "form-control form-control-sm", required: true
+          .col.col-md-3
+            = f.text_area "job[description]", placeholder: "Details (optional)", class: "form-control form-control-sm", rows: 1
+          .col-md-2
+            = f.date_field "job[desired_date]", class: "form-control form-control-sm"
+          .col-auto
+            = f.submit "Send request", class: "btn btn-primary btn-sm", "data-shop-selector-target": "submitBtn"
+
+    / Spacer so cards aren't hidden behind the fixed bar when it's visible
+    .pb-5
+
 - else
   .text-center.py-5
     %i.bi.bi-search.display-3.text-muted

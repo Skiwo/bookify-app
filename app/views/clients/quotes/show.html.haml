@@ -11,6 +11,9 @@
           %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
           %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
           %dd.col-sm-7= format_nok(@job.commission_amount_ore)
+          - if @job.bookify_fee?
+            %dt.col-sm-5 Bookify platform fee
+            %dd.col-sm-7= format_nok(@job.bookify_fee_ore)
           %dt.col-sm-5 MVA (25%)
           %dd.col-sm-7= format_nok((@job.total_amount_ore * 0.25).round)
           %dt.col-sm-5.fw-bold Total incl. MVA

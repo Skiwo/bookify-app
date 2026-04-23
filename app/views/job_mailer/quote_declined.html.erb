@@ -1,0 +1,5 @@
+<%= render "email",
+  heading: "Quote declined",
+  body_text: "#{@job.client.org_name} declined the quote for #{@job.title}. You can issue a new quote if you'd like to continue.",
+  cta_text: "View job",
+  cta_url: shop_job_url(@job, host: @pop_host) %>

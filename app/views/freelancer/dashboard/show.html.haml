@@ -3,6 +3,16 @@
   - if current_user.name.present?
     %small.text-muted.fw-normal= "— #{current_user.name}"
 
+- @unverified_bookify_members.each do |member|
+  .alert.alert-warning.d-flex.align-items-center.gap-3.mb-3
+    %i.bi.bi-shield-exclamation.fs-4.flex-shrink-0
+    .flex-grow-1
+      %strong= "#{member.shop.name} — BankID verification required"
+      %p.mb-0.small You won't be able to receive payouts from this shop until you complete POP onboarding (takes ~5 min).
+    = link_to bookify_onboarding_member_path(token: member.invitation_token), class: "btn btn-warning btn-sm flex-shrink-0" do
+      Complete onboarding
+      %i.bi.bi-arrow-right.ms-1
+
 - if @bookify_jobs.any?
   .card.border-0.shadow-sm.mb-4
     .card-header.bg-white.fw-bold

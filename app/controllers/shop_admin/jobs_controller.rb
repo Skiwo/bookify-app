@@ -52,7 +52,9 @@ module ShopAdmin
         work_date: params[:work_date].presence&.to_date || Date.current,
         work_hours: hours
       )
+      AutoConfirmJob.set(wait: 48.hours).perform_later(@job.id)
       Message.post_system(@job, "#{current_shop.name} marked the job as complete (#{hours}h). Client has 48h to confirm.")
+      JobMailer.completion_requested(@job).deliver_later
       redirect_to shop_job_path(@job), notice: "Job marked as complete. Client has 48 hours to confirm."
     end
 
@@ -65,6 +67,7 @@ module ShopAdmin
       end
       @job.dispute.respond!(user: current_user, response: response)
       Message.post_system(@job, "#{current_shop.name} responded to the dispute.")
+      JobMailer.dispute_responded(@job).deliver_later
       redirect_to shop_job_path(@job), notice: "Response sent."
     end
 
@@ -73,6 +76,8 @@ module ShopAdmin
       resolution = params.dig(:dispute, :resolution).presence || "Resolved by shop"
       @job.dispute.resolve!(user: current_user, resolution: resolution)
       Message.post_system(@job, "Dispute resolved. Job returned to accepted status.")
+      JobMailer.dispute_resolved(@job, to: @job.client.user.email).deliver_later
+      JobMailer.dispute_resolved(@job, to: @job.shop.owner.email).deliver_later
       redirect_to shop_job_path(@job), notice: "Dispute resolved. Job is back in progress."
     end
   end

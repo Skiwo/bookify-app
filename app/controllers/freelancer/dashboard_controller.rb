@@ -36,6 +36,13 @@ module Freelancer
         .order(created_at: :desc)
 
       @bookify_shops = @bookify_jobs.map(&:shop).uniq
+      @unverified_bookify_members = ShopMember
+        .joins(:enrollment)
+        .where(enrollments: { freelancer_id: current_user.id })
+        .where.not(status: ShopMember.statuses[:inactive])
+        .where(bookify_pop_worker_id: [nil, ""])
+        .includes(:shop)
+
       @bookify_total_earned = Payout.joins(:booking)
         .where(bookings: { enrollment_id: enrollment_ids })
         .joins("INNER JOIN jobs ON jobs.booking_id = bookings.id")

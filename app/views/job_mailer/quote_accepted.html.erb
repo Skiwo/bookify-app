@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "Quote accepted",
+  body_text: "#{@job.client.org_name} accepted your quote for #{@job.title}. The job is now active.",
+  amount_ore: @job.work_amount_ore,
+  cta_text: "View job",
+  cta_url: shop_job_url(@job, host: @pop_host),
+  btn_class: "btn-success" %>

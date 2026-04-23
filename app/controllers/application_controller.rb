@@ -11,6 +11,14 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_user, :signed_in?, :pop_configured?, :pop_client, :client_registered?
 
+  # Ensures URL helpers (_url) always use the current request's host so that
+  # magic links, redirects, and cross-controller links stay on the right domain.
+  def default_url_options
+    return {} unless respond_to?(:request) && request
+    port = [80, 443].include?(request.port) ? nil : request.port
+    { host: request.host, port: port, protocol: request.ssl? ? "https" : "http" }
+  end
+
   private
 
   def refresh_session_expiry

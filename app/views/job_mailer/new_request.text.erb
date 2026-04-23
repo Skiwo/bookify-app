@@ -1,0 +1,10 @@
+New request: <%= @job.title %>
+
+<%= @job.client.org_name %> sent a request to <%= @job.shop.name %>.
+
+<% if @job.description.present? %>Description: <%= @job.description %>
+<% end %>
+View request: <%= shop_job_url(@job) %>
+
+---
+Bookify

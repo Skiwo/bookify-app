@@ -31,6 +31,10 @@ module Bookify
       raise ArgumentError, "No work amount" unless @job.work_amount_ore.to_i > 0
       raise ArgumentError, "Shop owner not enrolled in POP" unless @job.shop.pop_worker_id.present?
       raise ArgumentError, "Member not enrolled in POP" unless member_pop_worker_id.present?
+      # Requires credentials.yml.enc: bookify: { pop_profile_id: "<FreelanceProfile UUID>" }
+      if @job.bookify_fee? && Rails.application.credentials.dig(:bookify, :pop_profile_id).blank?
+        raise ArgumentError, "Bookify POP profile not configured"
+      end
     end
 
     def member_pop_worker_id
@@ -59,6 +63,19 @@ module Bookify
           work_end_date: Date.current,
           position: @job.quote_lines.size + 1
         )
+
+        if @job.bookify_fee?
+          booking.booking_lines.build(
+            description: "Bookify platform fee",
+            line_type: :commission,
+            booking_type: :project_based,
+            rate_ore: Job::BOOKIFY_FEE_ORE,
+            total_hours: 1,
+            work_start_date: Date.current,
+            work_end_date: Date.current,
+            position: @job.quote_lines.size + 2
+          )
+        end
 
         booking.save!
         booking
@@ -134,7 +151,7 @@ module Bookify
         }]
       end
 
-      work + [{
+      commission = [{
         description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
         line_type: "commission",
         rate: @job.commission_amount_ore / 100.0,
@@ -142,6 +159,19 @@ module Bookify
         payee_freelance_profile_id: @job.shop.pop_worker_id,
         group: "job-work"
       }]
+
+      if @job.bookify_fee?
+        commission << {
+          description: "Bookify platform fee",
+          line_type: "commission",
+          rate: Job::BOOKIFY_FEE_ORE / 100.0,
+          quantity: 1,
+          payee_freelance_profile_id: Rails.application.credentials.dig(:bookify, :pop_profile_id),
+          group: "job-work"
+        }
+      end
+
+      work + commission
     end
 
     def record_payout(booking, data)

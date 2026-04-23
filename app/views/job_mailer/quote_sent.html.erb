@@ -1,0 +1,9 @@
+<%= render "email",
+  heading: "You received a quote",
+  body_text: "#{@job.shop.name} sent a quote for #{@job.title}. It's valid for 72 hours.",
+  amount_ore: @job.total_amount_ore,
+  detail_label: "Assigned member",
+  detail_value: @job.assigned_member&.name || "—",
+  cta_text: "Review quote",
+  cta_url: clients_quote_url(@job, host: @bookify_host),
+  btn_class: "btn-amber" %>

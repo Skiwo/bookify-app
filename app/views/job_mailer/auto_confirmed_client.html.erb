@@ -1,0 +1,5 @@
+<%= render "email",
+  heading: "Job auto-confirmed",
+  body_text: "You didn't respond within 48 hours, so #{@job.title} was automatically confirmed. An invoice has been issued by Payout Partner AS.",
+  cta_text: "View job",
+  cta_url: clients_job_url(@job, host: @bookify_host) %>

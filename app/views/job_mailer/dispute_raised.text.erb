@@ -1,0 +1,10 @@
+Dispute raised — <%= @job.title %>
+
+<%= @job.client.org_name %> raised a dispute.
+
+Reason: <%= @job.dispute&.reason %>
+
+Respond here: <%= shop_job_url(@job) %>
+
+---
+Bookify

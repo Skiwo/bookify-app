@@ -38,6 +38,8 @@ module BookifyApp
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    config.active_job.queue_adapter = :sidekiq
+    config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "bookify.app"), protocol: "https" }
 
     # Serve Active Storage files through proxy with browser caching
     config.active_storage.resolve_model_to_route = :rails_storage_proxy

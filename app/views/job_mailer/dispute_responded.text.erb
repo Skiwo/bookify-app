@@ -1,0 +1,10 @@
+Shop responded to your dispute — <%= @job.title %>
+
+<%= @job.shop.name %> has responded.
+
+Response: <%= @job.dispute&.response %>
+
+View dispute: <%= clients_job_url(@job) %>
+
+---
+Bookify

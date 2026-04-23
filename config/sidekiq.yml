@@ -1,0 +1,5 @@
+# Requires Redis — set REDIS_URL env var (default: redis://localhost:6379/0)
+:concurrency: 5
+:queues:
+  - default
+  - mailers

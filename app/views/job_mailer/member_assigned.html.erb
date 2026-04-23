@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "You've been assigned to a job",
+  body_text: "#{@job.shop.name} assigned you to #{@job.title} for #{@job.client.org_name}.",
+  detail_label: "Job",
+  detail_value: @job.description.presence || @job.title,
+  cta_text: "View job",
+  cta_url: freelancer_job_url(@job, host: @pop_host) %>

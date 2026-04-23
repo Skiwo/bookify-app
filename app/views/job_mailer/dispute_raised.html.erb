@@ -1,0 +1,8 @@
+<%= render "email",
+  heading: "Dispute raised",
+  body_text: "#{@job.client.org_name} raised a dispute for #{@job.title}.",
+  detail_label: "Reason",
+  detail_value: @job.dispute&.reason,
+  cta_text: "Respond to dispute",
+  cta_url: shop_job_url(@job, host: @pop_host),
+  btn_class: "btn-danger" %>

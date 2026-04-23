@@ -29,6 +29,8 @@ module Clients
 
       if result.success?
         Message.post_system(@job, "✓ #{current_client.org_name} confirmed completion (#{@job.work_hours}h on #{@job.work_date&.strftime("%d %b")}). Invoice issued by Payout Partner AS.")
+        JobMailer.job_invoiced(@job).deliver_later
+        JobMailer.job_invoiced_member(@job).deliver_later if @job.assigned_member
         redirect_to clients_job_path(@job), notice: "Job confirmed. Invoice will be issued by Payout Partner AS within 24 hours."
       else
         redirect_to clients_job_path(@job), alert: "Could not issue invoice: #{result.error&.message}. Please contact support."
@@ -48,6 +50,7 @@ module Clients
       @job.update!(status: :disputed)
       @job.create_dispute!(raised_by: current_user, reason: reason)
       Message.post_system(@job, "#{current_client.org_name} raised a dispute: #{reason}")
+      JobMailer.dispute_raised(@job).deliver_later
       redirect_to clients_job_path(@job), notice: "Dispute raised."
     end
   end

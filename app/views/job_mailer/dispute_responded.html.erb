@@ -1,0 +1,7 @@
+<%= render "email",
+  heading: "Shop responded to your dispute",
+  body_text: "#{@job.shop.name} has responded to the dispute for #{@job.title}.",
+  detail_label: "Response",
+  detail_value: @job.dispute&.response,
+  cta_text: "View dispute",
+  cta_url: clients_job_url(@job, host: @bookify_host) %>

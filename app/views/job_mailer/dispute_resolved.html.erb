@@ -1,0 +1,6 @@
+<%= render "email",
+  heading: "Dispute resolved",
+  body_text: "The dispute for #{@job.title} has been resolved.",
+  detail_label: "Resolution",
+  detail_value: @job.dispute&.resolution,
+  btn_class: "btn-success" %>

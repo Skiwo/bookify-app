@@ -15,6 +15,7 @@ class ShopRequestsController < ApplicationController
 
     if @job.save
       Message.post_system(@job, "Request submitted by #{current_client.org_name}.")
+      JobMailer.new_request(@job).deliver_later
       redirect_to clients_job_path(@job), notice: "Request sent to #{@shop.name}. Chat is open — feel free to discuss details."
     else
       @members = @shop.active_members.includes(:enrollment)

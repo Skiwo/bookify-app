@@ -1,0 +1,11 @@
+Please confirm completion — <%= @job.title %>
+
+<%= @job.shop.name %> marked this job as complete (<%= @job.work_hours %>h).
+You have 48 hours to confirm or raise a dispute.
+
+Deadline: <%= @job.confirmation_deadline_at&.strftime("%d %b %Y %H:%M") %>
+
+Confirm here: <%= clients_job_url(@job) %>
+
+---
+Bookify

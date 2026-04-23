@@ -57,12 +57,19 @@
           .mb-3
             = f.label :assigned_member_id, "Assign member", class: "form-label fw-medium"
             = f.select :assigned_member_id,
-                @members.map { |m| [m.name, m.id] },
+                @members.map { |m| [m.bookify_pop_worker_id.present? ? m.name : "#{m.name} (not enrolled)", m.id, m.bookify_pop_worker_id.blank? ? { disabled: true } : {}] },
                 { include_blank: "— Select member —" },
                 class: "form-select"
+            - if @members.any? { |m| m.bookify_pop_worker_id.blank? }
+              %p.form-text.text-warning
+                %i.bi.bi-shield-exclamation.me-1
+                Greyed-out members haven't completed POP onboarding (BankID) yet.
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1
-            Commission of #{current_shop.commission_percent}% added automatically. Net-14 invoice from Payout Partner AS.
+            Commission of #{current_shop.commission_percent}% added automatically.
+            - if @job.bookify_fee?
+              = " Bookify platform fee kr #{Job::BOOKIFY_FEE_ORE / 100} applies to this client."
+            Net-14 invoice from Payout Partner AS.
 
           = f.submit "Send quote (72h window)", class: "btn btn-primary w-100"

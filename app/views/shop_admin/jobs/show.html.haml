@@ -90,6 +90,9 @@
           - if @job.commission_amount_ore
             %dt.col-sm-4 Commission (#{@job.shop.commission_percent}%)
             %dd.col-sm-8= format_nok(@job.commission_amount_ore)
+          - if @job.bookify_fee?
+            %dt.col-sm-4 Bookify fee
+            %dd.col-sm-8= format_nok(@job.bookify_fee_ore)
           - if @job.quote_expires_at
             %dt.col-sm-4 Quote expires
             %dd.col-sm-8= @job.quote_expires_at.strftime("%d %b %Y %H:%M")

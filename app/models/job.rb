@@ -35,8 +35,18 @@ class Job < ApplicationRecord
     60_000 # 600 NOK minimum
   end
 
+  BOOKIFY_FEE_ORE = 10_000
+
+  def bookify_fee?
+    client.bookify_fee_enabled?
+  end
+
+  def bookify_fee_ore
+    bookify_fee? ? BOOKIFY_FEE_ORE : 0
+  end
+
   def total_amount_ore
-    (work_amount_ore || 0) + (commission_amount_ore || 0)
+    (work_amount_ore || 0) + (commission_amount_ore || 0) + bookify_fee_ore
   end
 
   def shop_completed?

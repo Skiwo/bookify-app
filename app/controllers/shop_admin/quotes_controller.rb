@@ -39,6 +39,7 @@ module ShopAdmin
 
       summary = quote_lines.map { |ql| "#{ql[:description]} (kr #{ql[:amount_ore] / 100})" }.join(", ")
       Message.post_system(@job, "Quote sent by #{current_shop.name}: #{summary}. Total: kr #{work_ore / 100}. Valid 72 hours.")
+      JobMailer.quote_sent(@job).deliver_later
       redirect_to shop_job_path(@job), notice: "Quote sent to client."
     rescue ActiveRecord::RecordInvalid => e
       @members = current_shop.shop_members.active.includes(:enrollment)

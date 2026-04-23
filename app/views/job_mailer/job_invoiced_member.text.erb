@@ -1,0 +1,9 @@
+Payment on the way — <%= @job.title %>
+
+<%= @job.title %> has been invoiced. You'll be paid on the next Thursday batch via Payout Partner AS.
+Amount: kr <%= @job.work_amount_ore / 100 %>
+
+View job: <%= freelancer_job_url(@job) %>
+
+---
+Bookify
