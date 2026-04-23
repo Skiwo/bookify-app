@@ -6,10 +6,11 @@ Passwordless.configure do |config|
   config.paranoid = false
 
   config.success_redirect_path = lambda { |user|
-    if user.freelancer?
-      "/freelancer/dashboard"
-    else
-      "/booker/dashboard"
+    case user.role
+    when "shop_owner"  then "/shop/dashboard"
+    when "client"      then "/clients/dashboard"
+    when "freelancer"  then "/freelancer/dashboard"
+    else "/onboarding"
     end
   }
 end

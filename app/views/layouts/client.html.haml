@@ -24,7 +24,7 @@
       .card { border-radius: 12px; }
       .sidebar-tint { background-color: #FFFBEB; }
       .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-      .nav-link.active { border-bottom: 3px solid var(--brand); }
+      .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
       a:not(.btn):not(.nav-link):not(.navbar-brand):not(.dropdown-item) { color: var(--brand); }
       a:not(.btn):not(.nav-link):not(.navbar-brand):not(.dropdown-item):hover { color: var(--brand-dark); }
 
@@ -52,7 +52,7 @@
                   %i.bi.bi-briefcase.me-1
                   Jobs
               %li.nav-item
-                %a.nav-link{href: shops_path}
+                %a.nav-link{href: shops_path, class: nav_active?("shops")}
                   %i.bi.bi-search.me-1
                   Browse shops
           %ul.navbar-nav

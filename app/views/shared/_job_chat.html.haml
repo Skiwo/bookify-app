@@ -91,7 +91,7 @@
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
           Chat is open. Discuss details with the shop.
 
-  - if signed_in? && !job.invoiced? && !job.paid? && !job.completed? && !job.disputed?
+  - if signed_in? && !job.invoiced? && !job.paid? && !job.completed?
     .chat-input-wrap{"data-controller": "voice-recorder"}
       = form_with url: job_messages_path, method: :post, class: "w-100",
           data: { controller: "chat-form", action: "turbo:submit-end->chat-form#reset" } do |f|

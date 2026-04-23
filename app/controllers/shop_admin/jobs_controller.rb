@@ -55,5 +55,25 @@ module ShopAdmin
       Message.post_system(@job, "#{current_shop.name} marked the job as complete (#{hours}h). Client has 48h to confirm.")
       redirect_to shop_job_path(@job), notice: "Job marked as complete. Client has 48 hours to confirm."
     end
+
+    def respond_dispute
+      @job = current_shop.jobs.disputed.find(params[:id])
+      response = params.dig(:dispute, :response).presence
+      unless response
+        redirect_to shop_job_path(@job), alert: "Response cannot be blank."
+        return
+      end
+      @job.dispute.respond!(user: current_user, response: response)
+      Message.post_system(@job, "#{current_shop.name} responded to the dispute.")
+      redirect_to shop_job_path(@job), notice: "Response sent."
+    end
+
+    def resolve_dispute
+      @job = current_shop.jobs.disputed.find(params[:id])
+      resolution = params.dig(:dispute, :resolution).presence || "Resolved by shop"
+      @job.dispute.resolve!(user: current_user, resolution: resolution)
+      Message.post_system(@job, "Dispute resolved. Job returned to accepted status.")
+      redirect_to shop_job_path(@job), notice: "Dispute resolved. Job is back in progress."
+    end
   end
 end

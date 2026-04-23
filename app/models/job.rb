@@ -18,6 +18,7 @@ class Job < ApplicationRecord
   belongs_to :booking, optional: true
   has_many :messages, dependent: :destroy
   has_many :job_reads, dependent: :destroy
+  has_many :quote_lines, dependent: :destroy
   has_one :dispute, dependent: :destroy
 
   validates :title, presence: true

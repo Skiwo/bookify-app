@@ -73,14 +73,18 @@ Rails.application.routes.draw do
 
   # ─── Bookify Marketplace ────────────────────────────────────────────────────
 
-  # Public marketplace (no login required)
-  get "shops",       to: "shops#index", as: :shops
-  get "shops/:slug", to: "shops#show",  as: :shop
-  post "shops/:slug/requests", to: "shop_requests#create", as: :shop_requests
-  post "shops/:slug/join",     to: "shop_joins#create",    as: :shop_join
+  # Legacy redirects (old URLs → new locale-scoped URLs)
+  get "shops",       to: redirect("/nb/no/shops"), as: nil
+  get "shops/:slug", to: redirect("/nb/no/a/%{slug}"), as: nil
 
-  # Skill category pages (SEO)
-  get "nb/no/:skill", to: "skill_pages#show", as: :skill_page
+  # Locale-scoped public marketplace (no login required)
+  scope "/:lang/:country", defaults: { lang: "nb", country: "no" }, constraints: { lang: /[a-z]{2}/, country: /[a-z]{2}/ } do
+    get "shops",        to: "shops#index",          as: :shops
+    get "a/:slug",      to: "shops#show",           as: :shop
+    post "a/:slug/requests", to: "shop_requests#create", as: :shop_requests
+    post "a/:slug/join",     to: "shop_joins#create",    as: :shop_join
+    get ":skill",       to: "skill_pages#show",     as: :skill_page
+  end
 
   # Shop owner cabinet
   namespace :shop_admin, path: "shop", as: "shop" do
@@ -106,6 +110,8 @@ Rails.application.routes.draw do
         post :issue_quote
         post :mark_complete
         post :sync_payout
+        post :respond_dispute
+        post :resolve_dispute
       end
     end
     resources :quotes, only: [:new, :create, :show]

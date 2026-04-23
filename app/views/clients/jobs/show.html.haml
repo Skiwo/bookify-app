@@ -19,12 +19,22 @@
           %h6.fw-bold
             %i.bi.bi-file-earmark-text.me-1
             Quote received
+          - if @job.quote_lines.any?
+            %table.table.table-sm.small.mb-2
+              %thead
+                %tr
+                  %th Activity
+                  %th.text-end Rate
+                  %th.text-end Hours
+                  %th.text-end Amount
+              %tbody
+                - @job.quote_lines.order(:position).each do |ql|
+                  %tr
+                    %td= ql.description
+                    %td.text-end= format_nok(ql.rate_ore)
+                    %td.text-end= "#{ql.hours}h"
+                    %td.text-end= format_nok(ql.amount_ore)
           %dl.row.mb-2
-            - if @job.rate_per_hour_ore.present?
-              %dt.col-sm-5 Hourly rate
-              %dd.col-sm-7= format_nok(@job.rate_per_hour_ore) + " / hour"
-              %dt.col-sm-5 Estimated hours
-              %dd.col-sm-7= "#{@job.estimated_hours}h"
             %dt.col-sm-5 Work amount (excl. MVA)
             %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
             %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
@@ -71,6 +81,28 @@
                   placeholder: "Describe the issue…", required: true
             = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
 
+    - if @job.disputed? && @job.dispute.present?
+      .card.border-0.shadow-sm.border-danger.mb-4
+        .card-body
+          %h6.fw-bold.text-danger
+            %i.bi.bi-exclamation-triangle.me-1
+            Dispute
+          %p.small.mb-1
+            %strong Your reason:
+          %p.small.mb-3= @job.dispute.reason
+          - if @job.dispute.response.present?
+            .alert.alert-info.small.mb-2
+              %strong Shop response:
+              %p.mb-0= @job.dispute.response
+          - if @job.dispute.resolved? || @job.dispute.closed?
+            .alert.alert-success.small.mb-0
+              %i.bi.bi-check-circle.me-1
+              Resolved: #{@job.dispute.resolution}
+          - elsif @job.dispute.responded?
+            %p.small.text-muted Waiting for resolution.
+          - else
+            %p.small.text-muted Waiting for shop response.
+
     .card.border-0.shadow-sm.mb-4
       .card-header.bg-white.fw-bold Job details
       .card-body
@@ -109,7 +141,12 @@
             %i.bi.bi-arrow-repeat.me-1
             Book again
         - when :disputed
-          %p.text-danger A dispute has been raised. We will be in touch.
+          - if @job.dispute&.resolved? || @job.dispute&.closed?
+            %p.text-success Dispute resolved. You can continue working with the shop.
+          - elsif @job.dispute&.responded?
+            %p.text-warning The shop has responded. Awaiting resolution.
+          - else
+            %p.text-danger Dispute raised. Waiting for shop response.
         - when :cancelled
           %p.text-muted This request was cancelled.
         - else

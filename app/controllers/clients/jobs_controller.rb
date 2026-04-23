@@ -43,11 +43,12 @@ module Clients
     end
 
     def dispute
-      @job = current_client.jobs.pending_confirmation.find(params[:id])
+      @job = current_client.jobs.where(status: [:pending_confirmation, :in_progress, :accepted]).find(params[:id])
       reason = params.dig(:dispute, :reason).presence || "No reason provided"
       @job.update!(status: :disputed)
       @job.create_dispute!(raised_by: current_user, reason: reason)
-      redirect_to clients_job_path(@job), notice: "Dispute raised. We will be in touch shortly."
+      Message.post_system(@job, "#{current_client.org_name} raised a dispute: #{reason}")
+      redirect_to clients_job_path(@job), notice: "Dispute raised."
     end
   end
 end

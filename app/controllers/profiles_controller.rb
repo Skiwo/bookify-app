@@ -1,5 +1,6 @@
 class ProfilesController < ApplicationController
   before_action :require_authentication!
+  layout :resolve_layout
 
   def edit
     @user = current_user
@@ -18,5 +19,15 @@ class ProfilesController < ApplicationController
 
   def profile_params
     params.require(:user).permit(:name, :avatar)
+  end
+
+  def resolve_layout
+    case current_user&.role
+    when "shop_owner"  then "shop"
+    when "client"      then "client"
+    when "freelancer"  then "freelancer"
+    when "booker"      then "booker"
+    else "application"
+    end
   end
 end

@@ -1,4 +1,5 @@
 class ShopsController < ApplicationController
+  layout :resolve_layout
   def index
     @shops = Shop.active.order(:name)
     @shops = @shops.where("city ILIKE ?", "%#{params[:city]}%") if params[:city].present?
@@ -6,7 +7,8 @@ class ShopsController < ApplicationController
   end
 
   def show
-    @shop = Shop.find_by!(slug: params[:slug])
+    @shop = Shop.find_by(slug: params[:slug])
+    redirect_to(shops_path, alert: "Shop not found or shop owner decided to close it.") and return unless @shop
 
     if @shop.closed?
       redirect_to shops_path, alert: "This shop is no longer available."
@@ -22,6 +24,10 @@ class ShopsController < ApplicationController
   end
 
   private
+
+  def resolve_layout
+    current_user&.client? ? "client" : "application"
+  end
 
   def existing_client_of_shop?(shop)
     return false unless current_user&.client?

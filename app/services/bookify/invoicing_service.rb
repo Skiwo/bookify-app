@@ -47,16 +47,7 @@ module Bookify
           status: :completed
         )
 
-        booking.booking_lines.build(
-          description: @job.title,
-          line_type: :work,
-          booking_type: :project_based,
-          rate_ore: @job.work_amount_ore,
-          total_hours: 1,
-          work_start_date: Date.current,
-          work_end_date: Date.current,
-          position: 0
-        )
+        build_work_lines(booking)
 
         booking.booking_lines.build(
           description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
@@ -66,11 +57,39 @@ module Bookify
           total_hours: 1,
           work_start_date: Date.current,
           work_end_date: Date.current,
-          position: 1
+          position: @job.quote_lines.size + 1
         )
 
         booking.save!
         booking
+      end
+    end
+
+    def build_work_lines(booking)
+      if @job.quote_lines.any?
+        @job.quote_lines.order(:position).each_with_index do |ql, i|
+          booking.booking_lines.build(
+            description: ql.description,
+            line_type: :work,
+            booking_type: :project_based,
+            rate_ore: ql.amount_ore,
+            total_hours: ql.hours,
+            work_start_date: @job.work_date || Date.current,
+            work_end_date: @job.work_date || Date.current,
+            position: i
+          )
+        end
+      else
+        booking.booking_lines.build(
+          description: @job.title,
+          line_type: :work,
+          booking_type: :project_based,
+          rate_ore: @job.work_amount_ore,
+          total_hours: 1,
+          work_start_date: @job.work_date || Date.current,
+          work_end_date: @job.work_date || Date.current,
+          position: 0
+        )
       end
     end
 
@@ -89,8 +108,21 @@ module Bookify
     end
 
     def pop_lines
-      [
-        {
+      work = if @job.quote_lines.any?
+        @job.quote_lines.order(:position).map do |ql|
+          {
+            description: ql.description,
+            line_type: "work",
+            rate: ql.amount_ore / 100.0,
+            quantity: 1,
+            work_started_at: work_started_at.iso8601,
+            work_ended_at: work_ended_at.iso8601,
+            work_hours: ql.hours,
+            group: "job-work"
+          }
+        end
+      else
+        [{
           description: @job.title,
           line_type: "work",
           rate: @job.work_amount_ore / 100.0,
@@ -99,16 +131,17 @@ module Bookify
           work_ended_at: work_ended_at.iso8601,
           work_hours: @job.work_hours,
           group: "job-work"
-        },
-        {
-          description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
-          line_type: "commission",
-          rate: @job.commission_amount_ore / 100.0,
-          quantity: 1,
-          payee_freelance_profile_id: @job.shop.pop_worker_id,
-          group: "job-work"
-        }
-      ]
+        }]
+      end
+
+      work + [{
+        description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
+        line_type: "commission",
+        rate: @job.commission_amount_ore / 100.0,
+        quantity: 1,
+        payee_freelance_profile_id: @job.shop.pop_worker_id,
+        group: "job-work"
+      }]
     end
 
     def record_payout(booking, data)

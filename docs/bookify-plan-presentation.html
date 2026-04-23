@@ -398,17 +398,17 @@
   <section class="slide" data-section="Overview">
     <div class="slide-content">
       <div class="eyebrow">In one page</div>
-      <h1 class="accent-skiwo">Two products, two companies, one codebase.</h1>
+      <h1 class="accent-skiwo">One product, two surfaces, one codebase.</h1>
       <div class="columns" style="margin-top: 4vh;">
         <div class="col pop">
-          <h3>Payout Partner</h3>
-          <p><strong>B2B payroll and invoicing infrastructure.</strong> Shipped. Keeps running unchanged.</p>
-          <p style="color:var(--ink-faint); font-size: 0.9em;">payoutpartner.com &middot; Payout Partner AS</p>
+          <h3>payoutpartner.com &mdash; the operator workbench</h3>
+          <p><strong>Everyone who does work logs in here.</strong> Solo freelancers, partners, shop owners, API integrators &mdash; one feature-gated surface. No more separate Partner Portal.</p>
+          <p style="color:var(--ink-faint); font-size: 0.9em;">Operated by Payout Partner AS</p>
         </div>
         <div class="col">
-          <h3>Bookify</h3>
-          <p><strong>A Norwegian marketplace for hiring freelancers</strong> &mdash; with payments handled by Payout Partner AS. Starts building now.</p>
-          <p style="color:var(--ink-faint); font-size: 0.9em;">bookify.app &middot; Skiwo AS</p>
+          <h3>bookify.app &mdash; the public demand surface</h3>
+          <p><strong>Norwegian businesses discover shops and hire here.</strong> Starts building now. Clients live here. Operators don't.</p>
+          <p style="color:var(--ink-faint); font-size: 0.9em;">Operated by Skiwo AS</p>
         </div>
       </div>
     </div>
@@ -418,19 +418,19 @@
   <section class="slide" data-section="Overview">
     <div class="slide-content">
       <div class="eyebrow">Where Skiwo AS is today</div>
-      <h2>We already run the payroll plumbing. Bookify adds the marketplace on top.</h2>
+      <h2>The money layer is shipped. We're unifying the operator experience and launching the public demand surface.</h2>
       <div class="columns-3" style="margin-top: 5vh;">
         <div class="col pop">
-          <h3>Now shipping</h3>
-          <p><strong>Payout Partner</strong> &mdash; lønn batching, MoR invoicing, BankID, BRREG, A-melding. Partners like catering operators, interpretation platforms, and future integrators use it to pay freelancers and invoice clients.</p>
+          <h3>Shipped</h3>
+          <p><strong>Payout Partner money primitives</strong> &mdash; lønn batching, MoR invoicing, BankID, BRREG, A-melding, credit notes, v2 REST API. Working today for catering, interpretation, and other B2B partners.</p>
         </div>
         <div class="col">
-          <h3>Building next</h3>
-          <p><strong>Bookify</strong> &mdash; public and private shops, quote flow, chat, dispute handling, shop lifecycle. Fills the gap between "I want work done" and "I want to get paid."</p>
+          <h3>Now launching</h3>
+          <p><strong>One unified operator product</strong> at payoutpartner.com &mdash; feature-gated, no more separate Partner Portal. Plus <strong>bookify.app</strong> as the public demand surface for clients.</p>
         </div>
         <div class="col skiwo">
           <h3>Rest of Skiwo</h3>
-          <p>Other Skiwo products &mdash; AccessTracker, ConsentKit, SkatteFUNN. Different codebases, unrelated to the Bookify / Payout Partner work. Mentioned only to frame the Skiwo family.</p>
+          <p>Other Skiwo products &mdash; AccessTracker, ConsentKit, SkatteFUNN. Different codebases, unrelated to this work.</p>
         </div>
       </div>
     </div>
@@ -440,21 +440,42 @@
   <section class="slide" data-section="Overview">
     <div class="slide-content">
       <div class="eyebrow">Who's on the platform</div>
-      <h2>Three sides, each needing something different.</h2>
+      <h2>Three sides &mdash; two operators, one client.</h2>
       <div class="columns-3" style="margin-top: 5vh;">
-        <div class="col">
+        <div class="col pop">
           <h3>Freelancers</h3>
-          <p>Get paid as frilanser lønn. No invoicing hassle. Arbeidsgiveravgift, skattekort, and A-melding are all handled.</p>
+          <p>Get paid as frilanser lønn. Log into payoutpartner.com. Arbeidsgiveravgift, skattekort, and A-melding are all handled.</p>
         </div>
         <div class="col pop">
           <h3>Shop owners</h3>
-          <p>Run a shop on bookify.app. Accept quotes. Assign jobs to yourself or a roster member. Take a small commission.</p>
+          <p>Operate from payoutpartner.com; public shop page served at bookify.app. Accept quotes. Assign to a roster member. Take commission.</p>
         </div>
-        <div class="col skiwo">
+        <div class="col">
           <h3>Clients</h3>
-          <p>Norwegian businesses. Find a shop, request a quote, accept, pay by bank transfer with a proper MVA invoice.</p>
+          <p>Norwegian businesses. Discover shops and hire on bookify.app. Pay by bank transfer with a proper MVA invoice.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- 4b. THE TWO SURFACES -->
+  <section class="slide" data-section="Overview">
+    <div class="slide-content">
+      <div class="eyebrow">The architectural move</div>
+      <h2>Split by audience, not by product tier.</h2>
+      <div class="columns" style="margin-top: 4vh;">
+        <div class="col pop">
+          <h3>payoutpartner.com &mdash; operators</h3>
+          <p>Anyone who <em>does</em> work logs in here. Solo freelancer, partner, shop owner, API integrator. One surface, feature-gated by what they've enabled. A new freelancer sees the minimum; a shop owner sees more.</p>
+          <p style="color: var(--ink-faint); font-size: 0.9em; margin-top: 1.5vh;">Clients never come here.</p>
+        </div>
+        <div class="col">
+          <h3>bookify.app &mdash; clients</h3>
+          <p>Public demand surface. Norwegian businesses discover shops, request quotes, accept jobs, pay invoices. All public shop pages live here.</p>
+          <p style="color: var(--ink-faint); font-size: 0.9em; margin-top: 1.5vh;">Operators never log in here.</p>
+        </div>
+      </div>
+      <p style="margin-top: 4vh; color: var(--ink-soft); max-width: 60ch;">One codebase, one Rails app, two domains. A shop owner manages their shop from payoutpartner.com; the same shop's public page is served at bookify.app/a/&lt;slug&gt;. The brand split is about audience, not feature tier &mdash; and it's what preserves liability separation.</p>
     </div>
   </section>
 
@@ -486,21 +507,67 @@
   <!-- 7. WHO USES POP -->
   <section class="slide" data-section="Payout Partner">
     <div class="slide-content">
-      <div class="eyebrow">Who uses Payout Partner today</div>
-      <h2>Three kinds of customers. All continue unchanged.</h2>
+      <div class="eyebrow">Who operates on Payout Partner today</div>
+      <h2>Three kinds of operators. Same product, different features unlocked.</h2>
       <div class="columns-3" style="margin-top: 5vh;">
         <div class="col pop">
           <h3>Direct freelancers</h3>
-          <p>Sign up themselves at payoutpartner.com. Use it to invoice clients and get paid as lønn. Self-service.</p>
+          <p>Sign up at payoutpartner.com. Invoice clients and get paid as lønn. Self-service. See the minimum surface &mdash; profiles, invoices, clients.</p>
         </div>
         <div class="col pop">
           <h3>B2B partners</h3>
-          <p>Staffers, Luado, Leii, the anchor catering operator, and similar companies. Bring their own clients; use Partner Portal to record bookings, invoice, and pay freelancers.</p>
+          <p>Staffers, Luado, Leii, the anchor catering operator. Bring their own clients; see the expanded surface &mdash; bookings, members, freelancer enrollments, imports.</p>
         </div>
         <div class="col pop">
           <h3>API integrators</h3>
           <p>External platforms wanting Payout Partner as a payments backend. Consume the v2 REST API with a bearer token.</p>
         </div>
+      </div>
+      <p style="margin-top: 5vh; color: var(--ink-soft); max-width: 60ch;">All three on one feature-gated surface. Classic behavior unchanged for existing customers.</p>
+    </div>
+  </section>
+
+  <!-- 7b. ONE UNIFIED OPERATOR PRODUCT -->
+  <section class="slide" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="eyebrow">The operator UX shift</div>
+      <h2>One product surface. Feature-gated by what you're doing.</h2>
+      <p class="lead" style="margin-top: 3vh; max-width: 60ch;">No more separate Partner Portal. The <code>/p/</code> distinction goes away. A solo freelancer, a B2B partner, a shop owner, and an API integrator all log into the same payoutpartner.com and see the surface appropriate to their role.</p>
+      <div class="columns" style="margin-top: 4vh;">
+        <div class="col pop">
+          <h3>Minimum: solo freelancer</h3>
+          <p>Sees profiles, invoices, credit notes, clients. No bookings, no members, no reconciliation. Can send an invoice in a minute.</p>
+        </div>
+        <div class="col pop">
+          <h3>More: partner or shop owner</h3>
+          <p>Adds bookings, members (roster), freelancer enrollments, imports. Reconciliation shows up when the volume justifies it.</p>
+        </div>
+      </div>
+      <p style="margin-top: 3vh; color: var(--ink-faint); max-width: 60ch;">Same code, same routes, same primitives. What a user sees is what they've enabled &mdash; not what a product decision shipped to "their tier."</p>
+    </div>
+  </section>
+
+  <!-- 7c. BOOKINGS / RECEIVABLES / PAYABLES -->
+  <section class="slide" data-section="Payout Partner">
+    <div class="slide-content">
+      <div class="eyebrow">The new operator data model</div>
+      <h2 class="accent-pop">Bookings, receivables, payables.</h2>
+      <ul style="margin-top: 3vh;">
+        <li><strong>Booking</strong> &mdash; new first-class pop-core primitive. The agreement between client and freelancer (directly, or via a shop). Invoices are generated from it. Validation (BRREG, VAT, occupation codes) happens once.</li>
+        <li><strong>Receivables</strong> &mdash; money coming in. Invoices and credit notes the operator issues to clients.</li>
+        <li><strong>Payables</strong> &mdash; money going out. Invoices and credit notes from Payout Partner AS (or from freelancers' own ENK/AS) to the operator.</li>
+      </ul>
+      <p style="margin-top: 2.5vh;"><strong>Bookings are mandatory on Bookify flows</strong> &mdash; every client-initiated job starts as a booking.</p>
+      <p style="margin-top: 1vh;"><strong>Bookings are optional on payoutpartner.com</strong> &mdash; operators who just want to send an invoice directly still can.</p>
+      <h3 style="margin-top: 2.5vh; font-size: clamp(0.95rem, 1.3vw, 1.15rem); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-faint);">Booking lifecycle</h3>
+      <div class="flow" style="margin-top: 1.2vh; grid-template-columns: auto 1fr;">
+        <div class="n">Draft</div><div>Client started a request; not yet submitted.</div>
+        <div class="n">Submitted</div><div>Client has sent the request.</div>
+        <div class="n">Approved</div><div>Deal accepted by both parties &mdash; <code>offered_by</code>, <code>responded_by</code>, timestamps stored.</div>
+        <div class="n">Billable</div><div>Feedback locked. Final amount known. Ready to invoice.</div>
+        <div class="n">Resolved</div><div>Invoice published for remaining amount.</div>
+        <div class="n">Rejected</div><div>Parties couldn't reach a deal.</div>
+        <div class="n">Nullified</div><div>Fully credited &mdash; or feedback set to no-charge-no-pay.</div>
       </div>
     </div>
   </section>
@@ -528,15 +595,15 @@
   <section class="slide" data-section="Bookify">
     <div class="slide-content">
       <div class="eyebrow">For Payout Partner people &mdash; the one-slide translation</div>
-      <h2>Bookify is a thin marketplace layer over the pop-core invoicing you already know.</h2>
+      <h2>Bookify is a public view of the pop-core primitives you already know.</h2>
       <ul style="margin-top: 3vh;">
-        <li><strong>Bookify itself</strong> is a new account on Payout Partner. Owned by Payout Partner AS.</li>
-        <li><strong>Shop owner</strong> = a freelancer enrolled on that account who also runs a public shop page.</li>
-        <li><strong>Member</strong> = another freelancer enrolled on the same account.</li>
+        <li><strong>Shop page</strong> = a freelance profile's public manifestation at <code>bookify.app/a/&lt;slug&gt;</code>. Lives in pop-core; rendered under the bookify.app domain.</li>
+        <li><strong>Shop owner</strong> = a freelancer on pop-core with "run a public shop" enabled. Operates from payoutpartner.com.</li>
+        <li><strong>Member</strong> = another freelancer connected to that shop's roster.</li>
         <li><strong>Client</strong> = a standard pop-core <code>Client</code> record (BRREG-verified), with a marketplace membership granting access to private shops.</li>
-        <li><strong>Job</strong> = one <code>Invoice</code> with per-line payees. Work lines route to the member; a <code>commission</code> line routes to the shop owner. The standard invoice state machine produces both lønn events.</li>
+        <li><strong>Job</strong> = a <code>Booking</code> (new primitive) that generates one <code>Invoice</code>. Work lines route to the member; a <code>commission</code> line routes to the shop owner. The standard invoice-to-payout state machine produces both lønn events.</li>
       </ul>
-      <p style="margin-top: 3.5vh; color: var(--ink-soft); max-width: 58ch;">Everything Bookify-specific is a thin marketplace layer on top of the invoicing you've been building for years. The hard work already happened in the pop-core primitives.</p>
+      <p style="margin-top: 3.5vh; color: var(--ink-soft); max-width: 60ch;">No new module. No new account type. Bookify is the demand-side UX built over operator primitives. The hard work already happened in pop-core.</p>
     </div>
   </section>
 
@@ -557,7 +624,7 @@
       <div class="eyebrow">The shop owner</div>
       <h2 class="accent-bookify">One person, one shop, forever.</h2>
       <ul style="margin-top: 4vh;">
-        <li>You own a shop at <code>bookify.app/nb/no/a/&lt;your-slug&gt;</code>. Skill pages like <code>/nb/no/kokker</code> list every shop tagged with that skill.</li>
+        <li>You own a shop. Public page at <code>bookify.app/nb/no/a/&lt;your-slug&gt;</code>; you administer it from payoutpartner.com. Skill pages like <code>bookify.app/nb/no/kokker</code> list every shop tagged with that skill.</li>
         <li>You decide whether your shop is <strong>public</strong> (browsable, SEO-indexed) or <strong>private</strong> (gated by invitation).</li>
         <li>You can invite <strong>roster members</strong> who perform jobs alongside you.</li>
         <li>Your shop takes <strong>5%</strong> on every job booked through it &mdash; paid to you as lønn, weekly.</li>
@@ -750,19 +817,19 @@
   <!-- 20. TWO BRANDS -->
   <section class="slide" data-section="Architecture">
     <div class="slide-content">
-      <div class="eyebrow">Two brands, one codebase</div>
-      <h2>Same Rails app, two domains, two stories.</h2>
+      <div class="eyebrow">Two domains, two audiences</div>
+      <h2>Same Rails app, two domains, two audiences.</h2>
       <div class="columns" style="margin-top: 5vh;">
         <div class="col pop">
-          <h3>payoutpartner.com</h3>
-          <p>B2B infrastructure. Trusted, boring, reliable. The brand partners like Staffers, Luado, and Leii build on.</p>
+          <h3>payoutpartner.com &mdash; operators</h3>
+          <p>Where anyone doing work logs in and operates. Solo freelancer, partner, shop owner, API integrator &mdash; all on one feature-gated surface. Clients never come here.</p>
         </div>
         <div class="col">
-          <h3>bookify.app</h3>
-          <p>Consumer-facing marketplace. Owns the shop-quality story. Takes the reputational hits from marketplace incidents &mdash; protecting the infrastructure brand.</p>
+          <h3>bookify.app &mdash; clients</h3>
+          <p>Where Norwegian businesses find shops, request work, accept quotes, pay invoices. Operators never log in here; their public shop page just lives at this domain.</p>
         </div>
       </div>
-      <p style="margin-top: 5vh; color: var(--ink-faint); max-width: 54ch;">This is a deliberate brand separation. A management-facing pros-and-cons review on whether to eventually collapse into one brand is scheduled separately.</p>
+      <p style="margin-top: 5vh; color: var(--ink-faint); max-width: 60ch;">This is the liability-separation move. Complaints from clients land on bookify.app &mdash; the operator infrastructure brand stays clean. A management-facing review on whether to collapse into one brand someday is scheduled separately.</p>
     </div>
   </section>
 
@@ -786,18 +853,18 @@
     <div class="slide-content">
       <div class="eyebrow">The engineering cost</div>
       <h2 class="accent-bookify">One week to go live.</h2>
-      <p class="lead" style="margin-top: 3vh;">Building Bookify is cheap because almost everything already exists in Payout Partner. The launch is small; the hard part comes after.</p>
+      <p class="lead" style="margin-top: 3vh;">Launch is cheap because almost everything already exists in pop-core. The hard part comes after.</p>
       <div class="columns" style="margin-top: 4vh;">
         <div class="col pop">
-          <h3>Three Payout Partner additions</h3>
-          <p><code>source_params</code> JSONB for traceability. <code>payee_freelance_profile_id</code> on invoice lines. New <code>commission</code> line type. That's it.</p>
+          <h3>Pop-core additions</h3>
+          <p>New <code>Booking</code> model with the lifecycle states. <code>source_params</code> JSONB for traceability. <code>payee_freelance_profile_id</code> on invoice lines. New <code>commission</code> line type.</p>
         </div>
         <div class="col">
-          <h3>Minimal Bookify module</h3>
-          <p><code>bookify.app</code> domain, a shop listing page, shop detail pages, a client order form, and the invoicing wiring. Ship it. Learn from it. Iterate.</p>
+          <h3>Surface work</h3>
+          <p><code>bookify.app</code> domain with public shop listing, shop detail pages, and a client request form. Operator UI reshaped around feature-gating instead of a separate Partner Portal.</p>
         </div>
       </div>
-      <p style="margin-top: 4vh; color: var(--ink-soft);">Classic Payout Partner behaviour is unchanged for anyone not using these features. Existing partners (Staffers, Luado, Leii, and others) continue exactly as before.</p>
+      <p style="margin-top: 4vh; color: var(--ink-soft);">Classic behavior is unchanged for anyone not using these features. Staffers, Luado, Leii, and others continue exactly as before.</p>
     </div>
   </section>
 
@@ -851,7 +918,18 @@
       <h2 class="accent-bookify">Bookify is lønn only. No ENK/AS.</h2>
       <p class="lead" style="margin-top: 3vh;">Every freelancer on Bookify &mdash; member or shop owner &mdash; is paid as frilanser lønn through the Thursday batch. No ENK/AS invoicing path. No alternate payout arrangements. Ever.</p>
       <p style="margin-top: 3vh;"><strong>Why lønn-only:</strong> one payment model. One money pipeline. No "is this person an ENK?" branching. Dramatically simpler to build, to support, and to explain.</p>
-      <p style="margin-top: 3vh; color: var(--ink-soft);"><strong>What ENK/AS operators should do instead:</strong> use Payout Partner directly &mdash; the classic Partner Portal supports ENK/AS invoicing today. Or simply transact off-platform. Bookify doesn't police that; we just don't provide infrastructure for it.</p>
+      <p style="margin-top: 3vh; color: var(--ink-soft);"><strong>What ENK/AS operators should do instead:</strong> use Payout Partner directly &mdash; the operator surface supports ENK/AS invoicing today. Or simply transact off-platform. Bookify doesn't police that; we just don't provide infrastructure for it.</p>
+    </div>
+  </section>
+
+  <!-- 25b. RECONCILIATION PARKED -->
+  <section class="slide" data-section="Plan">
+    <div class="slide-content">
+      <div class="eyebrow">A deliberately parked feature</div>
+      <h2>Reconciliation ships right after the MVP.</h2>
+      <p class="lead" style="margin-top: 3vh; max-width: 60ch;">A first attempt at live reconciliation (sent invoices minus received invoices, matched via shared <code>external_id</code>) worked conceptually but fell over on data volume &mdash; Heroku crashed on longer periods.</p>
+      <p style="margin-top: 3vh;"><strong>The fix:</strong> reconciliation projects. Operator creates a project, picks a period (or supplies external IDs), a background job crunches the numbers, a report gets saved.</p>
+      <p style="margin-top: 3vh; color: var(--ink-soft);">Same primitive, different shape &mdash; async snapshots instead of live filtering. Critical feature, but isolated. Post-MVP.</p>
     </div>
   </section>
 
@@ -889,15 +967,19 @@
       <ul style="margin-top: 4vh; list-style: none; padding-left: 0;">
         <li style="padding-left: 0;">
           <span class="pill done">Done</span>
-          <strong>Payout Partner</strong> &mdash; shipped in pop-core. Classic partners live. v2 REST API live.
+          <strong>Payout Partner money layer</strong> &mdash; shipped in pop-core. Classic operators live. v2 REST API live.
         </li>
         <li style="padding-left: 0;">
           <span class="pill now">~1 week</span>
-          <strong>Go-live.</strong> Three Payout Partner additions + minimal Bookify module. Bank the launch; start learning.
+          <strong>Go-live.</strong> Pop-core Booking primitive, operator UI reshape, bookify.app domain. Bank the launch; start learning.
         </li>
         <li style="padding-left: 0;">
           <span class="pill now">Ongoing</span>
           <strong>Growing traffic.</strong> The real work. Supply, demand, SEO, anchor partners, steady product iteration.
+        </li>
+        <li style="padding-left: 0;">
+          <span class="pill later">Right after MVP</span>
+          <strong>Reconciliation projects.</strong> Async snapshot reports via external_id matching. Isolated, post-launch.
         </li>
         <li style="padding-left: 0;">
           <span class="pill later">Later</span>
@@ -939,7 +1021,9 @@
       <div class="eyebrow">Still to decide</div>
       <h2>Open questions for the team.</h2>
       <ul style="margin-top: 4vh;">
-        <li><strong>Brand strategy.</strong> Stay with two brands (Bookify + Payout Partner), or eventually collapse into one? A pros-and-cons doc is scheduled.</li>
+        <li><strong>Feature-gating granularity.</strong> Show everything to everyone with a "your capabilities" toggle &mdash; or hide advanced surfaces until explicitly unlocked?</li>
+        <li><strong>Client login on bookify.app.</strong> Magic-link sessions per request, or full accounts from day one?</li>
+        <li><strong>Brand strategy.</strong> Keep two domains (audience-split), or eventually collapse into one? A management-facing pros-and-cons doc is scheduled separately.</li>
         <li><strong>Geography.</strong> Norway first. Other Nordics later, or stay focused?</li>
         <li><strong>Go-to-market.</strong> Paid acquisition, SEO, anchor-partner referral &mdash; or all three?</li>
         <li><strong>Beta timing.</strong> When do we open bookify.app to real freelancers and real clients?</li>

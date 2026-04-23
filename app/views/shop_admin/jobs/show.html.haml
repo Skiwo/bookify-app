@@ -21,6 +21,37 @@
     = render "shared/job_chat", job: @job, messages: @messages, older_count: @older_count, last_read_at: @last_read_at, job_reads: @job_reads, other_participant_ids: @other_participant_ids
 
   .col-lg-5
+    - if @job.disputed? && @job.dispute.present?
+      .card.border-0.shadow-sm.border-danger.mb-4
+        .card-body
+          %h6.fw-bold.text-danger
+            %i.bi.bi-exclamation-triangle.me-1
+            Dispute raised
+          %p.small.mb-1
+            %strong Reason:
+          %p.small.mb-3= @job.dispute.reason
+          - if @job.dispute.responded?
+            .alert.alert-secondary.small.mb-3
+              %strong Your response:
+              %p.mb-0= @job.dispute.response
+            = form_with url: resolve_dispute_shop_job_path(@job), method: :post, local: true do |f|
+              .mb-2
+                = f.text_area "dispute[resolution]", class: "form-control form-control-sm", rows: 2, placeholder: "Resolution summary…", required: true
+              = f.submit "Resolve dispute", class: "btn btn-success btn-sm w-100"
+          - elsif @job.dispute.open?
+            = form_with url: respond_dispute_shop_job_path(@job), method: :post, local: true do |f|
+              .mb-2
+                = f.text_area "dispute[response]", class: "form-control form-control-sm", rows: 2, placeholder: "Your response to the client…", required: true
+              = f.submit "Send response", class: "btn btn-primary btn-sm w-100"
+              %hr.my-2
+              = form_with url: resolve_dispute_shop_job_path(@job), method: :post, local: true do |f|
+                = f.hidden_field "dispute[resolution]", value: "Resolved by agreement"
+                = f.submit "Resolve — return to accepted", class: "btn btn-outline-success btn-sm w-100"
+          - else
+            .alert.alert-success.small.mb-0
+              %i.bi.bi-check-circle.me-1
+              Dispute #{@job.dispute.status} — #{@job.dispute.resolution}
+
     - if (@job.in_progress? || @job.accepted?) && (@job.shop_completed? || @job.client_completed?)
       .card.border-0.shadow-sm.mb-4
         .card-body
