@@ -1,16 +1,16 @@
-%h2.mb-1 Find a freelancer
-%p.text-muted.mb-4 Norwegian professionals, payments handled by Payout Partner AS.
+%h2.mb-1= t("shops.index.title")
+%p.text-muted.mb-4= t("shops.index.subtitle")
 
 = form_with url: shops_path, method: :get, local: true, class: "row g-2 mb-4" do |f|
   .col-md-4
-    = f.text_field :city, value: params[:city], placeholder: "City", class: "form-control"
+    = f.text_field :city, value: params[:city], placeholder: t("shops.index.search_city_placeholder"), class: "form-control"
   .col-md-4
-    = f.text_field :skill, value: params[:skill], placeholder: "Skill (e.g. kokker)", class: "form-control"
+    = f.text_field :skill, value: params[:skill], placeholder: t("shops.index.search_skill_placeholder"), class: "form-control"
   .col-auto
-    = f.submit "Search", class: "btn btn-primary"
+    = f.submit t("common.actions.search"), class: "btn btn-primary"
   - if params[:city].present? || params[:skill].present?
     .col-auto
-      = link_to "Clear", shops_path, class: "btn btn-outline-secondary"
+      = link_to t("common.actions.clear"), shops_path, class: "btn btn-outline-secondary"
 
 - if @shops.any?
   .row.row-cols-1.row-cols-md-3.g-4
@@ -33,10 +33,10 @@
                   %span.badge.bg-light.text-dark.border.me-1= tag
           .card-footer.bg-white.border-0.pb-3
             = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
-              View shop
+              = t("shops.index.view_shop")
               %i.bi.bi-arrow-right.ms-1
 - else
   .text-center.py-5
     %i.bi.bi-shop.display-3.text-muted
-    %h5.fw-bold.mt-3 No shops found
-    %p.text-muted Try a different city or skill.
+    %h5.fw-bold.mt-3= t("shops.index.no_results_title")
+    %p.text-muted= t("shops.index.no_results_hint")

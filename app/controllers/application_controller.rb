@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
     redirect_to booker_settings_path, alert: "POP credentials are missing or incomplete. Please check your settings."
   end
 
+  before_action :set_locale
   before_action :refresh_session_expiry
   before_action :set_cable_cookie
   before_action :touch_online
@@ -13,6 +14,11 @@ class ApplicationController < ActionController::Base
 
   # Ensures URL helpers (_url) always use the current request's host so that
   # magic links, redirects, and cross-controller links stay on the right domain.
+  def set_locale
+    locale = params[:lang].presence || I18n.default_locale
+    I18n.locale = I18n.available_locales.include?(locale.to_sym) ? locale.to_sym : I18n.default_locale
+  end
+
   def default_url_options
     return {} unless respond_to?(:request) && request
     port = [80, 443].include?(request.port) ? nil : request.port

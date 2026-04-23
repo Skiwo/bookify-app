@@ -1,0 +1,312 @@
+nb:
+  common:
+    actions:
+      back: "Tilbake"
+      save: "Lagre"
+      cancel: "Avbryt"
+      submit: "Send inn"
+      search: "Søk"
+      clear: "Tøm"
+      close: "Lukk"
+      remove: "Fjern"
+      edit: "Rediger"
+      confirm: "Bekreft"
+      decline: "Avslå"
+      accept: "Aksepter"
+      send: "Send"
+      resend: "Send på nytt"
+      view: "Se"
+      loading: "Laster…"
+    nav:
+      sign_in: "Logg inn"
+      sign_out: "Logg ut"
+      dashboard: "Oversikt"
+      profile: "Profil"
+      settings: "Innstillinger"
+    status:
+      draft: "Utkast"
+      quoted: "Tilbud sendt"
+      accepted: "Akseptert"
+      in_progress: "Pågår"
+      pending_confirmation: "Venter på bekreftelse"
+      disputed: "Tvist"
+      invoiced: "Fakturert"
+      paid: "Betalt"
+      completed: "Fullført"
+      cancelled: "Kansellert"
+      active: "Aktiv"
+      paused: "Pauset"
+      closed: "Stengt"
+    fields:
+      name: "Navn"
+      email: "E-post"
+      description: "Beskrivelse"
+      date: "Dato"
+      hours: "Timer"
+      amount: "Beløp"
+      status: "Status"
+      total: "Totalt"
+    invoice:
+      work_amount: "Arbeidsbeløp (ekskl. MVA)"
+      commission: "Kommisjon (%{percent}%)"
+      bookify_fee: "Bookify-plattformavgift"
+      vat: "MVA (25%)"
+      total_incl_vat: "Totalt inkl. MVA"
+      issued_by: "Faktura utstedt av Payout Partner AS. Betaling med bankoverføring, netto 14 dager."
+    member:
+      assigned: "Tilordnet fagperson"
+      none: "—"
+    payout_partner: "Payout Partner AS"
+
+  pages:
+    landing:
+      hero_title: "Ansett norske fagfolk — enkelt og trygt"
+      hero_subtitle: "Bookify kobler norske bedrifter med kvalifiserte fagfolk. Betalinger og lønn håndteres av Payout Partner AS."
+      cta_find: "Finn fagfolk"
+      cta_shop: "Registrer din butikk"
+    about:
+      title: "Om Bookify"
+    privacy:
+      title: "Personvern"
+
+  shops:
+    index:
+      title: "Finn en fagperson"
+      subtitle: "Norske fagfolk, betalinger via Payout Partner AS."
+      search_city_placeholder: "By"
+      search_skill_placeholder: "Fagfelt (f.eks. kokker)"
+      no_results_title: "Ingen butikker funnet"
+      no_results_hint: "Prøv en annen by eller et annet fagfelt."
+      view_shop: "Se butikk"
+    show:
+      send_request: "Send forespørsel"
+      team_heading: "Teammedlemmer"
+      request_title_placeholder: "Hva trenger du? (f.eks. «Catering til 50 gjester»)"
+      request_description_placeholder: "Detaljer (valgfritt)"
+      request_desired_date: "Ønsket dato"
+      private_shop_notice: "Dette er en privat butikk. Du trenger en invitasjon for å sende forespørsel."
+
+  skill_pages:
+    show:
+      subtitle: "Ansett via Bookify — betalinger via Payout Partner AS."
+      select_hint: "Velg opptil 5 butikker og send én forespørsel til alle."
+      shops_selected:
+        one: "1 butikk valgt"
+        other: "%{count} butikker valgt"
+      max_reached: "Maks 5 butikker"
+      send_request: "Send forespørsel"
+      request_placeholder: "Hva trenger du?"
+      details_placeholder: "Detaljer (valgfritt)"
+      no_shops_title: "Ingen butikker for dette fagfeltet ennå"
+      browse_all: "Se alle butikker"
+      view_shop: "Se butikk"
+
+  clients:
+    registrations:
+      new:
+        title: "Registrer din organisasjon"
+        subtitle: "Kun norske B2B-organisasjoner. Organisasjonsnummeret verifiseres mot BRREG."
+        org_number_label: "Organisasjonsnummer"
+        org_number_hint: "9-sifret nummer — vi slår det opp automatisk."
+        org_name_label: "Organisasjonsnavn"
+        org_name_placeholder: "Hentes fra BRREG"
+        org_address_label: "Adresse"
+        org_address_placeholder: "Hentes fra BRREG"
+        submit: "Registrer"
+        invoice_notice: "Fakturaer utstedes av Payout Partner AS. Betaling med bankoverføring."
+        brreg_searching: "Søker i BRREG…"
+        brreg_found: "✓ Funnet i BRREG"
+    dashboard:
+      show:
+        title: "Mine forespørsler"
+        no_jobs: "Ingen forespørsler ennå"
+        no_jobs_hint: "Finn fagfolk og send en forespørsel."
+        find_shops: "Finn butikker"
+    jobs:
+      index:
+        title: "Jobber"
+        no_jobs: "Ingen jobber ennå"
+      show:
+        cancel_request: "Avbryt forespørsel"
+        cancel_confirm: "Avbryt denne forespørselen? Butikken vil bli varslet."
+        quote_received_heading: "Tilbud mottatt"
+        activities_col_activity: "Aktivitet"
+        activities_col_rate: "Sats"
+        activities_col_hours: "Timer"
+        activities_col_amount: "Beløp"
+        quote_expires: "Utløper %{datetime}"
+        quote_expired: "Dette tilbudet har utløpt."
+        accept_quote: "Aksepter tilbud"
+        job_complete_heading: "Jobb merket som fullført"
+        job_complete_hint: "Vennligst gjennomgå timene og bekreft eller opprett en tvist."
+        deadline: "Frist: %{datetime}"
+        confirm_completion: "Bekreft fullføring"
+        work_date_label: "Arbeidsdato"
+        hours_label: "Timer utført"
+        raise_dispute: "Opprett tvist"
+        dispute_reason_placeholder: "Beskriv problemet…"
+        dispute_heading: "Tvist"
+        your_reason: "Din begrunnelse:"
+        shop_response: "Butikkens svar:"
+        dispute_resolved: "Løst: %{resolution}"
+        waiting_resolution: "Venter på løsning."
+        waiting_response: "Venter på butikkens svar."
+        job_details_heading: "Jobbdetaljer"
+        shop_label: "Butikk"
+        member_label: "Fagperson"
+        amount_label: "Beløp (ekskl. MVA)"
+        what_next_heading: "Hva skjer nå"
+        what_next_quoted: "Gjennomgå tilbudet og aksepter eller avslå."
+        what_next_in_progress: "Arbeidet er i gang. Chat med butikken og fagpersonen."
+        what_next_pending: "Arbeidet er merket som fullført — vennligst bekreft eller opprett en tvist ovenfor."
+        what_next_invoiced: "Faktura utstedt av Payout Partner AS. Netto 14 dager betaling."
+        what_next_invoice_email: "Du vil motta fakturaen på e-post."
+        book_again: "Book igjen"
+        what_next_waiting: "Venter på at butikken sender et tilbud."
+    quotes:
+      index:
+        title: "Tilbud"
+        no_quotes: "Ingen tilbud ennå"
+      show:
+        heading: "Tilbud fra %{shop}"
+        how_it_works_heading: "Slik fungerer det"
+        how_it_works_1: "Aksepter dette tilbudet for å starte jobben."
+        how_it_works_2: "Chat med butikken og fagpersonen."
+        how_it_works_3: "Etter at arbeidet er levert, bekreft fullføring."
+        how_it_works_4: "Du mottar en faktura med netto 14 dager fra Payout Partner AS."
+        how_it_works_5: "Betal med bankoverføring. Fagfolk betales neste torsdag."
+        quote_expires: "Tilbudet utløper"
+        accept: "Aksepter tilbud"
+        expired_notice: "Dette tilbudet har utløpt."
+    requests:
+      index:
+        title: "Forespørsler"
+
+  shop_admin:
+    dashboard:
+      show:
+        title: "Oversikt"
+        welcome: "Velkommen til Bookify"
+    settings:
+      show:
+        title: "Butikkinnstillinger"
+        pause: "Sett på pause"
+        close: "Steng butikk"
+        reopen: "Gjenåpne butikk"
+    members:
+      index:
+        title: "Teammedlemmer"
+        add_member: "Legg til fagperson"
+        no_members_title: "Ingen fagpersoner ennå"
+        no_members_hint: "Legg til frilansere i teamet ditt for å tilordne dem til jobber."
+        add_first: "Legg til første fagperson"
+        col_name: "Navn"
+        col_email: "E-post"
+        col_status: "Status"
+        col_joined: "Ble med"
+        you_badge: "Deg"
+        bankid_verified: "BankID"
+        not_enrolled: "Ikke registrert"
+        remove_confirm: "Fjern %{name} fra teamet?"
+    jobs:
+      index:
+        title: "Jobbforespørsler"
+        no_jobs: "Ingen jobber ennå"
+      show:
+        back: "← Jobber"
+        issue_quote: "Send tilbud"
+        mark_complete: "Merk som fullført"
+        work_date_label: "Arbeidsdato"
+        hours_label: "Timer"
+        dispute_heading: "Tvist opprettet"
+        reason_label: "Begrunnelse:"
+        your_response: "Ditt svar:"
+        send_response: "Send svar"
+        response_placeholder: "Ditt svar til kunden…"
+        resolve: "Løs — returner til akseptert"
+        resolution_placeholder: "Sammendrag av løsning…"
+        resolve_dispute: "Løs tvist"
+        resolved_badge: "Tvist %{status} — %{resolution}"
+        completion_status_heading: "Fullføringsstatus"
+        shop_side: "Butikk"
+        client_side: "Kunde"
+        job_details_heading: "Jobbdetaljer"
+        client_label: "Kunde"
+        member_label: "Tildelt fagperson"
+        quote_expires_label: "Tilbud utløper"
+        desired_date_label: "Ønsket dato"
+        est_duration_label: "Anslått varighet"
+        timeline_heading: "Tidslinje"
+        timeline_received: "Forespørsel mottatt %{time} siden"
+        timeline_quote_issued: "Tilbud sendt"
+        timeline_accepted: "Kunde aksepterte"
+        timeline_shop_confirmed: "Butikk bekreftet"
+        timeline_client_confirmed: "Kunde bekreftet"
+        timeline_invoiced: "Faktura utstedt"
+        sync_payout: "↻ Synkroniser"
+    quotes:
+      new:
+        title: "Send tilbud"
+        job_card_heading: "Jobb"
+        quote_card_heading: "Tilbudsdetaljer"
+        activities_label: "Aktiviteter"
+        activity_placeholder: "Aktivitet"
+        rate_placeholder: "kr/t"
+        hours_placeholder: "t"
+        add_activity: "Legg til aktivitet"
+        total_label: "Totalt:"
+        assign_member_label: "Tildel fagperson"
+        assign_member_placeholder: "— Velg fagperson —"
+        unverified_member_hint: "Grå fagpersoner har ikke fullført POP-registrering (BankID) ennå."
+        submit: "Send tilbud (72t vindu)"
+
+  freelancer:
+    dashboard:
+      show:
+        title: "Min side"
+        bookify_jobs_heading: "Bookify-jobber"
+        total_jobs: "Totalt antall jobber"
+        active_jobs: "Aktive jobber"
+        total_earned: "Totalt tjent (brutto)"
+        recent_bookings: "Siste bestillinger"
+        recent_payouts: "Siste utbetalinger"
+        no_bookings: "Ingen bestillinger ennå."
+        no_payouts: "Ingen utbetalinger ennå."
+        waiting_title: "Venter på invitasjon"
+        waiting_hint: "Når en booker inviterer deg, vil du se bestillinger og inntekter her."
+        bankid_warning_title: "%{shop} — BankID-verifisering kreves"
+        bankid_warning_body: "Du kan ikke motta utbetalinger fra denne butikken før du fullfører POP-registreringen (tar ~5 min)."
+        complete_onboarding: "Fullfør registrering"
+    jobs:
+      show:
+        back: "← Oversikt"
+        mark_complete: "Merk som fullført"
+        work_date_label: "Arbeidsdato"
+        hours_label: "Timer"
+        job_details_heading: "Jobbdetaljer"
+        status_label: "Status"
+        shop_label: "Butikk"
+        client_label: "Kunde"
+        earnings_label: "Din inntekt"
+        earnings_hint: "før skatt og POP-avgifter"
+        what_next_heading: "Hva skjer nå"
+        what_next_in_progress: "Arbeidet er i gang. Chat med butikken eller kunden om du har spørsmål."
+        what_next_pending: "Butikken har merket denne jobben som fullført. Venter på kundebekreftelse."
+        what_next_invoiced: "Faktura utstedt. Du vil bli betalt neste torsdagsbatch."
+        what_next_paid: "Betalt. Sjekk bankkontoen din og lønnsslippen fra Payout Partner AS."
+        what_next_waiting: "Venter på at butikken sender et tilbud."
+        payout_tax_note: "Payout Partner AS håndterer skattetrekk og A-melding."
+
+  onboarding:
+    index:
+      title: "Kom i gang"
+    shops:
+      new:
+        title: "Opprett din butikk"
+
+  profiles:
+    edit:
+      title: "Min profil"
+      name_label: "Navn"
+      avatar_label: "Profilbilde"
+      save: "Lagre profil"

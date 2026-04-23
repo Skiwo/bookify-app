@@ -16,7 +16,7 @@ export default class extends Controller {
       return
     }
 
-    this._setStatus("Søker i BRREG…", "text-muted")
+    this._setStatus(this.element.dataset.searching || "Søker i BRREG…", "text-muted")
     this._timer = setTimeout(() => this._lookup(raw), 400)
   }
 
@@ -30,7 +30,7 @@ export default class extends Controller {
       if (res.ok) {
         this.nameTarget.value = data.name || ""
         this.addressTarget.value = data.address || ""
-        this._setStatus("✓ Funnet i BRREG", "text-success")
+        this._setStatus(this.element.dataset.found || "✓ Funnet i BRREG", "text-success")
       } else {
         this.nameTarget.value = ""
         this.addressTarget.value = ""

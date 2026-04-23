@@ -1,12 +1,14 @@
 .row.justify-content-center
   .col-md-6
-    %h2.fw-bold.mb-1 Register your organisation
-    %p.text-muted.mb-4 Norwegian B2B organisations only. Your org number is verified against BRREG.
+    %h2.fw-bold.mb-1= t("clients.registrations.new.title")
+    %p.text-muted.mb-4= t("clients.registrations.new.subtitle")
 
     .card.border-0.shadow-sm
       .card-body
         = form_with model: @client, url: clients_registration_path, method: :post, local: true,
-            data: { controller: "brreg-lookup" } do |f|
+            data: { controller: "brreg-lookup",
+                    searching: t("clients.registrations.new.brreg_searching"),
+                    found: t("clients.registrations.new.brreg_found") } do |f|
           - if @client.errors.any?
             .alert.alert-danger
               %ul.mb-0
@@ -14,27 +16,27 @@
                   %li= msg
 
           .mb-3
-            = f.label :org_number, "Organisasjonsnummer", class: "form-label fw-medium"
+            = f.label :org_number, t("clients.registrations.new.org_number_label"), class: "form-label fw-medium"
             = f.text_field :org_number, class: "form-control", placeholder: "123456789",
                 maxlength: 9, pattern: "\\d{9}", required: true,
                 autocomplete: "off",
                 data: { "brreg-lookup-target": "orgNumber", action: "input->brreg-lookup#fetch" }
-            %div.form-text{ data: { "brreg-lookup-target": "status" } } 9-digit number — we'll look it up automatically.
+            %div.form-text{ data: { "brreg-lookup-target": "status" } }= t("clients.registrations.new.org_number_hint")
 
           .mb-3
-            = f.label :org_name, "Organisation name", class: "form-label fw-medium"
+            = f.label :org_name, t("clients.registrations.new.org_name_label"), class: "form-label fw-medium"
             = f.text_field :org_name, class: "form-control", readonly: true,
-                placeholder: "Filled from BRREG",
+                placeholder: t("clients.registrations.new.org_name_placeholder"),
                 data: { "brreg-lookup-target": "name" }
 
           .mb-3
-            = f.label :org_address, "Address", class: "form-label fw-medium"
+            = f.label :org_address, t("clients.registrations.new.org_address_label"), class: "form-label fw-medium"
             = f.text_field :org_address, class: "form-control", readonly: true,
-                placeholder: "Filled from BRREG",
+                placeholder: t("clients.registrations.new.org_address_placeholder"),
                 data: { "brreg-lookup-target": "address" }
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1
-            Invoices will be issued by Payout Partner AS. Payment by bank transfer.
+            = t("clients.registrations.new.invoice_notice")
 
-          = f.submit "Register", class: "btn btn-primary w-100"
+          = f.submit t("clients.registrations.new.submit"), class: "btn btn-primary w-100"

@@ -1,31 +1,312 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  common:
+    actions:
+      back: "Back"
+      save: "Save"
+      cancel: "Cancel"
+      submit: "Submit"
+      search: "Search"
+      clear: "Clear"
+      close: "Close"
+      remove: "Remove"
+      edit: "Edit"
+      confirm: "Confirm"
+      decline: "Decline"
+      accept: "Accept"
+      send: "Send"
+      resend: "Resend"
+      view: "View"
+      loading: "Loading…"
+    nav:
+      sign_in: "Sign in"
+      sign_out: "Sign out"
+      dashboard: "Dashboard"
+      profile: "Profile"
+      settings: "Settings"
+    status:
+      draft: "Draft"
+      quoted: "Quoted"
+      accepted: "Accepted"
+      in_progress: "In progress"
+      pending_confirmation: "Pending confirmation"
+      disputed: "Disputed"
+      invoiced: "Invoiced"
+      paid: "Paid"
+      completed: "Completed"
+      cancelled: "Cancelled"
+      active: "Active"
+      paused: "Paused"
+      closed: "Closed"
+    fields:
+      name: "Name"
+      email: "Email"
+      description: "Description"
+      date: "Date"
+      hours: "Hours"
+      amount: "Amount"
+      status: "Status"
+      total: "Total"
+    invoice:
+      work_amount: "Work amount (excl. VAT)"
+      commission: "Commission (%{percent}%)"
+      bookify_fee: "Bookify platform fee"
+      vat: "VAT (25%)"
+      total_incl_vat: "Total incl. VAT"
+      issued_by: "Invoice issued by Payout Partner AS. Payment by bank transfer, Net 14 days."
+    member:
+      assigned: "Assigned member"
+      none: "—"
+    payout_partner: "Payout Partner AS"
+
+  pages:
+    landing:
+      hero_title: "Hire Norwegian professionals — simple and secure"
+      hero_subtitle: "Bookify connects Norwegian businesses with qualified professionals. Payments and payroll handled by Payout Partner AS."
+      cta_find: "Find professionals"
+      cta_shop: "Register your shop"
+    about:
+      title: "About Bookify"
+    privacy:
+      title: "Privacy"
+
+  shops:
+    index:
+      title: "Find a freelancer"
+      subtitle: "Norwegian professionals, payments handled by Payout Partner AS."
+      search_city_placeholder: "City"
+      search_skill_placeholder: "Skill (e.g. kokker)"
+      no_results_title: "No shops found"
+      no_results_hint: "Try a different city or skill."
+      view_shop: "View shop"
+    show:
+      send_request: "Send request"
+      team_heading: "Team members"
+      request_title_placeholder: "What do you need? (e.g. «Wedding catering 50 guests»)"
+      request_description_placeholder: "Details (optional)"
+      request_desired_date: "Desired date"
+      private_shop_notice: "This is a private shop. You need an invitation to send a request."
+
+  skill_pages:
+    show:
+      subtitle: "Hire via Bookify — payments handled by Payout Partner AS."
+      select_hint: "Select up to 5 shops and send one request to all of them."
+      shops_selected:
+        one: "1 shop selected"
+        other: "%{count} shops selected"
+      max_reached: "Maximum 5 shops"
+      send_request: "Send request"
+      request_placeholder: "What do you need?"
+      details_placeholder: "Details (optional)"
+      no_shops_title: "No shops for this skill yet"
+      browse_all: "Browse all shops"
+      view_shop: "View shop"
+
+  clients:
+    registrations:
+      new:
+        title: "Register your organisation"
+        subtitle: "Norwegian B2B organisations only. Your org number is verified against BRREG."
+        org_number_label: "Organisasjonsnummer"
+        org_number_hint: "9-digit number — we'll look it up automatically."
+        org_name_label: "Organisation name"
+        org_name_placeholder: "Filled from BRREG"
+        org_address_label: "Address"
+        org_address_placeholder: "Filled from BRREG"
+        submit: "Register"
+        invoice_notice: "Invoices will be issued by Payout Partner AS. Payment by bank transfer."
+        brreg_searching: "Looking up in BRREG…"
+        brreg_found: "✓ Found in BRREG"
+    dashboard:
+      show:
+        title: "My requests"
+        no_jobs: "No requests yet"
+        no_jobs_hint: "Find professionals and send a request."
+        find_shops: "Find shops"
+    jobs:
+      index:
+        title: "Jobs"
+        no_jobs: "No jobs yet"
+      show:
+        cancel_request: "Cancel request"
+        cancel_confirm: "Cancel this request? The shop will be notified."
+        quote_received_heading: "Quote received"
+        activities_col_activity: "Activity"
+        activities_col_rate: "Rate"
+        activities_col_hours: "Hours"
+        activities_col_amount: "Amount"
+        quote_expires: "Expires %{datetime}"
+        quote_expired: "This quote has expired."
+        accept_quote: "Accept quote"
+        job_complete_heading: "Job marked complete"
+        job_complete_hint: "Please review the hours and confirm or raise a dispute."
+        deadline: "Deadline: %{datetime}"
+        confirm_completion: "Confirm completion"
+        work_date_label: "Work date"
+        hours_label: "Hours worked"
+        raise_dispute: "Raise dispute"
+        dispute_reason_placeholder: "Describe the issue…"
+        dispute_heading: "Dispute"
+        your_reason: "Your reason:"
+        shop_response: "Shop response:"
+        dispute_resolved: "Resolved: %{resolution}"
+        waiting_resolution: "Waiting for resolution."
+        waiting_response: "Waiting for shop response."
+        job_details_heading: "Job details"
+        shop_label: "Shop"
+        member_label: "Member"
+        amount_label: "Amount (excl. VAT)"
+        what_next_heading: "What happens next"
+        what_next_quoted: "Review the quote and accept or decline."
+        what_next_in_progress: "Work is underway. Chat with the shop and assigned freelancer."
+        what_next_pending: "Work has been marked complete — please confirm or raise a dispute above."
+        what_next_invoiced: "Invoice issued by Payout Partner AS. Net 14 days payment."
+        what_next_invoice_email: "You will receive the invoice by email."
+        book_again: "Book again"
+        what_next_waiting: "Waiting for the shop to send a quote."
+    quotes:
+      index:
+        title: "Quotes"
+        no_quotes: "No quotes yet"
+      show:
+        heading: "Quote from %{shop}"
+        how_it_works_heading: "How it works"
+        how_it_works_1: "Accept this quote to start the job."
+        how_it_works_2: "Chat with the shop and assigned freelancer."
+        how_it_works_3: "After work is delivered, confirm completion."
+        how_it_works_4: "You receive a Net-14 invoice from Payout Partner AS."
+        how_it_works_5: "Pay by bank transfer. Freelancers are paid the following Thursday."
+        quote_expires: "Quote expires"
+        accept: "Accept quote"
+        expired_notice: "This quote has expired."
+    requests:
+      index:
+        title: "Requests"
+
+  shop_admin:
+    dashboard:
+      show:
+        title: "Dashboard"
+        welcome: "Welcome to Bookify"
+    settings:
+      show:
+        title: "Shop settings"
+        pause: "Pause shop"
+        close: "Close shop"
+        reopen: "Reopen shop"
+    members:
+      index:
+        title: "Roster members"
+        add_member: "Add member"
+        no_members_title: "No members yet"
+        no_members_hint: "Add freelancers to your roster so you can assign them to jobs."
+        add_first: "Add first member"
+        col_name: "Name"
+        col_email: "Email"
+        col_status: "Status"
+        col_joined: "Joined"
+        you_badge: "You"
+        bankid_verified: "BankID"
+        not_enrolled: "Not enrolled"
+        remove_confirm: "Remove %{name} from the roster?"
+    jobs:
+      index:
+        title: "Job requests"
+        no_jobs: "No jobs yet"
+      show:
+        back: "← Jobs"
+        issue_quote: "Issue quote"
+        mark_complete: "Mark complete"
+        work_date_label: "Work date"
+        hours_label: "Hours"
+        dispute_heading: "Dispute raised"
+        reason_label: "Reason:"
+        your_response: "Your response:"
+        send_response: "Send response"
+        response_placeholder: "Your response to the client…"
+        resolve: "Resolve — return to accepted"
+        resolution_placeholder: "Resolution summary…"
+        resolve_dispute: "Resolve dispute"
+        resolved_badge: "Dispute %{status} — %{resolution}"
+        completion_status_heading: "Completion status"
+        shop_side: "Shop"
+        client_side: "Client"
+        job_details_heading: "Job details"
+        client_label: "Client"
+        member_label: "Assigned member"
+        quote_expires_label: "Quote expires"
+        desired_date_label: "Desired date"
+        est_duration_label: "Est. duration"
+        timeline_heading: "Timeline"
+        timeline_received: "Request received %{time} ago"
+        timeline_quote_issued: "Quote issued"
+        timeline_accepted: "Client accepted"
+        timeline_shop_confirmed: "Shop confirmed"
+        timeline_client_confirmed: "Client confirmed"
+        timeline_invoiced: "Invoice issued"
+        sync_payout: "↻ Sync"
+    quotes:
+      new:
+        title: "Issue quote"
+        job_card_heading: "Job"
+        quote_card_heading: "Quote details"
+        activities_label: "Activities"
+        activity_placeholder: "Activity"
+        rate_placeholder: "kr/h"
+        hours_placeholder: "h"
+        add_activity: "Add activity"
+        total_label: "Total:"
+        assign_member_label: "Assign member"
+        assign_member_placeholder: "— Select member —"
+        unverified_member_hint: "Greyed-out members haven't completed POP onboarding (BankID) yet."
+        submit: "Send quote (72h window)"
+
+  freelancer:
+    dashboard:
+      show:
+        title: "My Dashboard"
+        bookify_jobs_heading: "Bookify Jobs"
+        total_jobs: "Total Jobs"
+        active_jobs: "Active Jobs"
+        total_earned: "Total Earned (gross)"
+        recent_bookings: "Recent Bookings"
+        recent_payouts: "Recent Payouts"
+        no_bookings: "No bookings yet."
+        no_payouts: "No payouts yet."
+        waiting_title: "Waiting for an invitation"
+        waiting_hint: "When a booker invites you, you'll see your bookings and earnings here."
+        bankid_warning_title: "%{shop} — BankID verification required"
+        bankid_warning_body: "You won't be able to receive payouts from this shop until you complete POP onboarding (takes ~5 min)."
+        complete_onboarding: "Complete onboarding"
+    jobs:
+      show:
+        back: "← Dashboard"
+        mark_complete: "Mark complete"
+        work_date_label: "Work date"
+        hours_label: "Hours"
+        job_details_heading: "Job details"
+        status_label: "Status"
+        shop_label: "Shop"
+        client_label: "Client"
+        earnings_label: "Your earnings"
+        earnings_hint: "before tax & POP fees"
+        what_next_heading: "What happens next"
+        what_next_in_progress: "Work is underway. Chat with the shop or client if you have questions."
+        what_next_pending: "The shop has marked this job complete. Waiting for client confirmation."
+        what_next_invoiced: "Invoice issued. You'll be paid on the next Thursday batch."
+        what_next_paid: "Paid. Check your bank account and payslip from Payout Partner AS."
+        what_next_waiting: "Waiting for the shop to assign a quote."
+        payout_tax_note: "Payout Partner AS handles tax withholding and A-melding."
+
+  onboarding:
+    index:
+      title: "Get started"
+    shops:
+      new:
+        title: "Create your shop"
+
+  profiles:
+    edit:
+      title: "My profile"
+      name_label: "Name"
+      avatar_label: "Profile picture"
+      save: "Save profile"

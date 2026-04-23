@@ -1,47 +1,47 @@
-= link_to "← Quotes", clients_quotes_path, class: "text-muted text-decoration-none small"
+= link_to "← #{t("clients.quotes.index.title")}", clients_quotes_path, class: "text-muted text-decoration-none small"
 %h2.fw-bold.mt-1.mb-4= @job.title
 
 .row
   .col-lg-7
     .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Quote from #{@job.shop.name}
+      .card-header.bg-white.fw-bold= t("clients.quotes.show.heading", shop: @job.shop.name)
       .card-body
         %dl.row.mb-0
-          %dt.col-sm-5 Work amount (excl. MVA)
+          %dt.col-sm-5= t("common.invoice.work_amount")
           %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
-          %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
+          %dt.col-sm-5= t("common.invoice.commission", percent: @job.shop.commission_percent)
           %dd.col-sm-7= format_nok(@job.commission_amount_ore)
           - if @job.bookify_fee?
-            %dt.col-sm-5 Bookify platform fee
+            %dt.col-sm-5= t("common.invoice.bookify_fee")
             %dd.col-sm-7= format_nok(@job.bookify_fee_ore)
-          %dt.col-sm-5 MVA (25%)
+          %dt.col-sm-5= t("common.invoice.vat")
           %dd.col-sm-7= format_nok((@job.total_amount_ore * 0.25).round)
-          %dt.col-sm-5.fw-bold Total incl. MVA
+          %dt.col-sm-5.fw-bold= t("common.invoice.total_incl_vat")
           %dd.col-sm-7
             %strong.fs-5= format_nok((@job.total_amount_ore * 1.25).round)
-          %dt.col-sm-5 Assigned member
-          %dd.col-sm-7= @job.assigned_member&.name || "—"
-          %dt.col-sm-5 Quote expires
-          %dd.col-sm-7= @job.quote_expires_at&.strftime("%d %b %Y %H:%M") || "—"
+          %dt.col-sm-5= t("common.member.assigned")
+          %dd.col-sm-7= @job.assigned_member&.name || t("common.member.none")
+          %dt.col-sm-5= t("clients.quotes.show.quote_expires")
+          %dd.col-sm-7= @job.quote_expires_at&.strftime("%d %b %Y %H:%M") || t("common.member.none")
 
     .alert.alert-info.small
       %i.bi.bi-info-circle.me-1
-      Invoice issued by Payout Partner AS. Payment by bank transfer, Net 14 days.
+      = t("common.invoice.issued_by")
 
     - unless @job.quote_expired?
       .d-flex.gap-3
-        = button_to "Accept quote", accept_clients_quote_path(@job), method: :post, class: "btn btn-success"
-        = button_to "Decline", decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
+        = button_to t("clients.quotes.show.accept"), accept_clients_quote_path(@job), method: :post, class: "btn btn-success"
+        = button_to t("common.actions.decline"), decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
     - else
-      .alert.alert-secondary This quote has expired.
+      .alert.alert-secondary= t("clients.quotes.show.expired_notice")
 
   .col-lg-5
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold How it works
+      .card-header.bg-white.fw-bold= t("clients.quotes.show.how_it_works_heading")
       .card-body.small
         %ol.ps-3.mb-0
-          %li.mb-2 Accept this quote to start the job.
-          %li.mb-2 Chat with the shop and assigned freelancer.
-          %li.mb-2 After work is delivered, confirm completion.
-          %li.mb-2 You receive a Net-14 invoice from Payout Partner AS.
-          %li Pay by bank transfer. Freelancers are paid the following Thursday.
+          %li.mb-2= t("clients.quotes.show.how_it_works_1")
+          %li.mb-2= t("clients.quotes.show.how_it_works_2")
+          %li.mb-2= t("clients.quotes.show.how_it_works_3")
+          %li.mb-2= t("clients.quotes.show.how_it_works_4")
+          %li= t("clients.quotes.show.how_it_works_5")

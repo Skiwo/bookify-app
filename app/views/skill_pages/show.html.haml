@@ -1,10 +1,10 @@
 %h2.mb-1= @skill.humanize
-%p.text-muted.mb-4 Hire a #{@skill} through Bookify — payments handled by Payout Partner AS.
+%p.text-muted.mb-4= t("skill_pages.show.subtitle")
 
 - if @shops.any?
   %p.text-muted.small.mb-3
     %i.bi.bi-info-circle.me-1
-    Select up to 5 shops and send one request to all of them.
+    = t("skill_pages.show.select_hint")
 
   %div{"data-controller": "shop-selector"}
     .row.row-cols-1.row-cols-md-3.g-4.mb-6
@@ -27,10 +27,9 @@
               %p.card-text.text-muted.small.mb-0= truncate(shop.description, length: 100)
             .card-footer.bg-white.border-0.pb-3
               = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
-                View shop
+                = t("skill_pages.show.view_shop")
                 %i.bi.bi-arrow-right.ms-1
 
-    / Request bar — hidden until at least one shop selected
     .d-none{"data-shop-selector-target": "bar", style: "position:fixed; bottom:0; left:0; right:0; z-index:200; background:rgba(255,255,255,0.97); border-top:1px solid #e9ecef; box-shadow:0 -4px 16px rgba(0,0,0,0.1);"}
       = form_with url: multi_shop_requests_path, method: :post, local: true, class: "container py-3" do |f|
         %div{"data-shop-selector-target": "slugContainer"}
@@ -39,24 +38,23 @@
             .fw-semibold.text-primary.small
               %i.bi.bi-check2-square.me-1
               %span{"data-shop-selector-target": "count"} 0
-              shops selected
+              = t("skill_pages.show.shops_selected", count: 0)
             .text-warning.small.d-none{"data-shop-selector-target": "limitNotice"}
               %i.bi.bi-exclamation-triangle.me-1
-              Maximum 5 shops
+              = t("skill_pages.show.max_reached")
           .col.col-md-3
-            = f.text_field "job[title]", placeholder: "What do you need?", class: "form-control form-control-sm", required: true
+            = f.text_field "job[title]", placeholder: t("skill_pages.show.request_placeholder"), class: "form-control form-control-sm", required: true
           .col.col-md-3
-            = f.text_area "job[description]", placeholder: "Details (optional)", class: "form-control form-control-sm", rows: 1
+            = f.text_area "job[description]", placeholder: t("skill_pages.show.details_placeholder"), class: "form-control form-control-sm", rows: 1
           .col-md-2
             = f.date_field "job[desired_date]", class: "form-control form-control-sm"
           .col-auto
-            = f.submit "Send request", class: "btn btn-primary btn-sm", "data-shop-selector-target": "submitBtn"
+            = f.submit t("skill_pages.show.send_request"), class: "btn btn-primary btn-sm", "data-shop-selector-target": "submitBtn"
 
-    / Spacer so cards aren't hidden behind the fixed bar when it's visible
     .pb-5
 
 - else
   .text-center.py-5
     %i.bi.bi-search.display-3.text-muted
-    %h5.fw-bold.mt-3 No shops for this skill yet
-    %p.text-muted= link_to "Browse all shops", shops_path
+    %h5.fw-bold.mt-3= t("skill_pages.show.no_shops_title")
+    %p.text-muted= link_to t("skill_pages.show.browse_all"), shops_path
