@@ -1,5 +1,11 @@
 %h2.mb-1= t("shops.index.title")
-%p.text-muted.mb-4= t("shops.index.subtitle")
+%p.text-muted.mb-3= t("shops.index.subtitle")
+
+.mb-4
+  %p.small.text-muted.mb-2= t("shops.index.popular_categories")
+  .d-flex.flex-wrap.gap-2
+    - SkillPagesController::SUPPORTED_SKILLS.first(8).each do |skill|
+      = link_to skill.humanize, skill_page_path(skill: skill), class: "badge bg-light text-dark border text-decoration-none px-3 py-2"
 
 = form_with url: shops_path, method: :get, local: true, class: "row g-2 mb-4" do |f|
   .col-md-4
@@ -13,28 +19,67 @@
       = link_to t("common.actions.clear"), shops_path, class: "btn btn-outline-secondary"
 
 - if @shops.any?
-  .row.row-cols-1.row-cols-md-3.g-4
-    - @shops.each do |shop|
-      .col
-        .card.h-100.border-0.shadow-sm
-          .card-body
-            .d-flex.align-items-center.gap-3.mb-2
-              = shop_avatar(shop, size: 48)
-              .lh-sm
-                %h5.card-title.fw-bold.mb-0= shop.name
-                - if shop.city.present?
-                  %span.text-muted.small
-                    %i.bi.bi-geo-alt.me-1
-                    = shop.city
-            %p.card-text.text-muted.small= truncate(shop.description, length: 120)
-            - if shop.skill_tags.any?
-              .mb-3
-                - shop.skill_tags.first(4).each do |tag|
-                  %span.badge.bg-light.text-dark.border.me-1= tag
-          .card-footer.bg-white.border-0.pb-3
-            = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
-              = t("shops.index.view_shop")
-              %i.bi.bi-arrow-right.ms-1
+  %p.text-muted.small.mb-3
+    %i.bi.bi-info-circle.me-1
+    = t("skill_pages.show.select_hint")
+
+  %div{"data-controller": "shop-selector"}
+    .row.row-cols-1.row-cols-md-3.g-4.mb-6
+      - @shops.each do |shop|
+        .col
+          .card.h-100.border-0.shadow-sm
+            .card-body
+              .d-flex.align-items-start.gap-3.mb-2
+                .form-check.mt-1
+                  %input.form-check-input{
+                    type: "checkbox",
+                    data: { "shop-selector-target": "checkbox", slug: shop.slug, action: "change->shop-selector#toggle" }
+                  }
+                = shop_avatar(shop, size: 48)
+                .lh-sm
+                  %h5.card-title.fw-bold.mb-0= shop.name
+                  - if shop.city.present?
+                    %span.text-muted.small
+                      %i.bi.bi-geo-alt.me-1
+                      = shop.city
+              %p.card-text.text-muted.small= truncate(shop.description, length: 120)
+              - if shop.skill_tags.any?
+                .mb-3
+                  - shop.skill_tags.first(4).each do |tag|
+                    - if SkillPagesController::SUPPORTED_SKILLS.include?(tag)
+                      = link_to tag, skill_page_path(skill: tag), class: "badge bg-light text-dark border me-1 text-decoration-none"
+                    - else
+                      %span.badge.bg-light.text-dark.border.me-1= tag
+            .card-footer.bg-white.border-0.pb-3
+              = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
+                = t("shops.index.view_shop")
+                %i.bi.bi-arrow-right.ms-1
+
+    .d-none{"data-shop-selector-target": "bar", style: "position:fixed; bottom:0; left:0; right:0; z-index:200; background:rgba(255,255,255,0.97); border-top:1px solid #e9ecef; box-shadow:0 -4px 16px rgba(0,0,0,0.1);"}
+      = form_with url: multi_shop_requests_path, method: :post, local: true, class: "container py-3" do |f|
+        %div{"data-shop-selector-target": "slugContainer"}
+        .row.g-2.align-items-center
+          .col-auto
+            .fw-semibold.text-primary.small{
+              "data-shop-selector-target": "selectedLabel",
+              "data-one": t("skill_pages.show.shops_selected", count: 1),
+              "data-other": t("skill_pages.show.shops_selected", count: 2)}
+              %i.bi.bi-check2-square.me-1
+              %span{"data-shop-selector-target": "selectedText"}= t("skill_pages.show.shops_selected", count: 0)
+            .text-warning.small.d-none{"data-shop-selector-target": "limitNotice"}
+              %i.bi.bi-exclamation-triangle.me-1
+              = t("skill_pages.show.max_reached")
+          .col.col-md-3
+            = f.text_field "job[title]", placeholder: t("skill_pages.show.request_placeholder"), class: "form-control form-control-sm", required: true
+          .col.col-md-3
+            = f.text_area "job[description]", placeholder: t("skill_pages.show.details_placeholder"), class: "form-control form-control-sm", rows: 1
+          .col-md-2
+            = f.date_field "job[desired_date]", class: "form-control form-control-sm"
+          .col-auto
+            = f.submit t("skill_pages.show.send_request"), class: "btn btn-primary btn-sm", "data-shop-selector-target": "submitBtn"
+
+    .pb-5
+
 - else
   .text-center.py-5
     %i.bi.bi-shop.display-3.text-muted

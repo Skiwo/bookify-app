@@ -1,30 +1,27 @@
 - content_for :body_class, "landing-page"
-- content_for :title, "Freelancer Payout Management"
-- content_for :description, "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."
+- content_for :title, t("pages.landing.title")
+- content_for :description, t("pages.landing.subtitle")
 
 %section.hero-section.text-white.py-5
   .container
     .row.align-items-center.py-5
       .col-lg-7
         %p.lead.mb-3{style: "opacity: 0.9;"}
-          Built on the
+          = t("pages.landing.built_on")
           %a.text-white.fw-bold{href: "https://payoutpartner.com", target: "_blank", style: "text-decoration: underline;"} PayoutPartner
           API
         %h1.display-4.fw-bold.mb-3
-          Manage and pay
+          = t("pages.landing.manage")
           %br
-          your freelancers.
-        %p.lead.mb-4{style: "opacity: 0.9;"}
-          Bookify is an open-source app that shows you exactly how to
-          onboard, manage, and pay freelancers using the
-          %strong PayoutPartner API.
+          = t("pages.landing.manage_sub")
+        %p.lead.mb-4{style: "opacity: 0.9;"}= t("pages.landing.hero_body")
         .d-flex.flex-wrap.gap-3
           %a.btn.btn-light.btn-lg.px-4{href: users_sign_in_path}
             %i.bi.bi-arrow-right-circle.me-2
-            Get Started
+            = t("pages.landing.get_started")
           %a.btn.btn-outline-light.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
             %i.bi.bi-github.me-2
-            View Source
+            = t("pages.landing.view_source")
 
       .col-lg-5.d-none.d-lg-block.text-center
         .hero-illustration
@@ -38,58 +35,50 @@
                   %small.text-muted anna@example.com
               %hr.my-2
               .d-flex.justify-content-between.align-items-center.mb-2
-                %span.text-muted Booking
-                %span.fw-bold Website Design
+                %span.text-muted= t("pages.landing.preview_booking")
+                %span.fw-bold= t("pages.landing.preview_design")
               .d-flex.justify-content-between.align-items-center.mb-2
-                %span.text-muted Rate
+                %span.text-muted= t("pages.landing.preview_rate")
                 %span.fw-bold kr 850/hr
               .d-flex.justify-content-between.align-items-center
-                %span.text-muted Status
-                %span.badge.bg-success Paid
+                %span.text-muted= t("pages.landing.preview_status")
+                %span.badge.bg-success= t("pages.landing.preview_paid")
 
 %section.py-5
   .container
     .text-center.mb-5
-      %h2.fw-bold How it works
-      %p.text-muted.lead From invite to payout in four steps
+      %h2.fw-bold= t("pages.landing.how_it_works")
+      %p.text-muted.lead= t("pages.landing.how_it_works_sub")
     .row.g-4
       .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 1
-            %h5.fw-bold Invite Freelancers
-            %p.text-muted
-              Enter their email. They receive an invitation and complete identity verification
-              through PayoutPartner's secure onboarding flow.
+            %h5.fw-bold= t("pages.landing.step1_title")
+            %p.text-muted= t("pages.landing.step1_body")
       .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 2
-            %h5.fw-bold Create Bookings
-            %p.text-muted
-              Log work with a description, hours, and rate.
-              PayoutPartner handles the tax and compliance.
+            %h5.fw-bold= t("pages.landing.step2_title")
+            %p.text-muted= t("pages.landing.step2_body")
       .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 3
-            %h5.fw-bold Submit Payouts
-            %p.text-muted
-              Submit payouts to PayoutPartner. They generate an invoice for the work
-              and send it to you for payment.
+            %h5.fw-bold= t("pages.landing.step3_title")
+            %p.text-muted= t("pages.landing.step3_body")
       .col-md-3
         .card.h-100.border-0.shadow-sm.text-center
           .card-body.p-4
             .step-number.mb-3 4
-            %h5.fw-bold Pay the Invoice
-            %p.text-muted
-              Once you pay the invoice, PayoutPartner handles tax reporting
-              and bank transfer to the freelancer.
+            %h5.fw-bold= t("pages.landing.step4_title")
+            %p.text-muted= t("pages.landing.step4_body")
 
 %section.py-5{style: "background-color: #f0f0ff;"}
   .container
     .text-center.mb-5
-      %h2.fw-bold Who is Bookify for?
+      %h2.fw-bold= t("pages.landing.for_who")
     .row.g-4
       .col-md-6
         .card.border-0.shadow-sm.h-100
@@ -97,21 +86,18 @@
             .d-flex.align-items-center.mb-3
               .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #EEF2FF;"}
                 %i.bi.bi-briefcase.text-primary{style: "font-size: 1.4rem;"}
-              %h4.fw-bold.mb-0 Companies
-            %p.text-muted
-              The operator side. Companies and organisations that need to pay freelancers
-              can invite them, create bookings, submit payouts, and track everything
-              from their dashboard.
+              %h4.fw-bold.mb-0= t("pages.landing.companies_title")
+            %p.text-muted= t("pages.landing.companies_body_full")
             %ul.list-unstyled
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
-                Invite freelancers by email
+                = t("pages.landing.companies_bullet1")
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
-                Create bookings and submit payouts
+                = t("pages.landing.companies_bullet2")
               %li.mb-2
                 %i.bi.bi-check2.text-primary.me-2
-                Bundle multiple payouts into one invoice
+                = t("pages.landing.companies_bullet3")
 
       .col-md-6
         .card.border-0.shadow-sm.h-100
@@ -119,21 +105,18 @@
             .d-flex.align-items-center.mb-3
               .rounded-3.d-flex.align-items-center.justify-content-center.me-3{style: "width: 48px; height: 48px; background-color: #F0FDFA;"}
                 %i.bi.bi-person-badge{style: "font-size: 1.4rem; color: #0D9488;"}
-              %h4.fw-bold.mb-0 Freelancers
-            %p.text-muted
-              The worker side. Freelancers accept invitations, verify their identity
-              through BankID, and get paid directly to their bank account after the
-              company pays the invoice.
+              %h4.fw-bold.mb-0= t("pages.landing.freelancers_title")
+            %p.text-muted= t("pages.landing.freelancers_body_full")
             %ul.list-unstyled
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
-                Accept invites with one click
+                = t("pages.landing.freelancers_bullet1")
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
-                Secure identity verification via BankID
+                = t("pages.landing.freelancers_bullet2")
               %li.mb-2
                 %i.bi.bi-check2.me-2{style: "color: #0D9488;"}
-                Get paid to your bank account
+                = t("pages.landing.freelancers_bullet3")
 
 %section.py-5
   .container
@@ -142,10 +125,8 @@
         .card.border-0.shadow.text-center
           .card-body.p-5
             %i.bi.bi-code-square.display-4.text-primary.mb-3
-            %h3.fw-bold Built for developers
-            %p.text-muted.mb-4
-              Bookify is a fully working Rails app that demonstrates the PayoutPartner API v2.
-              Clone it, deploy it, or use it as a reference for your own integration.
+            %h3.fw-bold= t("pages.landing.built_for_devs")
+            %p.text-muted.mb-4= t("pages.landing.built_for_devs_full")
             .d-flex.flex-wrap.justify-content-center.gap-2
               %span.badge.bg-light.text-dark.border.px-3.py-2 Rails 8
               %span.badge.bg-light.text-dark.border.px-3.py-2 PostgreSQL
@@ -156,7 +137,7 @@
             .d-flex.flex-wrap.justify-content-center.gap-3
               %a.btn.btn-primary.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
                 %i.bi.bi-github.me-2
-                View on GitHub
+                = t("pages.landing.view_github")
               %a.btn.btn-outline-primary.btn-lg.px-4{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"}
                 %i.bi.bi-file-code.me-2
-                API Docs
+                = t("pages.landing.api_docs")

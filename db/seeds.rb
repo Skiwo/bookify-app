@@ -306,16 +306,16 @@ j_invoiced = find_or_create_job(
 )
 unless j_invoiced.booking.present?
   enrollment = member_anna.enrollment
-  booking = enrollment.bookings.create!(
+  booking = enrollment.bookings.new(
     description: j_invoiced.title, status: :completed,
     invoiced_on: 1.week.ago.to_date, due_on: 1.week.ago.to_date + 14
   )
-  booking.booking_lines.create!(
+  booking.booking_lines.build(
     description: j_invoiced.title, line_type: :work, booking_type: :project_based,
     rate_ore: j_invoiced.work_amount_ore, total_hours: 1,
     work_start_date: j_invoiced.work_date, work_end_date: j_invoiced.work_date, position: 0
   )
-  booking.booking_lines.create!(
+  booking.booking_lines.build(
     description: "Commission 5% — #{shop1.name}", line_type: :commission, booking_type: :project_based,
     rate_ore: j_invoiced.commission_amount_ore, total_hours: 1,
     work_start_date: j_invoiced.work_date, work_end_date: j_invoiced.work_date, position: 1

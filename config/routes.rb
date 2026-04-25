@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 
   # Profile is used by both clients (bookify) and operators (POP)
   resource :profile, only: [:edit, :update]
+  resource :locale, only: [:update]
 
   # Chat endpoints — clients post from bookify.app, operators from payoutpartner.com
   resources :job_messages, only: [:create]

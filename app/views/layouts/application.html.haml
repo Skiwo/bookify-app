@@ -58,7 +58,7 @@
           %a.navbar-brand.fw-bold{href: root_path}
             %i.bi.bi-book.me-2.text-primary
             Bookify
-          %ul.navbar-nav.ms-auto
+          %ul.navbar-nav.ms-auto.align-items-center
             - if signed_in?
               %li.nav-item
                 %span.nav-link.text-muted= current_user.name || current_user.email
@@ -66,11 +66,20 @@
                 = button_to t("common.nav.sign_out"), users_sign_out_path, method: :delete, class: "btn btn-outline-secondary btn-sm my-1"
             - else
               %li.nav-item
-                %a.nav-link{href: root_path} Home
+                %a.nav-link{href: root_path}= t("common.nav.home")
               %li.nav-item
-                %a.nav-link{href: about_path} About
+                %a.nav-link{href: about_path}= t("common.nav.about")
               %li.nav-item
                 %a.nav-link{href: users_sign_in_path}= t("common.nav.sign_in")
+            %li.nav-item.dropdown
+              %a.nav-link.dropdown-toggle{href: "#", "data-bs-toggle": "dropdown"}
+                %i.bi.bi-globe.me-1
+                = I18n.locale.to_s.upcase
+              %ul.dropdown-menu.dropdown-menu-end
+                %li
+                  = button_to "Norsk bokmål", locale_path(locale: "nb"), method: :patch, class: "dropdown-item border-0 bg-transparent w-100 text-start"
+                %li
+                  = button_to "English", locale_path(locale: "en"), method: :patch, class: "dropdown-item border-0 bg-transparent w-100 text-start"
 
     - if content_for?(:body_class) && yield(:body_class) == "landing-page"
       %nav.navbar.navbar-expand-md.navbar-dark.navbar-sticky{style: "background: transparent; position: absolute; width: 100%; z-index: 10;"}
@@ -81,12 +90,21 @@
           %button.navbar-toggler{type: "button", "data-bs-toggle": "collapse", "data-bs-target": "#landingNav"}
             %span.navbar-toggler-icon
           #landingNav.collapse.navbar-collapse
-            %ul.navbar-nav.ms-auto
+            %ul.navbar-nav.ms-auto.align-items-center
               %li.nav-item
-                %a.nav-link.text-white{href: about_path} About
+                %a.nav-link.text-white{href: about_path}= t("common.nav.about")
               %li.nav-item
                 %a.nav-link.text-white{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
                   %i.bi.bi-github
+              %li.nav-item.dropdown
+                %a.nav-link.text-white.dropdown-toggle{href: "#", "data-bs-toggle": "dropdown"}
+                  %i.bi.bi-globe.me-1
+                  = I18n.locale.to_s.upcase
+                %ul.dropdown-menu.dropdown-menu-end
+                  %li
+                    = button_to "Norsk bokmål", locale_path(locale: "nb"), method: :patch, class: "dropdown-item border-0 bg-transparent w-100 text-start"
+                  %li
+                    = button_to "English", locale_path(locale: "en"), method: :patch, class: "dropdown-item border-0 bg-transparent w-100 text-start"
               %li.nav-item
                 %a.btn.btn-outline-light.btn-sm.ms-2.my-1{href: users_sign_in_path}= t("common.nav.sign_in")
 
@@ -103,13 +121,13 @@
         .row.align-items-center
           .col-md-6
             %p.text-muted.small.mb-0
-              Bookify is open source, built by
+              = t("common.footer.built_by")
               %a{href: "https://payoutpartner.com", target: "_blank"} PayoutPartner
           .col-md-6.text-md-end
-            %a.me-3.small{href: about_path} About
-            %a.me-3.small{href: privacy_path} Privacy
+            %a.me-3.small{href: about_path}= t("common.nav.about")
+            %a.me-3.small{href: privacy_path}= t("common.nav.privacy")
             %a.me-3.small{href: "https://github.com/skiwo/bookify-app", target: "_blank"} GitHub
-            %a.small{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"} API Docs
+            %a.small{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"}= t("common.footer.api_docs")
 
     = render "shared/confirm_modal"
     = javascript_importmap_tags

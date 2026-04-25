@@ -15,13 +15,11 @@ class ApplicationController < ActionController::Base
   # Ensures URL helpers (_url) always use the current request's host so that
   # magic links, redirects, and cross-controller links stay on the right domain.
   def set_locale
-    # User's saved preference beats URL :lang param (which comes from /nb/no/... route scope).
-    # URL param is only used for anonymous visitors.
-    locale = if current_user&.locale.present?
-      current_user.locale
-    else
-      params[:lang].presence || I18n.default_locale
-    end
+    # User's saved preference beats cookie beats URL :lang param.
+    locale = current_user&.locale.presence ||
+             cookies[:locale].presence ||
+             params[:lang].presence ||
+             I18n.default_locale
     I18n.locale = I18n.available_locales.include?(locale.to_sym) ? locale.to_sym : I18n.default_locale
   end
 

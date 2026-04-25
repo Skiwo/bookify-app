@@ -1,64 +1,57 @@
-- content_for :title, "About"
-- content_for :description, "Bookify is an open-source reference app for the PayoutPartner API. Learn how companies use it to manage and pay freelancers."
+- content_for :title, t("pages.about.title")
+- content_for :description, t("pages.about.meta_description")
 
 .row.justify-content-center.mt-4
   .col-md-8
-    %h1.fw-bold About Bookify
+    %h1.fw-bold= t("pages.about.heading")
     %p.lead.text-muted
-      An open-source freelancer payout management app built on the
-      %a{href: "https://payoutpartner.com", target: "_blank"} PayoutPartner
-      API v2.
+      != t("pages.about.lead_html", link: link_to(t("pages.about.link_pop"), "https://payoutpartner.com", target: "_blank"))
 
     .card.border-0.shadow-sm.my-4
       .card-body.p-4
-        %h4.fw-bold What is Bookify?
-        %p
-          Bookify is a working reference app that demonstrates how to manage freelancers
-          and process payouts using the PayoutPartner REST API. Companies use it to invite
-          freelancers, create bookings for completed work, and submit payouts.
-        %p.mb-0
-          It's built for operators and developers who want to build their own
-          freelancer payout integration. Clone it, customize it, or just read the code.
+        %h4.fw-bold= t("pages.about.what_heading")
+        %p= t("pages.about.what_p1")
+        %p.mb-0= t("pages.about.what_p2")
 
     .card.border-0.shadow-sm.my-4
       .card-body.p-4
-        %h4.fw-bold How it works
+        %h4.fw-bold= t("pages.about.how_heading")
         .row.g-3.mt-2
           .col-md-6
             .d-flex.align-items-start
               %span.badge.rounded-pill.bg-primary.me-3.mt-1 1
               %div
-                %strong Company invites a freelancer
-                %p.text-muted.small.mb-0 Enter their email — they receive a link to accept.
+                %strong= t("pages.about.step1_title")
+                %p.text-muted.small.mb-0= t("pages.about.step1_text")
           .col-md-6
             .d-flex.align-items-start
               %span.badge.rounded-pill.bg-primary.me-3.mt-1 2
               %div
-                %strong Freelancer verifies identity
-                %p.text-muted.small.mb-0 Through PayoutPartner's secure BankID verification flow.
+                %strong= t("pages.about.step2_title")
+                %p.text-muted.small.mb-0= t("pages.about.step2_text")
           .col-md-6
             .d-flex.align-items-start
               %span.badge.rounded-pill.bg-primary.me-3.mt-1 3
               %div
-                %strong Company logs work and submits payouts
-                %p.text-muted.small.mb-0 Create bookings with hours and rate, then submit payouts to PayoutPartner.
+                %strong= t("pages.about.step3_title")
+                %p.text-muted.small.mb-0= t("pages.about.step3_text")
           .col-md-6
             .d-flex.align-items-start
               %span.badge.rounded-pill.bg-primary.me-3.mt-1 4
               %div
-                %strong Company pays the invoice
-                %p.text-muted.small.mb-0 PayoutPartner generates an invoice. Once paid, the freelancer receives their payout.
+                %strong= t("pages.about.step4_title")
+                %p.text-muted.small.mb-0= t("pages.about.step4_text")
 
     .card.border-0.shadow-sm.my-4
       .card-body.p-4
-        %h4.fw-bold Links
+        %h4.fw-bold= t("pages.about.links_heading")
         %ul.list-unstyled.mb-0
           %li.mb-2
             %i.bi.bi-github.me-2
-            %a{href: "https://github.com/skiwo/bookify-app", target: "_blank"} Source code on GitHub
+            %a{href: "https://github.com/skiwo/bookify-app", target: "_blank"}= t("pages.about.link_source")
           %li.mb-2
             %i.bi.bi-globe.me-2
-            %a{href: "https://payoutpartner.com", target: "_blank"} PayoutPartner
+            %a{href: "https://payoutpartner.com", target: "_blank"}= t("pages.about.link_pop")
           %li
             %i.bi.bi-file-code.me-2
-            %a{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"} PayoutPartner API v2 documentation
+            %a{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"}= t("pages.about.link_api")
