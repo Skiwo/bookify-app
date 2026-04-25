@@ -18,7 +18,7 @@
           %p.mb-0= @shop.description
 
     - if @members.any?
-      %h5.fw-bold.mb-3 Team members
+      %h5.fw-bold.mb-3= t("shops.show.team_heading")
       .row.row-cols-1.row-cols-md-2.g-3.mb-4
         - @members.each do |member|
           .col
@@ -35,56 +35,61 @@
       .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
         .card-body.text-center.py-4
           %i.bi.bi-pause-circle.display-4.text-warning.mb-3
-          %h6.fw-bold This shop is temporarily paused
-          %p.text-muted.small.mb-0 The shop owner is not accepting new requests right now.
+          %h6.fw-bold= t("shops.show.paused_heading")
+          %p.text-muted.small.mb-0= t("shops.show.paused_body")
 
     - elsif @shop.closed?
       .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
         .card-body.text-center.py-4
           %i.bi.bi-x-circle.display-4.text-secondary.mb-3
-          %h6.fw-bold This shop is closed
-          %p.text-muted.small.mb-0 This shop is no longer accepting requests.
+          %h6.fw-bold= t("shops.show.closed_heading")
+          %p.text-muted.small.mb-0= t("shops.show.closed_body")
 
     - else
       .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
-        .card-header.fw-bold.bg-white Request work
+        .card-header.fw-bold.bg-white= t("shops.show.request_heading")
         .card-body
           - if current_user&.client?
             = form_with url: shop_requests_path(@shop.slug), method: :post, local: true do |f|
               .mb-3
-                = f.label :title, "What do you need?", class: "form-label fw-medium"
-                = f.text_field "job[title]", class: "form-control", placeholder: "e.g. Catering for 50 people", required: true
+                = f.label :title, t("shops.show.request_heading"), class: "form-label fw-medium"
+                = f.text_field "job[title]", class: "form-control",
+                    placeholder: t("shops.show.request_title_placeholder"), required: true
               .mb-3
-                = f.label :description, "Details", class: "form-label fw-medium"
-                = f.text_area "job[description]", class: "form-control", rows: 2, placeholder: "Location, any specifics…"
+                = f.label :description, t("common.fields.description"), class: "form-label fw-medium"
+                = f.text_area "job[description]", class: "form-control", rows: 2,
+                    placeholder: t("shops.show.request_description_placeholder")
               .row.g-2.mb-3
                 .col-7
-                  = f.label :desired_date, "Desired date", class: "form-label fw-medium"
+                  = f.label :desired_date, t("shops.show.request_desired_date"), class: "form-label fw-medium"
                   = f.date_field "job[desired_date]", class: "form-control", min: Date.current
                 .col-5
-                  = f.label :desired_hours, "Est. hours", class: "form-label fw-medium"
+                  = f.label :desired_hours, t("shops.show.request_est_hours"), class: "form-label fw-medium"
                   = f.number_field "job[desired_hours]", step: 0.5, min: 0.5, class: "form-control", placeholder: "8"
-              = f.submit "Send request", class: "btn btn-primary w-100"
+              = f.submit t("shops.show.request_submit"), class: "btn btn-primary w-100",
+                  data: { disable_with: t("shops.show.request_sending") }
           - elsif signed_in?
-            %p.text-muted.small.mb-3 To submit a request, register your organisation first.
-            = link_to "Register organisation", new_clients_registration_path, class: "btn btn-primary w-100"
+            %p.text-muted.small.mb-3= t("shops.show.register_prompt")
+            = link_to t("shops.show.register_link"), new_clients_registration_path, class: "btn btn-primary w-100"
           - else
-            %p.text-muted.small.mb-3 Sign in or register to submit a request.
-            = link_to "Sign in / Register", users_sign_in_path, class: "btn btn-primary w-100"
+            %p.text-muted.small.mb-3= t("shops.show.sign_in_prompt")
+            = link_to t("shops.show.sign_in_link"), users_sign_in_path, class: "btn btn-primary w-100"
           %p.text-muted.small.mt-3.mb-0
             %i.bi.bi-shield-check.me-1
-            Payments handled by Payout Partner AS. MVA invoice issued on completion.
+            = t("shops.show.payment_notice")
 
     - if @shop.active? && @shop.public_shop? && !current_user&.client? && !current_user&.shop_owner?
       .card.border-0.shadow-sm.mt-3
         .card-body
           %h6.fw-bold.mb-1
             %i.bi.bi-person-plus.me-1
-            Looking for a job?
-          %p.text-muted.small.mb-3 Join this shop as a freelancer and get paid as lønn through Payout Partner.
+            = t("shops.show.join_heading")
+          %p.text-muted.small.mb-3= t("shops.show.join_body")
           = form_with url: shop_join_path(@shop.slug), method: :post, local: true do |f|
             .mb-2
-              = text_field_tag :name, nil, class: "form-control form-control-sm", placeholder: "Your name", required: true
+              = text_field_tag :name, nil, class: "form-control form-control-sm",
+                  placeholder: t("shops.show.join_name_placeholder"), required: true
             .mb-2
-              = text_field_tag :email, nil, class: "form-control form-control-sm", placeholder: "Your email", required: true, type: "email"
-            = f.submit "Apply to join", class: "btn btn-outline-primary btn-sm w-100"
+              = text_field_tag :email, nil, class: "form-control form-control-sm",
+                  placeholder: t("shops.show.join_email_placeholder"), required: true, type: "email"
+            = f.submit t("shops.show.join_submit"), class: "btn btn-outline-primary btn-sm w-100"

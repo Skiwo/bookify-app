@@ -1,4 +1,4 @@
-= link_to "← Dashboard", freelancer_dashboard_path, class: "text-muted text-decoration-none small"
+= link_to t("freelancer.jobs.show.back"), freelancer_dashboard_path, class: "text-muted text-decoration-none small"
 .d-flex.align-items-start.mt-1.mb-4
   .me-auto
     %h2.fw-bold.mb-1= @job.title
@@ -6,12 +6,12 @@
   - if @job.in_progress? || @job.accepted?
     = form_with url: mark_complete_freelancer_job_path(@job), method: :post, local: true, class: "d-flex gap-2 align-items-end" do |f|
       .d-flex.flex-column
-        %label.form-label.small.mb-1.text-muted Work date
+        %label.form-label.small.mb-1.text-muted= t("freelancer.jobs.show.work_date_label")
         = f.date_field :work_date, value: @job.work_date || Date.current, max: Date.current, class: "form-control form-control-sm"
       .d-flex.flex-column
-        %label.form-label.small.mb-1.text-muted Hours
+        %label.form-label.small.mb-1.text-muted= t("freelancer.jobs.show.hours_label")
         = f.number_field :work_hours, value: @job.work_hours || 8, step: 0.5, min: 0.5, max: 24, class: "form-control form-control-sm", style: "width:80px"
-      = f.submit "Mark complete", class: "btn btn-success btn-sm"
+      = f.submit t("freelancer.jobs.show.mark_complete"), class: "btn btn-success btn-sm"
 
 .row
   .col-lg-7
@@ -19,48 +19,48 @@
 
   .col-lg-5
     .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Job details
+      .card-header.bg-white.fw-bold= t("freelancer.jobs.show.job_details_heading")
       .card-body
         %dl.row.mb-0
-          %dt.col-sm-5 Status
+          %dt.col-sm-5= t("freelancer.jobs.show.status_label")
           %dd.col-sm-7
             %span.badge{class: @job.invoiced? || @job.paid? ? "bg-success" : @job.disputed? ? "bg-danger" : "bg-primary"}
-              = @job.status.humanize
-          %dt.col-sm-5 Shop
+              = t("common.status.#{@job.status}", default: @job.status.humanize)
+          %dt.col-sm-5= t("freelancer.jobs.show.shop_label")
           %dd.col-sm-7= @job.shop.name
-          %dt.col-sm-5 Client
+          %dt.col-sm-5= t("freelancer.jobs.show.client_label")
           %dd.col-sm-7= @job.client.org_name
           - if @job.work_amount_ore
-            %dt.col-sm-5 Your earnings
+            %dt.col-sm-5= t("freelancer.jobs.show.earnings_label")
             %dd.col-sm-7
               %span.fw-bold= format_nok(@job.work_amount_ore)
-              %div.text-muted.small before tax & POP fees
+              %div.text-muted.small= t("freelancer.jobs.show.earnings_hint")
           - if @job.description.present?
-            %dt.col-sm-5 Description
+            %dt.col-sm-5= t("freelancer.jobs.show.description_label")
             %dd.col-sm-7= @job.description
 
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold What happens next
+      .card-header.bg-white.fw-bold= t("freelancer.jobs.show.what_next_heading")
       .card-body.small
         - case @job.status.to_sym
         - when :accepted, :in_progress
-          %p.mb-0 Work is underway. Chat with the shop or client if you have questions.
+          %p.mb-0= t("freelancer.jobs.show.what_next_in_progress")
         - when :pending_confirmation
-          %p.mb-0 The shop has marked this job complete. Waiting for client confirmation.
+          %p.mb-0= t("freelancer.jobs.show.what_next_pending")
         - when :invoiced
           - payout = @job.booking&.payout
-          %p.mb-2 Invoice issued. You'll be paid on the next Thursday batch.
+          %p.mb-2= t("freelancer.jobs.show.what_next_invoiced")
           - if payout
             - if payout.pop_invoice_number.present?
               %p.mb-1.small Invoice ##{payout.pop_invoice_number} · #{payout.pop_status}
             - else
-              %p.mb-1.small.text-warning #{payout.pop_status} — invoice number pending
-            = button_to "↻ Refresh status", sync_payout_freelancer_job_path(@job), method: :post,
+              %p.mb-1.small.text-warning #{payout.pop_status} — #{t("freelancer.jobs.show.pending_invoice_number")}
+            = button_to t("freelancer.jobs.show.refresh_status"), sync_payout_freelancer_job_path(@job), method: :post,
                 class: "btn btn-outline-secondary btn-sm mb-2"
-          %p.mb-0.text-muted Payout Partner AS handles tax withholding and A-melding.
+          %p.mb-0.text-muted= t("freelancer.jobs.show.payout_tax_note")
         - when :paid, :completed
           %p.mb-0.text-success
             %i.bi.bi-check-circle.me-1
-            Paid. Check your bank account and payslip from Payout Partner AS.
+            = t("freelancer.jobs.show.what_next_paid")
         - else
-          %p.mb-0 Waiting for the shop to assign a quote.
+          %p.mb-0= t("freelancer.jobs.show.what_next_waiting")

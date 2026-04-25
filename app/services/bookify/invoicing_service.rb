@@ -31,6 +31,9 @@ module Bookify
       raise ArgumentError, "No work amount" unless @job.work_amount_ore.to_i > 0
       raise ArgumentError, "Shop owner not enrolled in POP" unless @job.shop.pop_worker_id.present?
       raise ArgumentError, "Member not enrolled in POP" unless member_pop_worker_id.present?
+
+      brreg = BrregService.lookup(@job.client.org_number)
+      raise ArgumentError, "BRREG check failed for #{@job.client.org_number}: #{brreg.error}. Please try again later." unless brreg.success?
       # Requires credentials.yml.enc: bookify: { pop_profile_id: "<FreelanceProfile UUID>" }
       if @job.bookify_fee? && Rails.application.credentials.dig(:bookify, :pop_profile_id).blank?
         raise ArgumentError, "Bookify POP profile not configured"
@@ -89,7 +92,7 @@ module Bookify
             description: ql.description,
             line_type: :work,
             booking_type: :project_based,
-            rate_ore: ql.amount_ore,
+            rate_ore: ql.rate_ore,
             total_hours: ql.hours,
             work_start_date: @job.work_date || Date.current,
             work_end_date: @job.work_date || Date.current,

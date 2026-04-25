@@ -7,7 +7,7 @@ module ShopAdmin
     def update
       @shop = current_shop
       if @shop.update(shop_params)
-        redirect_to shop_settings_path, notice: "Settings updated."
+        redirect_to shop_settings_path, notice: t("flash.settings_updated")
       else
         render :show, status: :unprocessable_entity
       end
@@ -15,17 +15,17 @@ module ShopAdmin
 
     def pause
       current_shop.paused!
-      redirect_to shop_settings_path, notice: "Shop paused — removed from public listing. Existing clients can still access their jobs."
+      redirect_to shop_settings_path, notice: t("flash.shop_paused")
     end
 
     def close
       current_shop.closed!
-      redirect_to shop_settings_path, notice: "Shop closed."
+      redirect_to shop_settings_path, notice: t("flash.shop_closed")
     end
 
     def reopen
       current_shop.active!
-      redirect_to shop_settings_path, notice: "Shop is now active and accepting requests."
+      redirect_to shop_settings_path, notice: t("flash.shop_active")
     end
 
     private

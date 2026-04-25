@@ -1,16 +1,20 @@
-= link_to "← Members", shop_members_path, class: "text-muted text-decoration-none small"
-%h2.fw-bold.mt-1.mb-4 Invite roster member
+= link_to t("shop_admin.members.new.back"), shop_members_path, class: "text-muted text-decoration-none small"
+%h2.fw-bold.mt-1.mb-4= t("shop_admin.members.new.title")
 
 .row.justify-content-center
   .col-md-6
     .card.border-0.shadow-sm
       .card-body
-        %p.text-muted.small.mb-3 They'll receive an email with an onboarding link to verify their identity on Payout Partner and join your roster.
+        %p.text-muted.small.mb-3= t("shop_admin.members.new.subtitle")
         = form_with url: invite_shop_members_path, method: :post, local: true do |f|
           .mb-3
-            %label.form-label.fw-medium Email
-            = text_field_tag :email, nil, class: "form-control", placeholder: "freelancer@example.com", required: true, type: "email"
+            %label.form-label.fw-medium= t("shop_admin.members.new.email_label")
+            = text_field_tag :email, nil, class: "form-control",
+                placeholder: t("shop_admin.members.new.email_placeholder"),
+                required: true, type: "email"
           .mb-3
-            %label.form-label.fw-medium Name
-            = text_field_tag :name, nil, class: "form-control", placeholder: "Full name (optional)"
-          = f.submit "Send invitation", class: "btn btn-primary w-100"
+            %label.form-label.fw-medium= t("shop_admin.members.new.name_label")
+            = text_field_tag :name, nil, class: "form-control",
+                placeholder: t("shop_admin.members.new.name_placeholder")
+          = f.submit t("shop_admin.members.new.submit"), class: "btn btn-primary w-100",
+              data: { disable_with: t("common.actions.sending") }

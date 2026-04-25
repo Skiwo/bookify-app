@@ -1,5 +1,5 @@
 %h2.mb-4
-  My Dashboard
+  = t("freelancer.dashboard.show.title")
   - if current_user.name.present?
     %small.text-muted.fw-normal= "— #{current_user.name}"
 
@@ -7,17 +7,17 @@
   .alert.alert-warning.d-flex.align-items-center.gap-3.mb-3
     %i.bi.bi-shield-exclamation.fs-4.flex-shrink-0
     .flex-grow-1
-      %strong= "#{member.shop.name} — BankID verification required"
-      %p.mb-0.small You won't be able to receive payouts from this shop until you complete POP onboarding (takes ~5 min).
+      %strong= t("freelancer.dashboard.show.bankid_title", shop: member.shop.name)
+      %p.mb-0.small= t("freelancer.dashboard.show.bankid_body")
     = link_to bookify_onboarding_member_path(token: member.invitation_token), class: "btn btn-warning btn-sm flex-shrink-0" do
-      Complete onboarding
+      = t("freelancer.dashboard.show.complete_onboarding")
       %i.bi.bi-arrow-right.ms-1
 
 - if @bookify_jobs.any?
   .card.border-0.shadow-sm.mb-4
     .card-header.bg-white.fw-bold
       %i.bi.bi-shop.me-2
-      Bookify Jobs
+      = t("freelancer.dashboard.show.bookify_jobs_heading")
     .card-body
       .list-group.list-group-flush
         - @bookify_jobs.each do |job|
@@ -30,14 +30,14 @@
               - if job.work_amount_ore
                 %span.text-muted.small= format_nok(job.work_amount_ore)
               %span.badge{class: job.invoiced? || job.paid? ? "bg-success" : job.disputed? ? "bg-danger" : "bg-primary"}
-                = job.status.humanize
+                = t("common.status.#{job.status}", default: job.status.humanize)
 
 - if @booker_count == 0 && @bookify_jobs.empty?
   .card.border-0.shadow-sm.text-center.py-5
     .card-body
       %i.bi.bi-envelope-open.display-3.text-muted.mb-3
-      %h4.fw-bold Waiting for an invitation
-      %p.text-muted.mb-0 When a booker invites you, you'll see your bookings and earnings here.
+      %h4.fw-bold= t("freelancer.dashboard.show.waiting_title")
+      %p.text-muted.mb-0= t("freelancer.dashboard.show.waiting_body")
 
 - if @bookify_jobs.any?
   .row.mb-4
@@ -50,19 +50,19 @@
               = shop_avatar(shop, size: 28)
               %span.fw-bold.small= shop.name
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}= shop_jobs.size
-            %p.text-muted.small.mb-0 Total Jobs
+            %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_jobs")
       .col-md-4.mb-3
         .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
           .card-body.text-center.py-3
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}
               = shop_jobs.count { |j| %w[accepted in_progress pending_confirmation].include?(j.status) }
-            %p.text-muted.small.mb-0 Active Jobs
+            %p.text-muted.small.mb-0= t("freelancer.dashboard.show.active_jobs")
       .col-md-4.mb-3
         .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
           .card-body.text-center.py-3
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}
               = format_nok(shop_jobs.select { |j| %w[invoiced paid completed].include?(j.status) }.sum { |j| j.work_amount_ore.to_i })
-            %p.text-muted.small.mb-0 Total Earned (gross)
+            %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_earned")
 
 - if @booker_count > 0 && @bookify_jobs.empty?
   .row
@@ -70,22 +70,22 @@
       .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
         .card-body.text-center.py-3
           %h3.fw-bold.mb-0{style: "color: #0D9488;"}= @booker_count
-          %p.text-muted.small.mb-0 Active Bookers
+          %p.text-muted.small.mb-0= t("freelancer.dashboard.show.active_bookers")
     .col-md-4.mb-3
       .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
         .card-body.text-center.py-3
           %h3.fw-bold.mb-0{style: "color: #0D9488;"}= @total_bookings
-          %p.text-muted.small.mb-0 Total Bookings
+          %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_bookings")
     .col-md-4.mb-3
       .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
         .card-body.text-center.py-3
           %h3.fw-bold.mb-0{style: "color: #0D9488;"}= format_nok(@total_paid)
-          %p.text-muted.small.mb-0 Total Earned
+          %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_earned_all")
 
   .row.mt-4
     .col-md-6
       .card.border-0.shadow-sm
-        .card-header.bg-white.fw-bold Recent Bookings
+        .card-header.bg-white.fw-bold= t("freelancer.dashboard.show.recent_bookings")
         .card-body
           - if @recent_bookings.any?
             .list-group.list-group-flush
@@ -97,20 +97,20 @@
                     %small.text-muted= booking.enrollment.booker.name || booking.enrollment.booker.email
                   %span.badge{class: booking.has_payout? ? "bg-success" : "bg-secondary"}= booking.status.humanize
           - else
-            %p.text-muted.mb-0.py-2 No bookings yet.
+            %p.text-muted.mb-0.py-2= t("freelancer.dashboard.show.no_bookings")
 
     .col-md-6
       .card.border-0.shadow-sm
-        .card-header.bg-white.fw-bold Recent Payouts
+        .card-header.bg-white.fw-bold= t("freelancer.dashboard.show.recent_payouts")
         .card-body
           - if @recent_payouts.any?
             .list-group.list-group-flush
               - @recent_payouts.each do |payout|
                 .list-group-item.d-flex.justify-content-between.align-items-center
                   %div
-                    %span.fw-medium= payout.pop_invoice_number || "Payout"
+                    %span.fw-medium= payout.pop_invoice_number || t("freelancer.dashboard.show.payout_label")
                     %br
                     %small.text-muted= format_nok(payout.amount_ore)
                   %span.badge.bg-info= payout.pop_status || "pending"
           - else
-            %p.text-muted.mb-0.py-2 No payouts yet.
+            %p.text-muted.mb-0.py-2= t("freelancer.dashboard.show.no_payouts")

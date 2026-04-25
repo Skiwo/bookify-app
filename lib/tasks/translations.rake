@@ -1,6 +1,7 @@
 require "net/http"
 require "json"
 require "yaml"
+require_relative "../i18n/bmw_backend"
 
 # BeMyWords sync/pull for Bookify Rails app.
 #

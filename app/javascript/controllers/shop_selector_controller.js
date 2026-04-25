@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["checkbox", "bar", "count", "slugContainer", "submitBtn", "limitNotice"]
+  static targets = ["checkbox", "bar", "count", "slugContainer", "submitBtn", "limitNotice", "selectedLabel", "selectedText"]
   static values = { max: { type: Number, default: 5 } }
 
   connect() {
@@ -32,6 +32,13 @@ export default class extends Controller {
 
     this.countTargets.forEach(el => { el.textContent = count })
 
+    if (this.hasSelectedLabelTarget) {
+      const label = count === 1
+        ? this.selectedLabelTarget.dataset.one
+        : this.selectedLabelTarget.dataset.other
+      this.selectedTextTargets.forEach(el => { el.textContent = label })
+    }
+
     if (this.hasBarTarget) {
       this.barTarget.classList.toggle("d-none", count === 0)
     }
@@ -44,6 +51,7 @@ export default class extends Controller {
       this.submitBtnTarget.value = count === 1
         ? "Send request to 1 shop"
         : `Send request to ${count} shops`
+      this.submitBtnTarget.disabled = count === 0
     }
 
     // Disable unchecked boxes when at max

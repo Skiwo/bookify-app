@@ -1,18 +1,18 @@
 .d-flex.justify-content-between.align-items-center.mb-4
-  %h2 Roster members
+  %h2= t("shop_admin.members.index.title")
   = link_to new_shop_member_path, class: "btn btn-primary" do
     %i.bi.bi-plus-lg.me-1
-    Add member
+    = t("shop_admin.members.index.add_member")
 
 - if @members.any?
   .table-responsive
     %table.table.table-hover.align-middle
       %thead.table-light
         %tr
-          %th Name
-          %th Email
-          %th Status
-          %th Joined
+          %th= t("shop_admin.members.index.col_name")
+          %th= t("shop_admin.members.index.col_email")
+          %th= t("shop_admin.members.index.col_status")
+          %th= t("shop_admin.members.index.col_joined")
           %th
       %tbody
         - @members.each do |member|
@@ -21,33 +21,33 @@
             %td.text-muted= member.email
             %td
               %span.badge{class: member.active? ? "bg-success" : member.invited? ? "bg-warning text-dark" : "bg-secondary"}
-                = member.status.humanize
+                = t("common.status.#{member.status}", default: member.status.humanize)
               - if member.bookify_pop_worker_id.present?
                 %span.badge.bg-light.text-success.border.border-success.ms-1
                   %i.bi.bi-shield-check.me-1
-                  BankID
+                  = t("shop_admin.members.index.bankid_verified")
               - elsif member.active?
                 %span.badge.bg-light.text-warning.border.border-warning.ms-1
                   %i.bi.bi-shield-exclamation.me-1
-                  Not enrolled
-            %td.text-muted= member.accepted_at&.strftime("%d %b %Y") || "—"
+                  = t("shop_admin.members.index.not_enrolled")
+            %td.text-muted= member.accepted_at&.strftime("%d %b %Y") || t("common.member.none")
             %td.text-end
               .d-flex.gap-1.justify-content-end
                 - if member.enrollment.email == current_user.email
-                  %span.badge.bg-light.text-dark.border You
+                  %span.badge.bg-light.text-dark.border= t("shop_admin.members.index.you_badge")
                 - else
                   - if member.invited?
-                    = button_to "Resend", resend_shop_member_path(member), method: :post,
+                    = button_to t("shop_admin.members.index.resend"), resend_shop_member_path(member), method: :post,
                         class: "btn btn-sm btn-outline-secondary"
                   - if !member.inactive?
-                    = button_to "Remove", shop_member_path(member), method: :delete,
+                    = button_to t("shop_admin.members.index.remove"), shop_member_path(member), method: :delete,
                         class: "btn btn-sm btn-outline-danger",
-                        data: { turbo_confirm: "Remove #{member.name} from the roster?" }
+                        data: { turbo_confirm: t("shop_admin.members.index.remove_confirm", name: member.name) }
 - else
   .text-center.py-5
     %i.bi.bi-people.display-3.text-muted
-    %h5.fw-bold.mt-3 No members yet
-    %p.text-muted Add freelancers to your roster so you can assign them to jobs.
+    %h5.fw-bold.mt-3= t("shop_admin.members.index.no_members_title")
+    %p.text-muted= t("shop_admin.members.index.no_members_hint")
     = link_to new_shop_member_path, class: "btn btn-primary" do
       %i.bi.bi-plus-lg.me-1
-      Add first member
+      = t("shop_admin.members.index.add_first")

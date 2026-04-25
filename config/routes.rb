@@ -76,7 +76,7 @@ Rails.application.routes.draw do
   # ─── payoutpartner.com — operator / supply surface ──────────────────────────
 
   constraints(PopDomainConstraint) do
-    root to: redirect("/shop/dashboard")
+    get "/", to: redirect("/shop/dashboard"), as: :pop_root
 
     # Sidekiq Web UI — operators only
     sidekiq_web = Rack::Builder.new do

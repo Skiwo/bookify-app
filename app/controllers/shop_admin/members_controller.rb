@@ -14,7 +14,7 @@ module ShopAdmin
 
       if @member.save
         ShopMemberMailer.invite(@member).deliver_now
-        redirect_to shop_members_path, notice: "Invitation sent to #{enrollment.email}."
+        redirect_to shop_members_path, notice: t("flash.invitation_sent", email: enrollment.email)
       else
         render :new, status: :unprocessable_entity
       end
@@ -30,7 +30,7 @@ module ShopAdmin
       @member = current_shop.shop_members.find_or_initialize_by(enrollment: enrollment)
 
       if @member.persisted?
-        redirect_to shop_members_path, alert: "#{email} is already on the roster."
+        redirect_to shop_members_path, alert: t("flash.member_already_on_roster", email: email)
         return
       end
 
@@ -38,7 +38,7 @@ module ShopAdmin
 
       if enrollment.save && @member.save
         ShopMemberMailer.invite(@member).deliver_now
-        redirect_to shop_members_path, notice: "Invitation sent to #{email}."
+        redirect_to shop_members_path, notice: t("flash.invitation_sent", email: email)
       else
         errors = (enrollment.errors.full_messages + @member.errors.full_messages).first
         redirect_to new_shop_member_path, alert: errors
@@ -48,7 +48,7 @@ module ShopAdmin
     def resend
       @member = current_shop.shop_members.find(params[:id])
       ShopMemberMailer.invite(@member).deliver_now
-      redirect_to shop_members_path, notice: "Invitation resent to #{@member.email}."
+      redirect_to shop_members_path, notice: t("flash.invitation_resent", email: @member.email)
     end
 
     def destroy

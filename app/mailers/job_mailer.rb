@@ -16,7 +16,9 @@ class JobMailer < ApplicationMailer
 
   def member_assigned(job)
     @job = job
-    mail(to: job.assigned_member.enrollment.email, subject: "You've been assigned: #{job.title}")
+    to = job.assigned_member&.enrollment&.email
+    return if to.blank?
+    mail(to: to, subject: "You've been assigned: #{job.title}")
   end
 
   def quote_declined(job)
@@ -36,7 +38,9 @@ class JobMailer < ApplicationMailer
 
   def job_invoiced_member(job)
     @job = job
-    mail(to: job.assigned_member.enrollment.email, subject: "Payment on the way — #{job.title}")
+    to = job.assigned_member&.enrollment&.email
+    return if to.blank?
+    mail(to: to, subject: "Payment on the way — #{job.title}")
   end
 
   def dispute_raised(job)
@@ -51,6 +55,9 @@ class JobMailer < ApplicationMailer
 
   def dispute_resolved(job, to:)
     @job = job
+    @dispute_resolved_url = (to == job.client.user.email) ?
+      clients_job_url(job, host: Hosts::BOOKIFY) :
+      shop_job_url(job, host: Hosts::POP)
     mail(to: to, subject: "Dispute resolved — #{job.title}")
   end
 

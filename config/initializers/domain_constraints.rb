@@ -10,13 +10,13 @@ DOMAIN_ROUTING_ENABLED = Rails.env.production? || ENV["DOMAIN_ROUTING"] == "true
 class BookifyDomainConstraint
   def self.matches?(request)
     return true unless DOMAIN_ROUTING_ENABLED
-    request.host.match?(/\Abookify\./)
+    request.host.match?(/\Abookify\./i)
   end
 end
 
 class PopDomainConstraint
   def self.matches?(request)
     return true unless DOMAIN_ROUTING_ENABLED
-    request.host.match?(/payoutpartner\.|pop\.lvh\.me/)
+    request.host.match?(/payoutpartner\.|pop\.lvh\.me/i)
   end
 end

@@ -1,4 +1,4 @@
-%h2.fw-bold.mb-4 Edit profile
+%h2.fw-bold.mb-4= t("profiles.edit.title")
 
 .row
   .col-lg-6
@@ -9,17 +9,26 @@
           .text-center.mb-4{"data-avatar-preview-target": "preview"}
             = user_avatar(@user, size: 80)
           .mb-3
-            = f.label :avatar, "Photo", class: "form-label fw-medium"
+            = f.label :avatar, t("profiles.edit.photo_label"), class: "form-label fw-medium"
             = f.file_field :avatar, accept: "image/*", class: "form-control",
                 data: { "avatar-preview-target": "input", action: "change->avatar-preview#update" }
 
           .mb-3
-            = f.label :name, "Full name", class: "form-label fw-medium"
-            = f.text_field :name, class: "form-control", placeholder: "Ola Nordmann"
+            = f.label :name, t("profiles.edit.name_label"), class: "form-label fw-medium"
+            = f.text_field :name, class: "form-control",
+                placeholder: t("profiles.edit.name_placeholder")
 
           .mb-3
-            %label.form-label.fw-medium Email
+            %label.form-label.fw-medium= t("profiles.edit.email_label")
             %input.form-control{type: "email", value: @user.email, disabled: true}
-            %div.form-text Email cannot be changed.
+            %div.form-text= t("profiles.edit.email_hint")
 
-          = f.submit "Save", class: "btn btn-primary w-100"
+          .mb-3
+            = f.label :locale, t("profiles.edit.locale_label"), class: "form-label fw-medium"
+            = f.select :locale,
+                [["Norsk bokmål", "nb"], ["English", "en"]],
+                {},
+                class: "form-select"
+
+          = f.submit t("profiles.edit.save"), class: "btn btn-primary w-100",
+              data: { disable_with: t("profiles.edit.saving") }

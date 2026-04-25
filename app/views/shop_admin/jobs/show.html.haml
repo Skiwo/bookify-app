@@ -1,20 +1,20 @@
 .d-flex.align-items-start.mb-4
   .me-auto
-    = link_to "← Jobs", shop_jobs_path, class: "text-muted text-decoration-none small"
+    = link_to t("shop_admin.jobs.show.back"), shop_jobs_path, class: "text-muted text-decoration-none small"
     %h2.fw-bold.mt-1= @job.title
     %p.text-muted= @job.client.org_name
   .d-flex.gap-2
     - if @job.draft?
-      = link_to "Issue quote", new_shop_quote_path(job_id: @job.id), class: "btn btn-primary"
+      = link_to t("shop_admin.jobs.show.issue_quote"), new_shop_quote_path(job_id: @job.id), class: "btn btn-primary"
     - if @job.in_progress? || @job.accepted?
       = form_with url: mark_complete_shop_job_path(@job), method: :post, local: true, class: "d-flex gap-2 align-items-end" do |f|
         .d-flex.flex-column
-          %label.form-label.small.mb-1.text-muted Work date
+          %label.form-label.small.mb-1.text-muted= t("shop_admin.jobs.show.work_date_label")
           = f.date_field :work_date, value: @job.work_date || Date.current, max: Date.current, class: "form-control form-control-sm"
         .d-flex.flex-column
-          %label.form-label.small.mb-1.text-muted Hours
+          %label.form-label.small.mb-1.text-muted= t("shop_admin.jobs.show.hours_label")
           = f.number_field :work_hours, value: @job.work_hours || 8, step: 0.5, min: 0.5, max: 24, class: "form-control form-control-sm", style: "width:80px"
-        = f.submit "Mark complete", class: "btn btn-success btn-sm"
+        = f.submit t("shop_admin.jobs.show.mark_complete"), class: "btn btn-success btn-sm"
 
 .row
   .col-lg-7
@@ -26,118 +26,120 @@
         .card-body
           %h6.fw-bold.text-danger
             %i.bi.bi-exclamation-triangle.me-1
-            Dispute raised
+            = t("shop_admin.jobs.show.dispute_heading")
           %p.small.mb-1
-            %strong Reason:
+            %strong= t("shop_admin.jobs.show.reason_label")
           %p.small.mb-3= @job.dispute.reason
           - if @job.dispute.responded?
             .alert.alert-secondary.small.mb-3
-              %strong Your response:
+              %strong= t("shop_admin.jobs.show.your_response")
               %p.mb-0= @job.dispute.response
             = form_with url: resolve_dispute_shop_job_path(@job), method: :post, local: true do |f|
               .mb-2
-                = f.text_area "dispute[resolution]", class: "form-control form-control-sm", rows: 2, placeholder: "Resolution summary…", required: true
-              = f.submit "Resolve dispute", class: "btn btn-success btn-sm w-100"
+                = f.text_area "dispute[resolution]", class: "form-control form-control-sm", rows: 2,
+                    placeholder: t("shop_admin.jobs.show.resolution_placeholder"), required: true
+              = f.submit t("shop_admin.jobs.show.resolve_dispute"), class: "btn btn-success btn-sm w-100"
           - elsif @job.dispute.open?
             = form_with url: respond_dispute_shop_job_path(@job), method: :post, local: true do |f|
               .mb-2
-                = f.text_area "dispute[response]", class: "form-control form-control-sm", rows: 2, placeholder: "Your response to the client…", required: true
-              = f.submit "Send response", class: "btn btn-primary btn-sm w-100"
+                = f.text_area "dispute[response]", class: "form-control form-control-sm", rows: 2,
+                    placeholder: t("shop_admin.jobs.show.response_placeholder"), required: true
+              = f.submit t("shop_admin.jobs.show.send_response"), class: "btn btn-primary btn-sm w-100"
               %hr.my-2
               = form_with url: resolve_dispute_shop_job_path(@job), method: :post, local: true do |f|
                 = f.hidden_field "dispute[resolution]", value: "Resolved by agreement"
-                = f.submit "Resolve — return to accepted", class: "btn btn-outline-success btn-sm w-100"
+                = f.submit t("shop_admin.jobs.show.resolve"), class: "btn btn-outline-success btn-sm w-100"
           - else
             .alert.alert-success.small.mb-0
               %i.bi.bi-check-circle.me-1
-              Dispute #{@job.dispute.status} — #{@job.dispute.resolution}
+              = t("shop_admin.jobs.show.dispute_status", status: @job.dispute.status, resolution: @job.dispute.resolution)
 
     - if (@job.in_progress? || @job.accepted?) && (@job.shop_completed? || @job.client_completed?)
       .card.border-0.shadow-sm.mb-4
         .card-body
           %h6.fw-bold
             %i.bi.bi-check2-circle.me-1
-            Completion status
+            = t("shop_admin.jobs.show.completion_heading")
           .d-flex.gap-4.mt-2
             .d-flex.align-items-center.gap-2
               - if @job.shop_completed?
                 %i.bi.bi-check-circle-fill.text-success
               - else
                 %i.bi.bi-circle.text-muted
-              %span.small Shop
+              %span.small= t("shop_admin.jobs.show.shop_side")
             .d-flex.align-items-center.gap-2
               - if @job.client_completed?
                 %i.bi.bi-check-circle-fill.text-success
               - else
                 %i.bi.bi-circle.text-muted
-              %span.small Client
+              %span.small= t("shop_admin.jobs.show.client_side")
 
     .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Job details
+      .card-header.bg-white.fw-bold= t("shop_admin.jobs.show.job_details_heading")
       .card-body
         %dl.row.mb-0
-          %dt.col-sm-4 Status
+          %dt.col-sm-4= t("common.fields.status")
           %dd.col-sm-8
             %span.badge{class: @job.disputed? ? "bg-danger" : @job.invoiced? ? "bg-success" : "bg-primary"}
-              = @job.status.humanize
-          %dt.col-sm-4 Client
+              = t("common.status.#{@job.status}", default: @job.status.humanize)
+          %dt.col-sm-4= t("shop_admin.jobs.show.client_label")
           %dd.col-sm-8= @job.client.org_name
-          %dt.col-sm-4 Assigned member
-          %dd.col-sm-8= @job.assigned_member&.name || "—"
+          %dt.col-sm-4= t("shop_admin.jobs.show.member_label")
+          %dd.col-sm-8= @job.assigned_member&.name || t("common.member.none")
           - if @job.work_amount_ore
-            %dt.col-sm-4 Work amount
+            %dt.col-sm-4= t("shop_admin.jobs.show.work_amount_label")
             %dd.col-sm-8= format_nok(@job.work_amount_ore)
           - if @job.commission_amount_ore
-            %dt.col-sm-4 Commission (#{@job.shop.commission_percent}%)
+            %dt.col-sm-4= t("common.invoice.commission", percent: @job.shop.commission_percent)
             %dd.col-sm-8= format_nok(@job.commission_amount_ore)
           - if @job.bookify_fee?
-            %dt.col-sm-4 Bookify fee
+            %dt.col-sm-4= t("shop_admin.jobs.show.bookify_fee_label")
             %dd.col-sm-8= format_nok(@job.bookify_fee_ore)
           - if @job.quote_expires_at
-            %dt.col-sm-4 Quote expires
+            %dt.col-sm-4= t("shop_admin.jobs.show.quote_expires_label")
             %dd.col-sm-8= @job.quote_expires_at.strftime("%d %b %Y %H:%M")
           - if @job.desired_date.present?
-            %dt.col-sm-4 Desired date
+            %dt.col-sm-4= t("shop_admin.jobs.show.desired_date_label")
             %dd.col-sm-8= @job.desired_date.strftime("%d %b %Y")
           - if @job.desired_hours.present?
-            %dt.col-sm-4 Est. duration
+            %dt.col-sm-4= t("shop_admin.jobs.show.est_duration_label")
             %dd.col-sm-8= "#{@job.desired_hours}h"
           - if @job.description.present?
-            %dt.col-sm-4 Description
+            %dt.col-sm-4= t("shop_admin.jobs.show.description_label")
             %dd.col-sm-8= @job.description
 
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold Timeline
+      .card-header.bg-white.fw-bold= t("shop_admin.jobs.show.timeline_heading")
       .card-body.py-2
         .small.text-muted.mb-2
           %i.bi.bi-circle-fill.me-2.text-primary
-          Request received #{time_ago_in_words(@job.created_at)} ago
+          = t("shop_admin.jobs.show.timeline_received", time: time_ago_in_words(@job.created_at))
         - if @job.quoted? || @job.accepted? || @job.in_progress? || @job.invoiced?
           .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-primary
-            Quote issued
+            = t("shop_admin.jobs.show.timeline_quote_issued")
         - if @job.in_progress? || @job.invoiced?
           .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-primary
-            Client accepted
+            = t("shop_admin.jobs.show.timeline_accepted")
         - if @job.shop_completed?
           .small.text-muted.mb-2
             %i.bi.bi-check-circle-fill.me-2.text-success
-            Shop confirmed
+            = t("shop_admin.jobs.show.timeline_shop_confirmed")
         - if @job.client_completed?
           .small.text-muted.mb-2
             %i.bi.bi-check-circle-fill.me-2.text-success
-            Client confirmed
+            = t("shop_admin.jobs.show.timeline_client_confirmed")
         - if @job.invoiced?
           - payout = @job.booking&.payout
           .small.text-muted.mb-2
             %i.bi.bi-circle-fill.me-2.text-success
-            Invoice issued
+            = t("shop_admin.jobs.show.timeline_invoiced")
           - if payout
             .small.text-muted.d-flex.align-items-center.gap-2
               - if payout.pop_invoice_number.present?
                 %span Invoice ##{payout.pop_invoice_number} · #{payout.pop_status}
               - else
-                %span.text-warning #{payout.pop_status} — invoice number pending
-              = button_to "↻ Sync", sync_payout_shop_job_path(@job), method: :post,
+                %span.text-warning #{payout.pop_status} — #{t("shop_admin.jobs.show.pending_invoice_number")}
+              = button_to t("shop_admin.jobs.show.sync"), sync_payout_shop_job_path(@job), method: :post,
                   class: "btn btn-link btn-sm p-0 text-muted"

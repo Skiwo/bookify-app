@@ -21,7 +21,12 @@ class Job < ApplicationRecord
   has_many :quote_lines, dependent: :destroy
   has_one :dispute, dependent: :destroy
 
+  MINIMUM_AMOUNT_ORE = 60_000
+
   validates :title, presence: true
+  validates :work_amount_ore,
+            numericality: { greater_than_or_equal_to: MINIMUM_AMOUNT_ORE, message: "must be at least 600 NOK" },
+            allow_nil: true
 
   def participant_user_ids
     ids = []
@@ -29,10 +34,6 @@ class Job < ApplicationRecord
     ids << shop.owner_id if shop&.owner_id
     ids << assigned_member.enrollment.freelancer_id if assigned_member&.enrollment&.freelancer_id
     ids.compact.uniq
-  end
-
-  def minimum_job_amount_ore
-    60_000 # 600 NOK minimum
   end
 
   BOOKIFY_FEE_ORE = 10_000

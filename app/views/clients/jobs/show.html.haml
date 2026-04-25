@@ -1,12 +1,12 @@
-= link_to "← Jobs", clients_jobs_path, class: "text-muted text-decoration-none small"
+= link_to t("clients.jobs.show.back"), clients_jobs_path, class: "text-muted text-decoration-none small"
 .d-flex.align-items-start.mt-1.mb-4
   .me-auto
     %h2.fw-bold.mb-1= @job.title
     %p.text-muted.mb-0= @job.shop.name
   - if @job.draft? || @job.quoted?
-    = button_to "Cancel request", cancel_clients_job_path(@job), method: :post,
+    = button_to t("clients.jobs.show.cancel_request"), cancel_clients_job_path(@job), method: :post,
         class: "btn btn-outline-danger btn-sm",
-        data: { turbo_confirm: "Cancel this request? The shop will be notified." }
+        data: { turbo_confirm: t("clients.jobs.show.cancel_confirm") }
 
 .row
   .col-lg-7
@@ -18,15 +18,15 @@
         .card-body
           %h6.fw-bold
             %i.bi.bi-file-earmark-text.me-1
-            Quote received
+            = t("clients.jobs.show.quote_received_heading")
           - if @job.quote_lines.any?
             %table.table.table-sm.small.mb-2
               %thead
                 %tr
-                  %th Activity
-                  %th.text-end Rate
-                  %th.text-end Hours
-                  %th.text-end Amount
+                  %th= t("clients.jobs.show.col_activity")
+                  %th.text-end= t("clients.jobs.show.col_rate")
+                  %th.text-end= t("clients.jobs.show.col_hours")
+                  %th.text-end= t("clients.jobs.show.col_amount")
               %tbody
                 - @job.quote_lines.order(:position).each do |ql|
                   %tr
@@ -35,122 +35,131 @@
                     %td.text-end= "#{ql.hours}h"
                     %td.text-end= format_nok(ql.amount_ore)
           %dl.row.mb-2
-            %dt.col-sm-5 Work amount (excl. MVA)
+            %dt.col-sm-5= t("clients.jobs.show.work_amount")
             %dd.col-sm-7.fw-bold= format_nok(@job.work_amount_ore)
-            %dt.col-sm-5 Commission (#{@job.shop.commission_percent}%)
+            %dt.col-sm-5= t("common.invoice.commission", percent: @job.shop.commission_percent)
             %dd.col-sm-7= format_nok(@job.commission_amount_ore)
             - if @job.bookify_fee?
-              %dt.col-sm-5 Bookify platform fee
+              %dt.col-sm-5= t("clients.jobs.show.bookify_fee")
               %dd.col-sm-7= format_nok(@job.bookify_fee_ore)
-            %dt.col-sm-5 MVA (25%)
+            %dt.col-sm-5= t("clients.jobs.show.vat")
             %dd.col-sm-7= format_nok((@job.total_amount_ore * 0.25).round)
-            %dt.col-sm-5.fw-bold Total incl. MVA
+            %dt.col-sm-5.fw-bold= t("clients.jobs.show.total_incl_vat")
             %dd.col-sm-7
               %strong.fs-5= format_nok((@job.total_amount_ore * 1.25).round)
           - if @job.quote_expires_at
             %p.small.text-muted.mb-3
               %i.bi.bi-clock.me-1
-              Expires #{@job.quote_expires_at.strftime("%d %b %Y %H:%M")}
+              = t("clients.jobs.show.expires", datetime: @job.quote_expires_at.strftime("%d %b %Y %H:%M"))
           - unless @job.quote_expired?
             .d-flex.gap-3
-              = button_to "Accept quote", accept_clients_quote_path(@job), method: :post, class: "btn btn-success"
-              = button_to "Decline", decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
+              = button_to t("clients.jobs.show.accept_quote"), accept_clients_quote_path(@job), method: :post,
+                  class: "btn btn-success",
+                  data: { turbo_confirm: t("clients.quotes.show.accept_confirm") }
+              = button_to t("common.actions.decline"), decline_clients_quote_path(@job), method: :post,
+                  class: "btn btn-outline-danger",
+                  data: { turbo_confirm: t("clients.quotes.show.decline_confirm") }
           - else
-            .alert.alert-secondary.mb-0 This quote has expired.
+            .alert.alert-secondary.mb-0= t("clients.jobs.show.quote_expired")
+
     - if @job.pending_confirmation?
       .card.border-0.shadow-sm.border-warning.mb-4
         .card-body
           %h6.fw-bold
             %i.bi.bi-exclamation-triangle.me-1
-            Job marked complete
-          %p.small.mb-3 Please review the hours and confirm or raise a dispute.
+            = t("clients.jobs.show.job_complete_heading")
+          %p.small.mb-3= t("clients.jobs.show.job_complete_hint")
           - if @job.confirmation_deadline_at
             %p.small.text-muted.mb-2
               %i.bi.bi-clock.me-1
-              Deadline: #{@job.confirmation_deadline_at.strftime("%d %b %Y %H:%M")}
+              = t("clients.jobs.show.deadline", datetime: @job.confirmation_deadline_at.strftime("%d %b %Y %H:%M"))
           = form_with url: mark_complete_clients_job_path(@job), method: :post, local: true do |f|
             .row.g-2.mb-3
               .col-6
-                %label.form-label.small.fw-medium Work date
+                %label.form-label.small.fw-medium= t("clients.jobs.show.work_date_label")
                 = f.date_field :work_date, value: @job.work_date || Date.current, max: Date.current, class: "form-control form-control-sm"
               .col-6
-                %label.form-label.small.fw-medium Hours worked
+                %label.form-label.small.fw-medium= t("clients.jobs.show.hours_label")
                 = f.number_field :work_hours, value: @job.work_hours || 8, step: 0.5, min: 0.5, max: 24, class: "form-control form-control-sm"
-            = f.submit "Confirm completion", class: "btn btn-success w-100 mb-2"
+            %p.form-text.text-muted.small.mb-2
+              %i.bi.bi-info-circle.me-1
+              = t("clients.jobs.show.hours_adjust_hint")
+            = f.submit t("clients.jobs.show.confirm_completion"), class: "btn btn-success w-100 mb-2",
+                data: { disable_with: t("clients.jobs.show.processing") }
           %hr.my-2
           = form_with url: dispute_clients_job_path(@job), method: :post, local: true do |f|
             .mb-2
               = f.text_area "dispute[reason]", class: "form-control form-control-sm", rows: 2,
-                  placeholder: "Describe the issue…", required: true
-            = f.submit "Raise dispute", class: "btn btn-outline-danger btn-sm w-100"
+                  placeholder: t("clients.jobs.show.dispute_reason_placeholder"), required: true
+            = f.submit t("clients.jobs.show.raise_dispute"), class: "btn btn-outline-danger btn-sm w-100"
 
     - if @job.disputed? && @job.dispute.present?
       .card.border-0.shadow-sm.border-danger.mb-4
         .card-body
           %h6.fw-bold.text-danger
             %i.bi.bi-exclamation-triangle.me-1
-            Dispute
+            = t("clients.jobs.show.dispute_heading")
           %p.small.mb-1
-            %strong Your reason:
+            %strong= t("clients.jobs.show.your_reason")
           %p.small.mb-3= @job.dispute.reason
           - if @job.dispute.response.present?
             .alert.alert-info.small.mb-2
-              %strong Shop response:
+              %strong= t("clients.jobs.show.shop_response")
               %p.mb-0= @job.dispute.response
           - if @job.dispute.resolved? || @job.dispute.closed?
             .alert.alert-success.small.mb-0
               %i.bi.bi-check-circle.me-1
-              Resolved: #{@job.dispute.resolution}
+              = t("clients.jobs.show.resolved", resolution: @job.dispute.resolution)
           - elsif @job.dispute.responded?
-            %p.small.text-muted Waiting for resolution.
+            %p.small.text-muted= t("clients.jobs.show.waiting_resolution")
           - else
-            %p.small.text-muted Waiting for shop response.
+            %p.small.text-muted= t("clients.jobs.show.waiting_response")
 
     .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Job details
+      .card-header.bg-white.fw-bold= t("clients.jobs.show.job_details_heading")
       .card-body
         %dl.row.mb-0
-          %dt.col-sm-4 Status
+          %dt.col-sm-4= t("clients.jobs.show.status_label")
           %dd.col-sm-8
             - badge = @job.cancelled? || @job.disputed? ? "bg-danger" : @job.invoiced? || @job.completed? ? "bg-success" : @job.draft? ? "bg-secondary" : "bg-primary"
-            %span.badge{class: badge}= @job.status.humanize
+            %span.badge{class: badge}= t("common.status.#{@job.status}", default: @job.status.humanize)
           - if @job.work_amount_ore
-            %dt.col-sm-4 Amount (excl. MVA)
+            %dt.col-sm-4= t("clients.jobs.show.amount_label")
             %dd.col-sm-8= format_nok(@job.work_amount_ore)
-          %dt.col-sm-4 Shop
+          %dt.col-sm-4= t("clients.jobs.show.shop_label")
           %dd.col-sm-8= @job.shop.name
-          %dt.col-sm-4 Member
-          %dd.col-sm-8= @job.assigned_member&.name || "—"
+          %dt.col-sm-4= t("clients.jobs.show.member_label")
+          %dd.col-sm-8= @job.assigned_member&.name || t("common.member.none")
 
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold What happens next
+      .card-header.bg-white.fw-bold= t("clients.jobs.show.what_next_heading")
       .card-body.small
         - case @job.status.to_sym
         - when :quoted
-          %p.fw-medium Review the quote and accept or decline.
+          %p.fw-medium= t("clients.jobs.show.what_next_quoted_p1")
           %ol.ps-3.mb-0.small
-            %li.mb-1 Accept the quote to start the job.
-            %li.mb-1 Chat with the shop and assigned freelancer.
-            %li.mb-1 Both sides mark the job as complete.
-            %li You receive a Net-14 invoice from Payout Partner AS.
+            %li.mb-1= t("clients.jobs.show.what_next_quoted_li1")
+            %li.mb-1= t("clients.jobs.show.what_next_quoted_li2")
+            %li.mb-1= t("clients.jobs.show.what_next_quoted_li3")
+            %li= t("clients.jobs.show.what_next_quoted_li4")
         - when :accepted, :in_progress
-          %p Work is underway. Chat with the shop and assigned freelancer.
+          %p= t("clients.jobs.show.what_next_in_progress")
         - when :pending_confirmation
-          %p.fw-medium Work has been marked complete — please confirm or raise a dispute above.
+          %p.fw-medium= t("clients.jobs.show.what_next_pending")
         - when :invoiced, :paid, :completed
-          %p.mb-2 Invoice issued by Payout Partner AS. Net 14 days payment.
-          %p.mb-3.text-muted You will receive the invoice by email.
+          %p.mb-2= t("clients.jobs.show.what_next_invoiced")
+          %p.mb-3.text-muted= t("clients.jobs.show.what_next_invoice_email")
           = link_to shop_path(@job.shop.slug), class: "btn btn-primary w-100" do
             %i.bi.bi-arrow-repeat.me-1
-            Book again
+            = t("clients.jobs.show.book_again")
         - when :disputed
           - if @job.dispute&.resolved? || @job.dispute&.closed?
-            %p.text-success Dispute resolved. You can continue working with the shop.
+            %p.text-success= t("clients.jobs.show.what_next_dispute_resolved")
           - elsif @job.dispute&.responded?
-            %p.text-warning The shop has responded. Awaiting resolution.
+            %p.text-warning= t("clients.jobs.show.what_next_dispute_responded")
           - else
-            %p.text-danger Dispute raised. Waiting for shop response.
+            %p.text-danger= t("clients.jobs.show.what_next_dispute_pending")
         - when :cancelled
-          %p.text-muted This request was cancelled.
+          %p.text-muted= t("clients.jobs.show.what_next_cancelled")
         - else
-          %p Waiting for the shop to send a quote.
+          %p= t("clients.jobs.show.what_next_waiting")

@@ -8,14 +8,15 @@ module I18n
     #   GET ${BMW_SERVER}/{projectId}/latest/{locale}/{namespace}
     #
     # On eager_load!:
-    #   1. YAML files are loaded first (local fallback — same as I18n::Backend::Simple)
-    #   2. BeMyWords translations are fetched (cached) and overlaid on top
+    #   1. YAML files are loaded first synchronously (local, fast)
+    #   2. BeMyWords translations are fetched in a background thread — the first
+    #      request is never blocked. YAML serves immediately; BMW overlays as
+    #      soon as the thread completes (usually under 2s).
     #
     # If BMW_SERVER / BMW_PROJECT_ID / BMW_API_KEY are not set the backend
     # behaves exactly like I18n::Backend::Simple (YAML only).
     #
-    # Cache TTL: BMW_CACHE_TTL seconds (default 3600). Set 0 to disable caching
-    # (useful in development when env vars are set).
+    # Cache TTL: BMW_CACHE_TTL seconds (default 3600). Set 0 to disable caching.
     class BeMyWords < Simple
       NAMESPACES = %w[
         common pages shops skill_pages clients
@@ -23,11 +24,21 @@ module I18n
       ].freeze
 
       def eager_load!
-        super              # 1. load YAML files
-        overlay_from_bmw  # 2. overlay live BMW translations (if configured)
+        super                   # 1. load YAML synchronously
+        fetch_bmw_in_background # 2. fetch BMW without blocking
       end
 
       private
+
+      def fetch_bmw_in_background
+        return unless bmw_configured?
+
+        Thread.new do
+          overlay_from_bmw
+        rescue => e
+          Rails.logger.warn "[BeMyWords] Background fetch error: #{e.message}"
+        end
+      end
 
       def overlay_from_bmw
         return unless bmw_configured?

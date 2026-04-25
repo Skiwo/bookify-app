@@ -1,28 +1,28 @@
-%h2.mb-4 Jobs
+%h2.mb-4= t("clients.jobs.index.title")
 
 - if @jobs.any?
   .table-responsive
     %table.table.table-hover.align-middle
       %thead.table-light
         %tr
-          %th Job
-          %th Shop
-          %th Amount
-          %th Status
+          %th= t("clients.jobs.index.col_job")
+          %th= t("clients.jobs.index.col_shop")
+          %th= t("clients.jobs.index.col_amount")
+          %th= t("clients.jobs.index.col_status")
           %th
       %tbody
         - @jobs.each do |job|
           %tr
             %td.fw-medium= job.title
             %td.text-muted= job.shop.name
-            %td= job.work_amount_ore ? format_nok(job.work_amount_ore) : "—"
+            %td= job.work_amount_ore ? format_nok(job.work_amount_ore) : t("common.member.none")
             %td
               %span.badge{class: job.disputed? ? "bg-danger" : job.invoiced? || job.completed? ? "bg-success" : "bg-primary"}
-                = job.status.humanize
+                = t("common.status.#{job.status}", default: job.status.humanize)
             %td.text-end
-              = link_to "View", clients_job_path(job), class: "btn btn-sm btn-outline-primary"
+              = link_to t("clients.jobs.index.view"), clients_job_path(job), class: "btn btn-sm btn-outline-primary"
 - else
   .text-center.py-5
     %i.bi.bi-briefcase.display-3.text-muted
-    %h5.fw-bold.mt-3 No jobs yet
-    %p.text-muted= link_to "Browse shops to get started", shops_path
+    %h5.fw-bold.mt-3= t("clients.jobs.index.no_jobs")
+    %p.text-muted= link_to t("clients.jobs.index.no_jobs_hint"), shops_path

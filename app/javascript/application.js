@@ -1,5 +1,36 @@
-// Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 import "controllers"
-// Bootstrap JS is loaded from CDN in layouts (see booker/freelancer/application); no vendored ESM bundle in repo.
 
+// Replace browser confirm() with a Bootstrap modal for all data-turbo-confirm attributes.
+// Falls back to native confirm() if the modal element isn't in the DOM yet.
+import { Turbo } from "@hotwired/turbo-rails"
+
+Turbo.config.forms.confirm = (message) => {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("turbo-confirm-modal")
+    if (!modal) {
+      resolve(window.confirm(message))
+      return
+    }
+
+    modal.querySelector("[data-confirm-message]").textContent = message
+
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modal)
+    let confirmed = false
+
+    const onAccept = () => {
+      confirmed = true
+      bsModal.hide()
+    }
+
+    const onHide = () => {
+      modal.querySelector("[data-confirm-accept]").removeEventListener("click", onAccept)
+      resolve(confirmed)
+    }
+
+    modal.querySelector("[data-confirm-accept]").addEventListener("click", onAccept, { once: true })
+    modal.addEventListener("hide.bs.modal", onHide, { once: true })
+
+    bsModal.show()
+  })
+}

@@ -1,4 +1,4 @@
-%h2.mb-4 Quotes
+%h2.mb-4= t("clients.quotes.index.title")
 
 - if @jobs.any?
   .row.row-cols-1.row-cols-md-2.g-4
@@ -9,25 +9,29 @@
             .d-flex.justify-content-between.align-items-start.mb-2
               %h5.fw-bold.mb-0= job.title
               - if job.quote_expired?
-                %span.badge.bg-secondary Expired
+                %span.badge.bg-secondary= t("clients.quotes.index.expired_badge")
               - else
-                %span.badge.bg-warning.text-dark Awaiting decision
+                %span.badge.bg-warning.text-dark= t("clients.quotes.index.awaiting_badge")
             %p.text-muted.small.mb-2= job.shop.name
             - if job.work_amount_ore
               .mb-2
                 %strong= format_nok(job.work_amount_ore)
-                %span.text-muted.small  + #{job.shop.commission_percent}% commission + 25% MVA
+                %span.text-muted.small  + #{job.shop.commission_percent}% commission #{t("clients.quotes.index.vat_suffix")}
             - if job.quote_expires_at
               %p.text-muted.small.mb-3
                 %i.bi.bi-clock.me-1
-                Expires #{job.quote_expires_at.strftime("%d %b %Y %H:%M")}
+                #{t("clients.quotes.index.expires")} #{job.quote_expires_at.strftime("%d %b %Y %H:%M")}
             .d-flex.gap-2
-              = link_to "View quote", clients_quote_path(job), class: "btn btn-outline-primary btn-sm"
+              = link_to t("clients.quotes.index.view_quote"), clients_quote_path(job), class: "btn btn-outline-primary btn-sm"
               - unless job.quote_expired?
-                = button_to "Accept", accept_clients_quote_path(job), method: :post, class: "btn btn-success btn-sm"
-                = button_to "Decline", decline_clients_quote_path(job), method: :post, class: "btn btn-outline-danger btn-sm"
+                = button_to t("clients.quotes.index.accept"), accept_clients_quote_path(job), method: :post,
+                    class: "btn btn-success btn-sm",
+                    data: { turbo_confirm: t("clients.quotes.index.accept_confirm") }
+                = button_to t("clients.quotes.index.decline"), decline_clients_quote_path(job), method: :post,
+                    class: "btn btn-outline-danger btn-sm",
+                    data: { turbo_confirm: t("clients.quotes.index.decline_confirm") }
 - else
   .text-center.py-5
     %i.bi.bi-file-earmark-text.display-3.text-muted
-    %h5.fw-bold.mt-3 No quotes yet
-    %p.text-muted= link_to "Browse shops", shops_path
+    %h5.fw-bold.mt-3= t("clients.quotes.index.no_quotes")
+    %p.text-muted= link_to t("clients.quotes.index.browse_shops"), shops_path

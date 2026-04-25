@@ -1,5 +1,5 @@
 %h2.mb-4
-  Dashboard
+  = t("clients.dashboard.show.title")
   %small.text-muted.fw-normal.ms-2= @client.org_name
 
 .row.mb-4
@@ -7,15 +7,15 @@
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @open_jobs.size
-        %p.text-muted.small.mb-0 Open Jobs
+        %p.text-muted.small.mb-0= t("clients.dashboard.show.open_jobs")
   .col-md-6.mb-3
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @recent_jobs.size
-        %p.text-muted.small.mb-0 Total Jobs
+        %p.text-muted.small.mb-0= t("clients.dashboard.show.total_jobs")
 
 .card.border-0.shadow-sm
-  .card-header.bg-white.fw-bold Recent jobs
+  .card-header.bg-white.fw-bold= t("clients.dashboard.show.recent_jobs")
   .card-body
     - if @recent_jobs.any?
       .list-group.list-group-flush
@@ -26,10 +26,10 @@
               %br
               %small.text-muted= job.shop.name
             %span.badge{class: job.disputed? ? "bg-danger" : job.invoiced? || job.completed? ? "bg-success" : "bg-primary"}
-              = job.status.humanize
+              = t("common.status.#{job.status}", default: job.status.humanize)
     - else
       .text-center.py-4
-        %p.text-muted.mb-3 No jobs yet.
+        %p.text-muted.mb-3= t("clients.dashboard.show.no_jobs")
         = link_to shops_path, class: "btn btn-primary" do
           %i.bi.bi-search.me-1
-          Browse shops
+          = t("clients.dashboard.show.find_shops")

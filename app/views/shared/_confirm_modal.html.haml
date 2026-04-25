@@ -1,0 +1,11 @@
+%div#turbo-confirm-modal.modal.fade{tabindex: "-1", aria: { hidden: "true", labelledby: "confirm-modal-label" }}
+  .modal-dialog.modal-dialog-centered.modal-sm
+    .modal-content.border-0.shadow-lg
+      .modal-body.text-center.px-4.pt-4.pb-2
+        .mb-3
+          %span.d-inline-flex.align-items-center.justify-content-center.rounded-circle.bg-warning.bg-opacity-10{style: "width:56px;height:56px"}
+            %i.bi.bi-exclamation-triangle.text-warning.fs-4
+        %p.fw-semibold.mb-1{id: "confirm-modal-label", "data-confirm-message": ""} Are you sure?
+      .modal-footer.border-0.justify-content-center.gap-2.pb-4.pt-1
+        %button.btn.btn-outline-secondary.px-4{type: "button", "data-bs-dismiss": "modal"} Cancel
+        %button.btn.btn-primary.px-4{type: "button", data: { "confirm-accept": "" }} Confirm

@@ -10,11 +10,11 @@ module ApplicationHelper
   def chat_date_label(date)
     today = Date.current
     if date == today
-      "Today"
+      t("shared.job_chat.today")
     elsif date == today - 1
-      "Yesterday"
+      t("shared.job_chat.yesterday")
     elsif date > today - 7
-      date.strftime("%A")
+      I18n.t("date.day_names")[date.wday]
     else
       date.strftime("%d %b %Y")
     end

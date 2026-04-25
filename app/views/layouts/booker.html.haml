@@ -50,23 +50,23 @@
             %li.nav-item
               %a.nav-link{href: booker_dashboard_path, class: nav_active?("booker/dashboard")}
                 %i.bi.bi-speedometer2.me-1
-                Dashboard
+                = t("common.nav.dashboard")
             %li.nav-item
               %a.nav-link{href: booker_freelancers_path, class: nav_active?("booker/freelancer")}
                 %i.bi.bi-people.me-1
-                Freelancers
+                = t("common.nav.freelancers")
             %li.nav-item
               %a.nav-link{href: booker_bookings_path, class: nav_active?("booker/booking")}
                 %i.bi.bi-calendar-check.me-1
-                Bookings
+                = t("common.nav.bookings")
             %li.nav-item
               %a.nav-link{href: booker_payouts_path, class: nav_active?("booker/payout")}
                 %i.bi.bi-cash-stack.me-1
-                Payouts
+                = t("common.nav.payouts")
             %li.nav-item
               %a.nav-link{href: booker_settings_path, class: nav_active?("booker/setting")}
                 %i.bi.bi-gear.me-1
-                Settings
+                = t("common.nav.settings")
                 - unless current_user.pop_configured?
                   %span.badge.bg-warning.text-dark.ms-1 !
           %ul.navbar-nav
@@ -75,7 +75,7 @@
                 = user_avatar(current_user, size: 24)
                 = current_user.name || current_user.email
             %li.nav-item
-              = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-light btn-sm my-1"
+              = button_to t("common.nav.sign_out"), users_sign_out_path, method: :delete, class: "btn btn-outline-light btn-sm my-1"
 
     - if current_user.pop_configured?
       - env = pop_environment_banner(current_user.effective_pop_base_url)
@@ -90,19 +90,12 @@
         = link_to "Set up", booker_settings_path, class: "ms-1"
 
     .container-fluid.px-4.py-4
-      - if flash[:notice]
-        .alert.alert-success.alert-dismissible.fade.show
-          = flash[:notice]
-          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
-      - if flash[:alert]
-        .alert.alert-danger.alert-dismissible.fade.show
-          = flash[:alert]
-          %button.btn-close{type: "button", "data-bs-dismiss": "alert"}
-
+      = render "shared/flash"
       = yield
 
     - if Rails.env.development?
       = render "shared/developer_notes"
 
+    = render "shared/confirm_modal"
     = javascript_importmap_tags
     %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js", crossorigin: "anonymous", "data-turbo-eval": "false"}

@@ -67,7 +67,7 @@
     .chat-window#chat-messages
       - if local_assigns[:older_count].to_i > 0
         .text-center.py-2
-          = link_to "Load #{local_assigns[:older_count]} earlier messages", request.path + "?all=1", class: "small text-muted"
+          = link_to t("shared.job_chat.load_earlier", count: local_assigns[:older_count]), request.path + "?all=1#chat-messages", class: "small text-muted"
       - if messages.any?
         - divider_shown = false
         - prev_sender_id = nil
@@ -83,13 +83,13 @@
             - divider_shown = true
             - prev_sender_id = nil
             .chat-new-divider#new-messages-divider
-              %span New messages
+              %span= t("shared.job_chat.new_messages")
           - group_first = message.system_message? || message.sender_id != prev_sender_id
           = render "shared/job_message", message: message, job: job, current_user_id: current_user&.id, job_reads: local_assigns[:job_reads], other_participant_ids: local_assigns[:other_participant_ids], group_first: group_first
           - prev_sender_id = message.system_message? ? nil : message.sender_id
       - else
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
-          Chat is open. Discuss details with the shop.
+          = t("shared.job_chat.empty_hint")
 
   - if signed_in? && !job.invoiced? && !job.paid? && !job.completed?
     .chat-input-wrap{"data-controller": "voice-recorder"}
@@ -104,7 +104,7 @@
           %button.btn-close{type: "button", style: "font-size: 0.5rem;", data: { action: "click->chat-form#clearFile" }}
         /- Normal input row
         .d-flex.gap-2.align-items-center{"data-voice-recorder-target": "normalUI"}
-          = f.text_field "message[body]", class: "form-control", placeholder: "Type a message…",
+          = f.text_field "message[body]", class: "form-control", placeholder: t("shared.job_chat.placeholder"),
               autocomplete: "off", data: { "chat-form-target": "input" }
           %button.chat-send-btn{type: "button", data: { action: "click->chat-form#pickFile" }}
             %i.bi.bi-paperclip

@@ -9,6 +9,7 @@ class Dispute < ApplicationRecord
   validates :reason, presence: true
 
   def respond!(user:, response:)
+    raise "Cannot respond to dispute in '#{status}' state" unless open?
     update!(
       status: :responded,
       responded_by: user,
@@ -18,6 +19,8 @@ class Dispute < ApplicationRecord
   end
 
   def resolve!(user:, resolution:)
+    raise "Cannot resolve dispute in '#{status}' state" unless open? || responded?
+    raise "Cannot resolve dispute for an already-invoiced job" if job.invoiced? || job.paid? || job.completed?
     update!(
       status: :resolved,
       resolved_by: user,
@@ -28,6 +31,7 @@ class Dispute < ApplicationRecord
   end
 
   def close!(user:, resolution:)
+    raise "Cannot close dispute in '#{status}' state" unless open? || responded? || resolved?
     update!(
       status: :closed,
       resolved_by: user,

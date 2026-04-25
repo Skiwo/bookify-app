@@ -3,4 +3,6 @@
   body_text: "The dispute for #{@job.title} has been resolved.",
   detail_label: "Resolution",
   detail_value: @job.dispute&.resolution,
+  cta_text: "View job",
+  cta_url: @dispute_resolved_url,
   btn_class: "btn-success" %>

@@ -30,8 +30,10 @@
 
     - unless @job.quote_expired?
       .d-flex.gap-3
-        = button_to t("clients.quotes.show.accept"), accept_clients_quote_path(@job), method: :post, class: "btn btn-success"
-        = button_to t("common.actions.decline"), decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger"
+        = button_to t("clients.quotes.show.accept"), accept_clients_quote_path(@job), method: :post, class: "btn btn-success",
+            data: { turbo_confirm: "Accept this quote and start the job?" }
+        = button_to t("common.actions.decline"), decline_clients_quote_path(@job), method: :post, class: "btn btn-outline-danger",
+            data: { turbo_confirm: "Decline this quote? The shop will be notified." }
     - else
       .alert.alert-secondary= t("clients.quotes.show.expired_notice")
 

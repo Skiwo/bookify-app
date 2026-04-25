@@ -8,6 +8,7 @@ class User < ApplicationRecord
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true
+  validates :locale, inclusion: { in: %w[nb en] }
 
   before_validation :normalize_email
 

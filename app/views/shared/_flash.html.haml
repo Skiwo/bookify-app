@@ -1,0 +1,8 @@
+- if flash[:notice]
+  .alert.alert-success.alert-dismissible.fade.show{"data-controller": "flash", role: "alert"}
+    = flash[:notice]
+    %button.btn-close{type: "button", "data-action": "click->flash#dismiss", aria: { label: "Close" }}
+- if flash[:alert]
+  .alert.alert-danger.alert-dismissible.fade.show{"data-controller": "flash", role: "alert"}
+    = flash[:alert]
+    %button.btn-close{type: "button", "data-action": "click->flash#dismiss", aria: { label: "Close" }}

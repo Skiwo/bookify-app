@@ -5,8 +5,14 @@ module Bookify
     # Shop owner: redirect to POP to enroll as a freelancer (to receive commissions)
     def shop
       shop = Shop.find_by!(owner: current_user)
+
+      if shop.pop_worker_id.present?
+        redirect_to shop_dashboard_path, notice: t("flash.shop_already_enrolled")
+        return
+      end
+
       client = PopApiClient.for_bookify
-      callback = bookify_callback_shop_url(shop_id: shop.id)
+      callback = bookify_callback_shop_url
       url = client.connect_url(worker_id: current_user.id, callback_url: callback)
       redirect_to url, allow_other_host: true
     end

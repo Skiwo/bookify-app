@@ -1,9 +1,9 @@
 .d-flex.justify-content-between.align-items-center.mb-4
-  %h2 Jobs
+  %h2= t("shop_admin.jobs.index.title")
 
   .d-flex.gap-2
     - %w[draft quoted accepted in_progress pending_confirmation invoiced completed].each do |s|
-      = link_to s.humanize, shop_jobs_path(status: s),
+      = link_to t("common.status.#{s}", default: s.humanize), shop_jobs_path(status: s),
           class: "btn btn-sm #{params[:status] == s ? 'btn-primary' : 'btn-outline-secondary'}"
     = link_to "All", shop_jobs_path, class: "btn btn-sm #{params[:status].blank? ? 'btn-primary' : 'btn-outline-secondary'}"
 
@@ -12,11 +12,11 @@
     %table.table.table-hover.align-middle
       %thead.table-light
         %tr
-          %th Title
-          %th Client
-          %th Member
-          %th Amount
-          %th Status
+          %th= t("shop_admin.jobs.index.col_job")
+          %th= t("shop_admin.jobs.index.col_client")
+          %th= t("shop_admin.jobs.index.col_member")
+          %th= t("shop_admin.jobs.index.col_amount")
+          %th= t("shop_admin.jobs.index.col_status")
           %th
       %tbody
         - @jobs.each do |job|
@@ -24,15 +24,15 @@
             %td
               = link_to job.title, shop_job_path(job), class: "fw-medium text-decoration-none"
             %td.text-muted= job.client.org_name
-            %td.text-muted= job.assigned_member&.name || "—"
-            %td= job.work_amount_ore ? format_nok(job.work_amount_ore) : "—"
+            %td.text-muted= job.assigned_member&.name || t("common.member.none")
+            %td= job.work_amount_ore ? format_nok(job.work_amount_ore) : t("common.member.none")
             %td
               %span.badge{class: job.draft? ? "bg-secondary" : job.invoiced? || job.paid? ? "bg-success" : job.disputed? ? "bg-danger" : "bg-primary"}
-                = job.status.humanize
+                = t("common.status.#{job.status}", default: job.status.humanize)
             %td.text-end
-              = link_to "View", shop_job_path(job), class: "btn btn-sm btn-outline-primary"
+              = link_to t("shop_admin.jobs.index.view"), shop_job_path(job), class: "btn btn-sm btn-outline-primary"
 - else
   .text-center.py-5
     %i.bi.bi-briefcase.display-3.text-muted
-    %h5.fw-bold.mt-3 No jobs yet
-    %p.text-muted Jobs appear here when clients submit requests.
+    %h5.fw-bold.mt-3= t("shop_admin.jobs.index.no_jobs")
+    %p.text-muted= t("shop_admin.jobs.index.no_jobs_hint")

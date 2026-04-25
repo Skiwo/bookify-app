@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_23_200001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -88,6 +88,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
     t.datetime "verified_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "bookify_fee_enabled", default: false, null: false
     t.index ["org_number"], name: "index_clients_on_org_number", unique: true
     t.index ["user_id"], name: "index_clients_on_user_id"
   end
@@ -100,8 +101,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
     t.datetime "resolved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "response"
+    t.uuid "responded_by_id"
+    t.datetime "responded_at"
+    t.text "resolution"
+    t.uuid "resolved_by_id"
     t.index ["job_id"], name: "index_disputes_on_job_id"
     t.index ["raised_by_id"], name: "index_disputes_on_raised_by_id"
+    t.index ["resolved_by_id"], name: "index_disputes_on_resolved_by_id"
+    t.index ["responded_by_id"], name: "index_disputes_on_responded_by_id"
   end
 
   create_table "enrollments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -206,6 +214,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
     t.index ["pop_payout_id"], name: "index_payouts_on_pop_payout_id", unique: true
   end
 
+  create_table "quote_lines", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_id", null: false
+    t.string "description", null: false
+    t.integer "rate_ore", null: false
+    t.decimal "hours", precision: 5, scale: 2, default: "1.0", null: false
+    t.integer "amount_ore", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id"], name: "index_quote_lines_on_job_id"
+  end
+
   create_table "shop_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "shop_id", null: false
     t.string "email", null: false
@@ -271,6 +291,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
     t.string "pop_production_hmac_secret"
     t.string "pop_production_partner_id"
     t.datetime "last_online_at"
+    t.string "locale", default: "nb", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["role"], name: "index_users_on_role"
   end
@@ -282,6 +303,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
   add_foreign_key "clients", "users"
   add_foreign_key "disputes", "jobs"
   add_foreign_key "disputes", "users", column: "raised_by_id"
+  add_foreign_key "disputes", "users", column: "resolved_by_id"
+  add_foreign_key "disputes", "users", column: "responded_by_id"
   add_foreign_key "enrollments", "users", column: "booker_id"
   add_foreign_key "enrollments", "users", column: "freelancer_id"
   add_foreign_key "job_reads", "jobs"
@@ -293,6 +316,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_100003) do
   add_foreign_key "messages", "jobs"
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "payouts", "bookings"
+  add_foreign_key "quote_lines", "jobs"
   add_foreign_key "shop_invitations", "shops"
   add_foreign_key "shop_members", "enrollments"
   add_foreign_key "shop_members", "shops"

@@ -24,10 +24,13 @@ module Clients
 
       if @client.save
         current_user.update!(role: :client)
-        redirect_to clients_dashboard_path, notice: "Welcome to Bookify! Your organisation has been verified."
+        redirect_to clients_dashboard_path, notice: t("flash.org_verified")
       else
         render :new, status: :unprocessable_entity
       end
+    rescue ActiveRecord::RecordNotUnique
+      @client.errors.add(:org_number, "is already registered on Bookify")
+      render :new, status: :unprocessable_entity
     end
 
     private

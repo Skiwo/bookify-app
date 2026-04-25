@@ -9,7 +9,7 @@ module Freelancer
     def sync_payout
       @job = find_job
       Bookify::PayoutSyncService.new(@job).call
-      redirect_to freelancer_job_path(@job), notice: "Payout status refreshed."
+      redirect_to freelancer_job_path(@job), notice: t("flash.payout_refreshed")
     end
 
     def mark_complete
@@ -18,7 +18,7 @@ module Freelancer
         redirect_to freelancer_job_path(@job), alert: "Job cannot be marked complete at this stage."
         return
       end
-      hours = params[:work_hours].presence&.to_f || 8.0
+      hours = (params[:work_hours].presence&.to_f || 8.0).clamp(0.5, 24.0)
       @job.update!(
         status: :pending_confirmation,
         completion_marked_at: Time.current,
@@ -28,7 +28,7 @@ module Freelancer
       )
       name = current_user.name.presence || current_user.email.split("@").first
       Message.post_system(@job, "#{name} marked the job as complete (#{hours}h). Client has 48h to confirm.")
-      redirect_to freelancer_job_path(@job), notice: "Job marked as complete. Client has 48 hours to confirm."
+      redirect_to freelancer_job_path(@job), notice: t("flash.job_complete")
     end
 
     private

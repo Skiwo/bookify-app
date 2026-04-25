@@ -25,6 +25,12 @@ module ShopAdmin
 
       commission_ore = (current_shop.commission_percent.to_f / 100 * work_ore).round
 
+      assigned_member_id = resolve_member_id(params[:assigned_member_id])
+      if assigned_member_id == :invalid
+        redirect_to new_shop_quote_path(job_id: @job.id), alert: t("flash.member_selected_invalid")
+        return
+      end
+
       ActiveRecord::Base.transaction do
         @job.quote_lines.destroy_all
         quote_lines.each { |ql| @job.quote_lines.create!(ql) }
@@ -32,7 +38,7 @@ module ShopAdmin
           status: :quoted,
           work_amount_ore: work_ore,
           commission_amount_ore: commission_ore,
-          assigned_member_id: params[:assigned_member_id],
+          assigned_member_id: assigned_member_id,
           quote_expires_at: 72.hours.from_now
         )
       end
@@ -40,7 +46,7 @@ module ShopAdmin
       summary = quote_lines.map { |ql| "#{ql[:description]} (kr #{ql[:amount_ore] / 100})" }.join(", ")
       Message.post_system(@job, "Quote sent by #{current_shop.name}: #{summary}. Total: kr #{work_ore / 100}. Valid 72 hours.")
       JobMailer.quote_sent(@job).deliver_later
-      redirect_to shop_job_path(@job), notice: "Quote sent to client."
+      redirect_to shop_job_path(@job), notice: t("flash.quote_sent")
     rescue ActiveRecord::RecordInvalid => e
       @members = current_shop.shop_members.active.includes(:enrollment)
       redirect_to new_shop_quote_path(job_id: @job.id), alert: e.message
@@ -48,6 +54,13 @@ module ShopAdmin
 
     def show
       @job = current_shop.jobs.find(params[:id])
+    end
+
+    private
+
+    def resolve_member_id(raw)
+      return nil if raw.blank?
+      current_shop.shop_members.exists?(id: raw) ? raw : :invalid
     end
   end
 end

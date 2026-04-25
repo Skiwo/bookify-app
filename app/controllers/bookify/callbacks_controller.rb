@@ -1,13 +1,17 @@
 module Bookify
   class CallbacksController < ApplicationController
-    # GET /bookify/callbacks/shop?worker_id=X&status=approved&shop_id=Y
+    before_action :require_authentication!, only: [:shop_owner]
+
+    # GET /bookify/callbacks/shop?worker_id=X&status=approved
+    # shop_id from params is intentionally ignored — we look up by current_user
+    # to prevent an attacker from overwriting another shop's pop_worker_id.
     def shop_owner
       unless %w[approved updated].include?(params[:status])
-        redirect_to shop_dashboard_path, alert: "POP enrollment was not completed."
+        redirect_to shop_dashboard_path, alert: t("flash.enrollment_failed")
         return
       end
 
-      shop = Shop.find(params[:shop_id])
+      shop = Shop.find_by!(owner: current_user)
       shop.update!(pop_worker_id: params[:worker_id])
 
       owner_name = shop.owner.name.presence || shop.owner.email.split("@").first
@@ -27,13 +31,13 @@ module Bookify
         member.update_columns(status: ShopMember.statuses[:active], bookify_pop_worker_id: params[:worker_id])
       end
 
-      redirect_to shop_dashboard_path, notice: "POP enrollment complete! You can now receive commission payouts."
+      redirect_to shop_dashboard_path, notice: t("flash.shop_enrolled")
     end
 
     # GET /bookify/callbacks/member?worker_id=X&status=approved&token=Y
     def member
       unless %w[approved updated].include?(params[:status])
-        redirect_to root_path, alert: "POP enrollment was not completed."
+        redirect_to root_path, alert: t("flash.enrollment_failed")
         return
       end
 
@@ -56,7 +60,7 @@ module Bookify
       sign_in(pwless_session)
 
       redirect_to freelancer_dashboard_path,
-        notice: "You're now enrolled with #{member.shop.name}. You'll receive payouts through Payout Partner AS."
+        notice: t("flash.shop_enrolled")
     end
   end
 end

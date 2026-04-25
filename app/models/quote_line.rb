@@ -11,6 +11,6 @@ class QuoteLine < ApplicationRecord
   private
 
   def calculate_amount
-    self.amount_ore = (rate_ore.to_i * hours.to_f).round if rate_ore.present? && hours.present?
+    self.amount_ore = (rate_ore.to_f * hours.to_f).round if rate_ore.present? && hours.present?
   end
 end

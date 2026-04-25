@@ -55,7 +55,7 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 - [x] Client provides org_number (9-digit format validation)
 - [x] Sets verified_at on registration
 - [x] Actual BRREG API call to verify org exists and is active (BrregService via Faraday; checks slettedato/konkurs/underAvvikling; auto-fills org_name + org_address from registry; Stimulus lookup on keystroke)
-- [д] Re-check before each invoice (presentation mentions this)
+- [x] Re-check before each invoice — BrregService called in InvoicingService#validate!; fails with "try again later" if BRREG is down
 
 ### Dispute flow
 - [x] Client can raise a dispute (sets status, creates Dispute record with reason)
@@ -77,7 +77,7 @@ Reference: `docs/bookify-plan-presentation.html` (v2, April 2026)
 ### Medium priority
 
 - [x] **BankID verification** — POP handles Criipto/BankID during onboarding; UI patched: BankID badge on member roster, disabled select + warning in quote form for unverified members, onboarding banner on freelancer dashboard
-- [ ] **Shop owner operates from payoutpartner.com** — presentation says shop owners manage from POP, not bookify.app. Currently shop admin is on bookify.app.
+- [x] **Shop owner operates from payoutpartner.com** — shop_admin namespace is inside PopDomainConstraint; freelancer/booker namespaces too.
 
 ### Low priority / Proposed
 

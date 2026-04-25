@@ -15,7 +15,7 @@ module Clients
 
     def mark_complete
       @job = current_client.jobs.pending_confirmation.find(params[:id])
-      actual_hours   = params[:work_hours].presence&.to_f || @job.work_hours || 8.0
+      actual_hours   = (params[:work_hours].presence&.to_f || @job.work_hours || 8.0).clamp(0.5, 24.0)
       work_ore       = @job.rate_per_hour_ore.present? ? (@job.rate_per_hour_ore * actual_hours).round : @job.work_amount_ore
       commission_ore = (@job.shop.commission_percent.to_f / 100 * work_ore).round
 
@@ -31,7 +31,7 @@ module Clients
         Message.post_system(@job, "✓ #{current_client.org_name} confirmed completion (#{@job.work_hours}h on #{@job.work_date&.strftime("%d %b")}). Invoice issued by Payout Partner AS.")
         JobMailer.job_invoiced(@job).deliver_later
         JobMailer.job_invoiced_member(@job).deliver_later if @job.assigned_member
-        redirect_to clients_job_path(@job), notice: "Job confirmed. Invoice will be issued by Payout Partner AS within 24 hours."
+        redirect_to clients_job_path(@job), notice: t("flash.job_confirmed")
       else
         redirect_to clients_job_path(@job), alert: "Could not issue invoice: #{result.error&.message}. Please contact support."
       end
@@ -41,7 +41,7 @@ module Clients
       @job = current_client.jobs.where(status: [:draft, :quoted]).find(params[:id])
       @job.update!(status: :cancelled)
       Message.post_system(@job, "✗ Request cancelled by #{current_client.org_name}.")
-      redirect_to clients_jobs_path, notice: "Request cancelled."
+      redirect_to clients_jobs_path, notice: t("flash.request_cancelled")
     end
 
     def dispute
@@ -51,7 +51,7 @@ module Clients
       @job.create_dispute!(raised_by: current_user, reason: reason)
       Message.post_system(@job, "#{current_client.org_name} raised a dispute: #{reason}")
       JobMailer.dispute_raised(@job).deliver_later
-      redirect_to clients_job_path(@job), notice: "Dispute raised."
+      redirect_to clients_job_path(@job), notice: t("flash.dispute_raised")
     end
   end
 end

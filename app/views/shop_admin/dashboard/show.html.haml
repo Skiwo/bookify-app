@@ -1,28 +1,29 @@
 %h2.mb-4
   = @shop.name
-  %span.badge.ms-2{class: @shop.active? ? "bg-success" : "bg-secondary"}= @shop.status.humanize
+  %span.badge.ms-2{class: @shop.active? ? "bg-success" : "bg-secondary"}
+    = t("common.status.#{@shop.status}", default: @shop.status.humanize)
 
 .row.mb-4
   .col-md-4.mb-3
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @pending_jobs.size
-        %p.text-muted.small.mb-0 New Requests
+        %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.new_requests")
   .col-md-4.mb-3
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @active_jobs.size
-        %p.text-muted.small.mb-0 Active Jobs
+        %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.active_jobs")
   .col-md-4.mb-3
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @members_count
-        %p.text-muted.small.mb-0 Active Members
+        %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.active_members")
 
 .row
   .col-md-6
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold New Requests
+      .card-header.bg-white.fw-bold= t("shop_admin.dashboard.show.new_requests")
       .card-body
         - if @pending_jobs.any?
           .list-group.list-group-flush
@@ -33,11 +34,11 @@
                   %small.text-muted= time_ago_in_words(job.created_at) + " ago"
                 %small.text-muted= job.client.org_name
         - else
-          %p.text-muted.mb-0.py-2 No new requests.
+          %p.text-muted.mb-0.py-2= t("shop_admin.dashboard.show.no_new_requests")
 
   .col-md-6
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold Active Jobs
+      .card-header.bg-white.fw-bold= t("shop_admin.dashboard.show.active_jobs")
       .card-body
         - if @active_jobs.any?
           .list-group.list-group-flush
@@ -45,6 +46,7 @@
               = link_to shop_job_path(job), class: "list-group-item list-group-item-action" do
                 .d-flex.justify-content-between
                   %span.fw-medium= job.title
-                  %span.badge.bg-primary.rounded-pill= job.status.humanize
+                  %span.badge.bg-primary.rounded-pill
+                    = t("common.status.#{job.status}", default: job.status.humanize)
         - else
-          %p.text-muted.mb-0.py-2 No active jobs.
+          %p.text-muted.mb-0.py-2= t("shop_admin.dashboard.show.no_active_jobs")

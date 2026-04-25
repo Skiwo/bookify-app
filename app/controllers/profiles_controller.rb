@@ -9,7 +9,7 @@ class ProfilesController < ApplicationController
   def update
     @user = current_user
     if @user.update(profile_params)
-      redirect_to edit_profile_path, notice: "Profile updated."
+      redirect_to edit_profile_path, notice: t("flash.profile_updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -18,7 +18,7 @@ class ProfilesController < ApplicationController
   private
 
   def profile_params
-    params.require(:user).permit(:name, :avatar)
+    params.require(:user).permit(:name, :avatar, :locale)
   end
 
   def resolve_layout

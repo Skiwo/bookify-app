@@ -63,14 +63,14 @@
               %li.nav-item
                 %span.nav-link.text-muted= current_user.name || current_user.email
               %li.nav-item
-                = button_to "Sign out", users_sign_out_path, method: :delete, class: "btn btn-outline-secondary btn-sm my-1"
+                = button_to t("common.nav.sign_out"), users_sign_out_path, method: :delete, class: "btn btn-outline-secondary btn-sm my-1"
             - else
               %li.nav-item
                 %a.nav-link{href: root_path} Home
               %li.nav-item
                 %a.nav-link{href: about_path} About
               %li.nav-item
-                %a.nav-link{href: users_sign_in_path} Sign in
+                %a.nav-link{href: users_sign_in_path}= t("common.nav.sign_in")
 
     - if content_for?(:body_class) && yield(:body_class) == "landing-page"
       %nav.navbar.navbar-expand-md.navbar-dark.navbar-sticky{style: "background: transparent; position: absolute; width: 100%; z-index: 10;"}
@@ -88,24 +88,12 @@
                 %a.nav-link.text-white{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
                   %i.bi.bi-github
               %li.nav-item
-                %a.btn.btn-outline-light.btn-sm.ms-2.my-1{href: users_sign_in_path} Sign in
-
-    - if flash[:notice] || flash[:alert]
-      .toast-container.position-fixed.top-0.end-0.p-3{style: "z-index: 1100; margin-top: 70px;"}
-        - if flash[:notice]
-          .toast.show.align-items-center.text-bg-success.border-0{"data-bs-autohide": "true", "data-bs-delay": "4000", role: "alert"}
-            .d-flex
-              .toast-body= flash[:notice]
-              %button.btn-close.btn-close-white.me-2.m-auto{type: "button", "data-bs-dismiss": "toast"}
-        - if flash[:alert]
-          .toast.show.align-items-center.text-bg-danger.border-0{"data-bs-autohide": "true", "data-bs-delay": "4000", role: "alert"}
-            .d-flex
-              .toast-body= flash[:alert]
-              %button.btn-close.btn-close-white.me-2.m-auto{type: "button", "data-bs-dismiss": "toast"}
+                %a.btn.btn-outline-light.btn-sm.ms-2.my-1{href: users_sign_in_path}= t("common.nav.sign_in")
 
     .main-content
       - unless content_for?(:body_class) && yield(:body_class) == "landing-page"
         .container.py-4
+          = render "shared/flash"
           = yield
       - else
         = yield
@@ -123,6 +111,7 @@
             %a.me-3.small{href: "https://github.com/skiwo/bookify-app", target: "_blank"} GitHub
             %a.small{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"} API Docs
 
+    = render "shared/confirm_modal"
     = javascript_importmap_tags
     %script{src: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js", crossorigin: "anonymous", "data-turbo-eval": "false"}
     :javascript
