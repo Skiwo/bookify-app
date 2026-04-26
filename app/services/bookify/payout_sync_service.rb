@@ -17,7 +17,19 @@ module Bookify
         pop_response: result.data,
         synced_at: Time.current
       )
+      advance_job_status!(payout.pop_status)
       true
+    end
+
+    private
+
+    def advance_job_status!(pop_status)
+      case pop_status
+      when "paid", "settled"
+        @job.update!(status: :paid) if @job.invoiced?
+      when "completed"
+        @job.update!(status: :completed) if @job.paid? || @job.invoiced?
+      end
     end
   end
 end

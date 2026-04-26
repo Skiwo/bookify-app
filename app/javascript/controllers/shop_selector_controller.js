@@ -33,9 +33,10 @@ export default class extends Controller {
     this.countTargets.forEach(el => { el.textContent = count })
 
     if (this.hasSelectedLabelTarget) {
-      const label = count === 1
+      const template = count === 1
         ? this.selectedLabelTarget.dataset.one
         : this.selectedLabelTarget.dataset.other
+      const label = template.replace("{count}", count)
       this.selectedTextTargets.forEach(el => { el.textContent = label })
     }
 

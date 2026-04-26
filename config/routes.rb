@@ -131,6 +131,8 @@ Rails.application.routes.draw do
       resources :bookings, only: [:index, :show]
       resources :jobs, only: [:show] do
         member do
+          post :accept_assignment
+          post :decline_assignment
           post :mark_complete
           post :sync_payout
         end

@@ -16,11 +16,10 @@
           = t("pages.landing.manage_sub")
         %p.lead.mb-4{style: "opacity: 0.9;"}= t("pages.landing.hero_body")
         .d-flex.flex-wrap.gap-3
-          %a.btn.btn-light.btn-lg.px-4{href: users_sign_in_path}
-            %i.bi.bi-arrow-right-circle.me-2
+          %a.btn.btn-light.btn-lg.px-4{href: shops_path}
+            %i.bi.bi-search.me-2
             = t("pages.landing.get_started")
-          %a.btn.btn-outline-light.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
-            %i.bi.bi-github.me-2
+          %a.btn.btn-outline-light.btn-lg.px-4{href: about_path}
             = t("pages.landing.view_source")
 
       .col-lg-5.d-none.d-lg-block.text-center
@@ -124,20 +123,10 @@
       .col-md-8
         .card.border-0.shadow.text-center
           .card-body.p-5
-            %i.bi.bi-code-square.display-4.text-primary.mb-3
-            %h3.fw-bold= t("pages.landing.built_for_devs")
-            %p.text-muted.mb-4= t("pages.landing.built_for_devs_full")
-            .d-flex.flex-wrap.justify-content-center.gap-2
-              %span.badge.bg-light.text-dark.border.px-3.py-2 Rails 8
-              %span.badge.bg-light.text-dark.border.px-3.py-2 PostgreSQL
-              %span.badge.bg-light.text-dark.border.px-3.py-2 Bootstrap 5
-              %span.badge.bg-light.text-dark.border.px-3.py-2 HAML
-              %span.badge.bg-light.text-dark.border.px-3.py-2 Heroku-ready
-            %hr.my-4
+            %i.bi.bi-search.display-4.text-primary.mb-3
+            %h3.fw-bold= t("pages.landing.cta_heading")
+            %p.text-muted.mb-4= t("pages.landing.cta_body")
             .d-flex.flex-wrap.justify-content-center.gap-3
-              %a.btn.btn-primary.btn-lg.px-4{href: "https://github.com/skiwo/bookify-app", target: "_blank"}
-                %i.bi.bi-github.me-2
-                = t("pages.landing.view_github")
-              %a.btn.btn-outline-primary.btn-lg.px-4{href: "https://sandbox.core.payoutpartner.com/api-docs", target: "_blank"}
-                %i.bi.bi-file-code.me-2
-                = t("pages.landing.api_docs")
+              %a.btn.btn-primary.btn-lg.px-4{href: shops_path}
+                %i.bi.bi-arrow-right.me-2
+                = t("pages.landing.cta_browse")

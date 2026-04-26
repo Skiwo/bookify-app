@@ -27,7 +27,7 @@ class Dispute < ApplicationRecord
       resolution: resolution,
       resolved_at: Time.current
     )
-    job.update!(status: :accepted)
+    job.update!(status: :in_progress)
   end
 
   def close!(user:, resolution:)

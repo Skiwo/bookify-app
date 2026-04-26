@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_23_200001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_23_200001) do
     t.decimal "estimated_hours", precision: 5, scale: 2
     t.date "desired_date"
     t.decimal "desired_hours", precision: 5, scale: 2
+    t.datetime "member_accepted_at"
     t.index ["assigned_member_id"], name: "index_jobs_on_assigned_member_id"
     t.index ["booking_id"], name: "index_jobs_on_booking_id"
     t.index ["client_id"], name: "index_jobs_on_client_id"
@@ -269,7 +270,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_23_200001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "pop_worker_id"
-    t.index ["owner_id"], name: "index_shops_on_owner_id"
+    t.index ["owner_id"], name: "index_shops_on_owner_id", unique: true
     t.index ["slug"], name: "index_shops_on_slug", unique: true
     t.index ["status"], name: "index_shops_on_status"
     t.index ["visibility"], name: "index_shops_on_visibility"

@@ -16,8 +16,8 @@ module Clients
         return
       end
 
-      @job.update!(status: :accepted)
-      Message.post_system(@job, "✓ Quote accepted by #{current_client.org_name}. Chat is open.")
+      @job.update!(status: :in_progress)
+      Message.post_system(@job, "✓ Quote accepted by #{current_client.org_name}. Work is in progress.")
       JobMailer.quote_accepted(@job).deliver_later
       JobMailer.member_assigned(@job).deliver_later if @job.assigned_member
       redirect_to clients_job_path(@job), notice: t("flash.quote_accepted")

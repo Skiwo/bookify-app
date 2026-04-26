@@ -4,6 +4,7 @@ class Shop < ApplicationRecord
 
   has_one_attached :avatar
   belongs_to :owner, class_name: "User"
+  validates :owner_id, uniqueness: { message: "already owns a shop (one person, one shop)" }
   has_many :shop_members, dependent: :destroy
   has_many :jobs, dependent: :restrict_with_error
   has_many :shop_invitations, dependent: :destroy
@@ -11,7 +12,7 @@ class Shop < ApplicationRecord
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: { case_sensitive: false },
                    format: { with: /\A[a-z0-9-]+\z/, message: "only lowercase letters, numbers, hyphens" }
-  validates :commission_percent, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :commission_percent, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 50 }
 
   before_validation :generate_slug, on: :create, if: -> { slug.blank? && name.present? }
 

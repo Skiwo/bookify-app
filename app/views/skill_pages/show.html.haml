@@ -18,6 +18,7 @@
                     type: "checkbox",
                     data: { "shop-selector-target": "checkbox", slug: shop.slug, action: "change->shop-selector#toggle" }
                   }
+                = shop_avatar(shop, size: 48)
                 .lh-sm
                   %h5.card-title.fw-bold.mb-0= shop.name
                   - if shop.city.present?
@@ -38,7 +39,7 @@
             .fw-semibold.text-primary.small{
               "data-shop-selector-target": "selectedLabel",
               "data-one": t("skill_pages.show.shops_selected", count: 1),
-              "data-other": t("skill_pages.show.shops_selected", count: 2)}
+              "data-other": t("skill_pages.show.shops_selected_template", default: "%{count} shops selected").gsub("%{count}", "{count}")}
               %i.bi.bi-check2-square.me-1
               %span{"data-shop-selector-target": "selectedText"}= t("skill_pages.show.shops_selected", count: 0)
             .text-warning.small.d-none{"data-shop-selector-target": "limitNotice"}

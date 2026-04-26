@@ -3,20 +3,20 @@
   %head
     %meta{charset: "utf-8"}
     %meta{name: "viewport", content: "width=device-width, initial-scale=1"}
-    %title= content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"
-    %meta{name: "description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."}
+    %title= content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Hire Norwegian Freelancers"
+    %meta{name: "description", content: content_for?(:description) ? yield(:description) : "Hire verified Norwegian freelancers. Proper invoices via Payout Partner AS — payroll, tax, and compliance handled."}
 
     /OG tags
-    %meta{property: "og:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"}
-    %meta{property: "og:description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API. Onboard freelancers, create bookings, and process payouts."}
+    %meta{property: "og:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Hire Norwegian Freelancers"}
+    %meta{property: "og:description", content: content_for?(:description) ? yield(:description) : "Hire verified Norwegian freelancers. Proper invoices, payroll handled. Onboard freelancers, create bookings, and process payouts."}
     %meta{property: "og:type", content: "website"}
     %meta{property: "og:url", content: request.original_url}
     %meta{property: "og:site_name", content: "Bookify"}
 
     /Twitter Card
     %meta{name: "twitter:card", content: "summary"}
-    %meta{name: "twitter:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Freelancer Payout Management"}
-    %meta{name: "twitter:description", content: content_for?(:description) ? yield(:description) : "Open-source freelancer payout management app built on the PayoutPartner API."}
+    %meta{name: "twitter:title", content: content_for?(:title) ? "#{yield(:title)} — Bookify" : "Bookify — Hire Norwegian Freelancers"}
+    %meta{name: "twitter:description", content: content_for?(:description) ? yield(:description) : "Hire verified Norwegian freelancers. Proper invoices, payroll handled."}
 
     %link{rel: "icon", type: "image/svg+xml", href: "/favicon.svg"}
     %link{rel: "preconnect", href: "https://fonts.googleapis.com"}

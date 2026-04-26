@@ -12,8 +12,28 @@ module Freelancer
       redirect_to freelancer_job_path(@job), notice: t("flash.payout_refreshed")
     end
 
+    def accept_assignment
+      @job = find_job
+      @job.update!(member_accepted_at: Time.current)
+      name = current_user.name.presence || current_user.email.split("@").first
+      Message.post_system(@job, "✓ #{name} accepted the assignment.")
+      redirect_to freelancer_job_path(@job), notice: "Assignment accepted."
+    end
+
+    def decline_assignment
+      @job = find_job
+      name = current_user.name.presence || current_user.email.split("@").first
+      @job.update!(assigned_member_id: nil, member_accepted_at: nil)
+      Message.post_system(@job, "✗ #{name} declined the assignment. Shop can reassign.")
+      redirect_to freelancer_dashboard_path, notice: "Assignment declined."
+    end
+
     def mark_complete
       @job = find_job
+      unless @job.member_accepted_at.present?
+        redirect_to freelancer_job_path(@job), alert: "Accept the assignment first."
+        return
+      end
       unless @job.in_progress? || @job.accepted?
         redirect_to freelancer_job_path(@job), alert: "Job cannot be marked complete at this stage."
         return

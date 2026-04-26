@@ -1,19 +1,19 @@
-%h2.mb-4 Shop settings
+%h2.mb-4= t("shop_admin.settings.title")
 
 .card.border-0.shadow-sm
   .card-body
     = form_with model: @shop, url: shop_settings_path, method: :patch, local: true, multipart: true do |f|
       .row
         .col-md-6.mb-3
-          = f.label :name, "Shop name", class: "form-label fw-medium"
+          = f.label :name, t("shop_admin.settings.shop_name"), class: "form-label fw-medium"
           = f.text_field :name, class: "form-control", required: true
 
         .col-md-6.mb-3
-          = f.label :city, "City", class: "form-label fw-medium"
-          = f.text_field :city, class: "form-control", placeholder: "Oslo"
+          = f.label :city, t("shop_admin.settings.city"), class: "form-label fw-medium"
+          = f.text_field :city, class: "form-control", placeholder: t("shop_admin.settings.city_placeholder")
 
       .mb-3
-        = f.label :avatar, "Shop logo", class: "form-label fw-medium"
+        = f.label :avatar, t("shop_admin.settings.logo"), class: "form-label fw-medium"
         .d-flex.align-items-center.gap-3
           - if @shop.avatar.attached?
             = image_tag @shop.avatar, class: "rounded-circle", style: "width:56px;height:56px;object-fit:cover"
@@ -23,62 +23,74 @@
           = f.file_field :avatar, class: "form-control", accept: "image/*"
 
       .mb-3
-        = f.label :description, "Description", class: "form-label fw-medium"
+        = f.label :description, t("shop_admin.settings.description"), class: "form-label fw-medium"
         = f.text_area :description, class: "form-control", rows: 4
 
       .mb-3
-        = f.label :skill_tags, "Skills (comma-separated)", class: "form-label fw-medium"
+        = f.label :skill_tags, t("shop_admin.settings.skills_label"), class: "form-label fw-medium"
         = f.text_field :skill_tags, value: @shop.skill_tags.join(", "),
-            class: "form-control", placeholder: "kokker, bartendere"
+            class: "form-control", placeholder: t("shop_admin.settings.skills_placeholder")
 
       .row
         .col-md-6.mb-3
-          = f.label :visibility, "Visibility", class: "form-label fw-medium"
-          = f.select :visibility, [["Public", "public_shop"], ["Private (invite only)", "private_shop"]],
+          = f.label :visibility, t("shop_admin.settings.hiring_policy"), class: "form-label fw-medium"
+          = f.select :visibility,
+              [[t("shop_admin.settings.hiring_open"), "public_shop"],
+               [t("shop_admin.settings.hiring_closed"), "private_shop"]],
               {}, class: "form-select"
+          %p.form-text.text-muted= t("shop_admin.settings.hiring_hint")
 
         .col-md-6.mb-3
-          = f.label :commission_percent, "Commission %", class: "form-label fw-medium"
+          = f.label :commission_percent, t("shop_admin.settings.commission"), class: "form-label fw-medium"
           .input-group
-            = f.number_field :commission_percent, min: 0, max: 100, class: "form-control"
+            = f.number_field :commission_percent, min: 0, max: 50, class: "form-control"
             %span.input-group-text %
+          %p.form-text.text-muted= t("shop_admin.settings.commission_hint")
 
       .mb-4.border-top.pt-4
-        %h6.fw-bold.text-muted Payout Partner
+        %h6.fw-bold.text-muted= t("shop_admin.settings.pop_section")
         .mb-3
-          = f.label :pop_worker_id, "Your POP Worker ID", class: "form-label fw-medium"
+          = f.label :pop_worker_id, t("shop_admin.settings.pop_worker_id"), class: "form-label fw-medium"
           .input-group
             = f.text_field :pop_worker_id, class: "form-control font-monospace", disabled: true
             = link_to bookify_onboarding_shop_path, class: "btn btn-outline-secondary" do
               - if @shop.pop_worker_id.present?
                 %i.bi.bi-arrow-repeat.me-1
-                Re-enroll
+                = t("shop_admin.settings.pop_reenroll")
               - else
                 %i.bi.bi-box-arrow-up-right.me-1
-                Connect to Payout Partner
+                = t("shop_admin.settings.pop_connect")
           - if @shop.pop_worker_id.present?
             %div.form-text.text-success
               %i.bi.bi-check-circle.me-1
-              Enrolled. Commission payouts are active.
+              = t("shop_admin.settings.pop_enrolled")
           - else
             %div.form-text.text-warning
               %i.bi.bi-exclamation-triangle.me-1
-              Not enrolled. Connect to receive commission payouts.
+              = t("shop_admin.settings.pop_not_enrolled")
 
-      = f.submit "Save settings", class: "btn btn-primary"
+      = f.submit t("shop_admin.settings.save"), class: "btn btn-primary"
 
   .card-footer.bg-white
-    %h6.fw-bold.mb-3 Shop status
+    %h6.fw-bold.mb-3= t("shop_admin.settings.status_heading")
     .d-flex.align-items-center.gap-3.flex-wrap
       %span
-        Current status:
+        = t("shop_admin.settings.current_status")
         %span.badge.ms-1{class: @shop.active? ? "bg-success" : @shop.paused? ? "bg-warning text-dark" : @shop.closed? ? "bg-secondary" : "bg-light text-dark"}
-          = @shop.status.humanize
+          = t("common.status.#{@shop.status}", default: @shop.status.humanize)
       - if @shop.active?
-        = button_to "Pause shop", pause_shop_settings_path, method: :post,
+        = button_to t("shop_admin.settings.pause"), pause_shop_settings_path, method: :post,
             class: "btn btn-sm btn-outline-warning",
-            data: { turbo_confirm: "Pause your shop? It will be removed from public listing. Existing clients can still access their jobs." }
+            data: { turbo_confirm: t("shop_admin.settings.pause_confirm") }
+        = button_to t("shop_admin.settings.close"), close_shop_settings_path, method: :post,
+            class: "btn btn-sm btn-outline-danger",
+            data: { turbo_confirm: t("shop_admin.settings.close_active_confirm") }
       - elsif @shop.paused?
-        = button_to "Reopen shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
+        = button_to t("shop_admin.settings.reopen"), reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
+        = button_to t("shop_admin.settings.close"), close_shop_settings_path, method: :post,
+            class: "btn btn-sm btn-outline-danger",
+            data: { turbo_confirm: t("shop_admin.settings.close_paused_confirm") }
+      - elsif @shop.closed?
+        = button_to t("shop_admin.settings.reopen"), reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
       - elsif @shop.draft?
-        = button_to "Publish shop", reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"
+        = button_to t("shop_admin.settings.publish"), reopen_shop_settings_path, method: :post, class: "btn btn-sm btn-success"

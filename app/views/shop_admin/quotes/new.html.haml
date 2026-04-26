@@ -1,10 +1,10 @@
-= link_to "← Back to job", shop_job_path(@job), class: "text-muted text-decoration-none small"
-%h2.fw-bold.mt-1.mb-4 Issue quote
+= link_to t("shop_admin.quotes.new.back"), shop_job_path(@job), class: "text-muted text-decoration-none small"
+%h2.fw-bold.mt-1.mb-4= t("shop_admin.quotes.new.title")
 
 .row
   .col-lg-6
     .card.border-0.shadow-sm.mb-4
-      .card-header.bg-white.fw-bold Job
+      .card-header.bg-white.fw-bold= t("shop_admin.quotes.new.job_section")
       .card-body
         %p.fw-medium.mb-1= @job.title
         %p.text-muted.small.mb-0= @job.client.org_name
@@ -13,21 +13,21 @@
 
   .col-lg-6
     .card.border-0.shadow-sm
-      .card-header.bg-white.fw-bold Quote details
+      .card-header.bg-white.fw-bold= t("shop_admin.quotes.new.details_section")
       .card-body
         = form_with url: shop_quotes_path, method: :post, local: true do |f|
           = f.hidden_field :job_id, value: @job.id
 
           .mb-3{"data-controller": "quote-lines"}
-            %label.form-label.fw-medium Activities
+            %label.form-label.fw-medium= t("shop_admin.quotes.new.activities_label")
             .quote-lines-list{"data-quote-lines-target": "container"}
               .quote-line.row.g-2.mb-2
                 .col-5
-                  %input.form-control.form-control-sm{type: "text", name: "quote_lines[][description]", placeholder: "Activity", required: true}
+                  %input.form-control.form-control-sm{type: "text", name: "quote_lines[][description]", placeholder: t("shop_admin.quotes.new.activity_placeholder"), required: true}
                 .col-3
-                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][rate_nok]", placeholder: "kr/h", min: 1, step: 1, required: true, "data-field": "rate", "data-action": "input->quote-lines#calculate"}
+                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][rate_nok]", placeholder: t("shop_admin.quotes.new.rate_placeholder"), min: 1, step: 1, required: true, "data-field": "rate", "data-action": "input->quote-lines#calculate"}
                 .col-2
-                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][hours]", placeholder: "h", min: 0.5, step: 0.5, required: true, "data-field": "hours", "data-action": "input->quote-lines#calculate"}
+                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][hours]", placeholder: t("shop_admin.quotes.new.hours_placeholder"), min: 0.5, step: 0.5, required: true, "data-field": "hours", "data-action": "input->quote-lines#calculate"}
                 .col-1.d-flex.align-items-center
                   %span.small.text-muted{"data-field": "amount"} —
                 .col-1.d-flex.align-items-center
@@ -36,11 +36,11 @@
             %template{"data-quote-lines-target": "template"}
               .quote-line.row.g-2.mb-2
                 .col-5
-                  %input.form-control.form-control-sm{type: "text", name: "quote_lines[][description]", placeholder: "Activity", required: true}
+                  %input.form-control.form-control-sm{type: "text", name: "quote_lines[][description]", placeholder: t("shop_admin.quotes.new.activity_placeholder"), required: true}
                 .col-3
-                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][rate_nok]", placeholder: "kr/h", min: 1, step: 1, required: true, "data-field": "rate", "data-action": "input->quote-lines#calculate"}
+                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][rate_nok]", placeholder: t("shop_admin.quotes.new.rate_placeholder"), min: 1, step: 1, required: true, "data-field": "rate", "data-action": "input->quote-lines#calculate"}
                 .col-2
-                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][hours]", placeholder: "h", min: 0.5, step: 0.5, required: true, "data-field": "hours", "data-action": "input->quote-lines#calculate"}
+                  %input.form-control.form-control-sm{type: "number", name: "quote_lines[][hours]", placeholder: t("shop_admin.quotes.new.hours_placeholder"), min: 0.5, step: 0.5, required: true, "data-field": "hours", "data-action": "input->quote-lines#calculate"}
                 .col-1.d-flex.align-items-center
                   %span.small.text-muted{"data-field": "amount"} —
                 .col-1.d-flex.align-items-center
@@ -49,33 +49,33 @@
             .d-flex.justify-content-between.align-items-center.mt-2
               %button.btn.btn-outline-secondary.btn-sm{type: "button", "data-action": "click->quote-lines#add"}
                 %i.bi.bi-plus.me-1
-                Add activity
+                = t("shop_admin.quotes.new.add_activity")
               .fw-bold
-                Total:
+                = t("shop_admin.quotes.new.total_label")
                 %span{"data-quote-lines-target": "total"} —
 
           .mb-3
-            = f.label :assigned_member_id, "Assign member", class: "form-label fw-medium"
+            = f.label :assigned_member_id, t("shop_admin.quotes.new.assign_member"), class: "form-label fw-medium"
             - if @members.any?
               = f.select :assigned_member_id,
-                  @members.map { |m| [m.bookify_pop_worker_id.present? ? m.name : "#{m.name} (not enrolled)", m.id, m.bookify_pop_worker_id.blank? ? { disabled: true } : {}] },
-                  { include_blank: "— Select member —" },
+                  @members.map { |m| [m.bookify_pop_worker_id.present? ? m.name : "#{m.name} #{t("shop_admin.quotes.new.not_enrolled_suffix")}", m.id, m.bookify_pop_worker_id.blank? ? { disabled: true } : {}] },
+                  { include_blank: t("shop_admin.quotes.new.select_member") },
                   class: "form-select"
               - if @members.any? { |m| m.bookify_pop_worker_id.blank? }
                 %p.form-text.text-warning
                   %i.bi.bi-shield-exclamation.me-1
-                  Greyed-out members haven't completed POP onboarding (BankID) yet.
+                  = t("shop_admin.quotes.new.not_enrolled_hint")
             - else
               .alert.alert-warning.small.mb-0
                 %i.bi.bi-people.me-2
-                No enrolled members yet.
-                = link_to "Add a member →", shop_members_path, class: "alert-link"
+                = t("shop_admin.quotes.new.no_members")
+                = link_to t("shop_admin.quotes.new.add_member_link"), shop_members_path, class: "alert-link"
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1
-            Commission of #{current_shop.commission_percent}% added automatically.
+            = t("shop_admin.quotes.new.commission_info", percent: current_shop.commission_percent)
             - if @job.bookify_fee?
-              = " Bookify platform fee kr #{Job::BOOKIFY_FEE_ORE / 100} applies to this client."
-            Net-14 invoice from Payout Partner AS.
+              = " #{t("shop_admin.quotes.new.bookify_fee_info", fee: Job::BOOKIFY_FEE_ORE / 100)}"
+            = " #{t("shop_admin.quotes.new.net_invoice")}"
 
-          = f.submit "Send quote (72h window)", class: "btn btn-primary w-100", data: { disable_with: "Sending…" }
+          = f.submit t("shop_admin.quotes.new.send_quote"), class: "btn btn-primary w-100", data: { disable_with: t("shop_admin.quotes.new.sending") }

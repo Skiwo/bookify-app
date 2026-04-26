@@ -3,7 +3,13 @@
   .me-auto
     %h2.fw-bold.mb-1= @job.title
     %p.text-muted.mb-0= @job.shop.name
-  - if @job.in_progress? || @job.accepted?
+  - if (@job.in_progress? || @job.accepted?) && @job.member_accepted_at.blank?
+    .d-flex.gap-2
+      = button_to "Accept assignment", accept_assignment_freelancer_job_path(@job), method: :post, class: "btn btn-success btn-sm"
+      = button_to "Decline", decline_assignment_freelancer_job_path(@job), method: :post,
+          class: "btn btn-outline-danger btn-sm",
+          data: { turbo_confirm: "Decline this assignment? Shop can reassign to someone else." }
+  - elsif (@job.in_progress? || @job.accepted?) && @job.member_accepted_at.present?
     = form_with url: mark_complete_freelancer_job_path(@job), method: :post, local: true, class: "d-flex gap-2 align-items-end" do |f|
       .d-flex.flex-column
         %label.form-label.small.mb-1.text-muted= t("freelancer.jobs.show.work_date_label")
