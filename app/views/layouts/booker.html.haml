@@ -13,14 +13,14 @@
     = csrf_meta_tags
     = csp_meta_tag
     :css
-      :root { --brand: #2563EB; --brand-dark: #1D4ED8; }
+      :root { --brand: #198754; --brand-dark: #157347; }
       body { background-color: #f8f9fa; font-family: 'Outfit', system-ui, -apple-system, sans-serif; }
       .bg-primary, .btn-primary { background-color: var(--brand) !important; border-color: var(--brand) !important; }
       .btn-primary:hover { background-color: var(--brand-dark) !important; border-color: var(--brand-dark) !important; }
       .text-primary { color: var(--brand) !important; }
       .badge.bg-primary { background-color: var(--brand) !important; }
       .card { border-radius: 12px; }
-      .sidebar-tint { background-color: #EFF6FF; }
+      .sidebar-tint { background-color: #d1e7dd; }
       .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
       .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
     - if Rails.env.development?
@@ -32,7 +32,7 @@
         .dev-panel .status-2xx { background: #a6e3a1; color: #1e1e2e; }
         .dev-panel .status-4xx { background: #fab387; color: #1e1e2e; }
         .dev-panel .status-5xx { background: #f38ba8; color: #1e1e2e; }
-        .dev-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--brand); color: white; border: none; font-size: 1.4rem; z-index: 1051; box-shadow: 0 4px 12px rgba(37,99,235,0.4); cursor: pointer; }
+        .dev-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--brand); color: white; border: none; font-size: 1.4rem; z-index: 1051; box-shadow: 0 4px 12px rgba(25,135,84,0.4); cursor: pointer; }
         .dev-fab:hover { background: var(--brand-dark); }
         .dev-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); z-index: 1049; display: none; }
         .dev-overlay.open { display: block; }

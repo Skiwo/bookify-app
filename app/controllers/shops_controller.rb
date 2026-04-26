@@ -1,5 +1,6 @@
 class ShopsController < ApplicationController
-  layout :resolve_layout
+  include RoleLayout
+
   def index
     @shops = Shop.active.order(:name)
     @shops = @shops.where("city ILIKE ?", "%#{params[:city]}%") if params[:city].present?
@@ -24,10 +25,6 @@ class ShopsController < ApplicationController
   end
 
   private
-
-  def resolve_layout
-    current_user&.client? ? "client" : "application"
-  end
 
   def existing_client_of_shop?(shop)
     return false unless current_user&.client?

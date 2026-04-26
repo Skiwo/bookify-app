@@ -1,4 +1,6 @@
 class SkillPagesController < ApplicationController
+  include RoleLayout
+
   SUPPORTED_SKILLS = %w[
     kokker bartendere servitorer cateringassistenter renholdere
     vektere resepsjonister konferanseverter fotografer videografer
