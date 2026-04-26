@@ -8,9 +8,9 @@
           %p.text-muted.mb-2
             %i.bi.bi-geo-alt.me-1
             = @shop.city
-        - if @shop.skill_tags.any?
-          - @shop.skill_tags.each do |tag|
-            %span.badge.bg-light.text-dark.border.me-1= tag
+        - if @shop.skills.any?
+          - @shop.skills.ordered.each do |skill|
+            = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border me-1 text-decoration-none"
 
     - if @shop.description.present?
       .card.border-0.shadow-sm.mb-4

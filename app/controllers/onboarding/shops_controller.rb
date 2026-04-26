@@ -21,7 +21,7 @@ module Onboarding
     private
 
     def shop_params
-      params.require(:shop).permit(:name, :slug, :description, :city, :visibility, :commission_percent, :skill_tags)
+      params.require(:shop).permit(:name, :slug, :description, :city, :visibility, :commission_percent, :skill_slugs, skill_slugs: [])
     end
 
     def generate_slug(name)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -257,6 +257,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
     t.index ["shop_id"], name: "index_shop_members_on_shop_id"
   end
 
+  create_table "shop_skills", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "shop_id", null: false
+    t.uuid "skill_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id", "skill_id"], name: "index_shop_skills_on_shop_id_and_skill_id", unique: true
+    t.index ["shop_id"], name: "index_shop_skills_on_shop_id"
+    t.index ["skill_id"], name: "index_shop_skills_on_skill_id"
+  end
+
   create_table "shops", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "owner_id", null: false
     t.string "name", null: false
@@ -266,7 +276,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
     t.integer "visibility", default: 0, null: false
     t.integer "commission_percent", default: 5, null: false
     t.string "city"
-    t.string "skill_tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "pop_worker_id"
@@ -274,6 +283,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
     t.index ["slug"], name: "index_shops_on_slug", unique: true
     t.index ["status"], name: "index_shops_on_status"
     t.index ["visibility"], name: "index_shops_on_visibility"
+  end
+
+  create_table "skills", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "slug", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["position"], name: "index_skills_on_position"
+    t.index ["slug"], name: "index_skills_on_slug", unique: true
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -321,5 +339,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_100002) do
   add_foreign_key "shop_invitations", "shops"
   add_foreign_key "shop_members", "enrollments"
   add_foreign_key "shop_members", "shops"
+  add_foreign_key "shop_skills", "shops"
+  add_foreign_key "shop_skills", "skills"
   add_foreign_key "shops", "users", column: "owner_id"
 end

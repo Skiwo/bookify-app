@@ -4,17 +4,17 @@
 .mb-4
   %p.small.text-muted.mb-2= t("shops.index.popular_categories")
   .d-flex.flex-wrap.gap-2
-    - SkillPagesController::SUPPORTED_SKILLS.first(8).each do |skill|
-      = link_to skill.humanize, skill_page_path(skill: skill), class: "badge bg-light text-dark border text-decoration-none px-3 py-2"
+    - Skill.ordered.limit(8).each do |skill|
+      = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border text-decoration-none px-3 py-2"
 
 = form_with url: shops_path, method: :get, local: true, class: "row g-2 mb-4" do |f|
   .col-md-4
     = f.text_field :city, value: params[:city], placeholder: t("shops.index.search_city_placeholder"), class: "form-control"
   .col-md-4
-    = f.text_field :skill, value: params[:skill], placeholder: t("shops.index.search_skill_placeholder"), class: "form-control"
+    = f.text_field :q, value: params[:q] || params[:skill], placeholder: t("shops.index.search_query_placeholder"), class: "form-control"
   .col-auto
     = f.submit t("common.actions.search"), class: "btn btn-primary"
-  - if params[:city].present? || params[:skill].present?
+  - if params[:city].present? || params[:q].present? || params[:skill].present?
     .col-auto
       = link_to t("common.actions.clear"), shops_path, class: "btn btn-outline-secondary"
 
@@ -43,13 +43,10 @@
                       %i.bi.bi-geo-alt.me-1
                       = shop.city
               %p.card-text.text-muted.small= truncate(shop.description, length: 120)
-              - if shop.skill_tags.any?
+              - if shop.skills.any?
                 .mb-3
-                  - shop.skill_tags.first(4).each do |tag|
-                    - if SkillPagesController::SUPPORTED_SKILLS.include?(tag)
-                      = link_to tag, skill_page_path(skill: tag), class: "badge bg-light text-dark border me-1 text-decoration-none"
-                    - else
-                      %span.badge.bg-light.text-dark.border.me-1= tag
+                  - shop.skills.ordered.limit(4).each do |skill|
+                    = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border me-1 text-decoration-none"
             .card-footer.bg-white.border-0.pb-3
               = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
                 = t("shops.index.view_shop")

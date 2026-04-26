@@ -20,7 +20,7 @@ module I18n
     class BeMyWords < Simple
       NAMESPACES = %w[
         common pages shops skill_pages clients
-        shop_admin freelancer onboarding profiles
+        shop_admin freelancer onboarding profiles skills
       ].freeze
 
       def eager_load!

@@ -8,6 +8,8 @@ class Shop < ApplicationRecord
   has_many :shop_members, dependent: :destroy
   has_many :jobs, dependent: :restrict_with_error
   has_many :shop_invitations, dependent: :destroy
+  has_many :shop_skills, dependent: :destroy
+  has_many :skills, through: :shop_skills
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: { case_sensitive: false },
@@ -16,9 +18,16 @@ class Shop < ApplicationRecord
 
   before_validation :generate_slug, on: :create, if: -> { slug.blank? && name.present? }
 
-  def skill_tags=(value)
-    tags = value.is_a?(String) ? value.split(",") : Array(value)
-    super(tags.map { |t| t.strip.downcase }.reject(&:blank?))
+  # Accepts a String ("kokker, bartendere") or Array of slugs.
+  # Finds existing Skill records by slug; ignores unknown slugs.
+  def skill_slugs=(value)
+    slugs = value.is_a?(String) ? value.split(",") : Array(value)
+    slugs = slugs.map { |s| s.to_s.strip.downcase }.reject(&:blank?).uniq
+    self.skills = Skill.where(slug: slugs)
+  end
+
+  def skill_slugs
+    skills.pluck(:slug)
   end
 
   def active_members

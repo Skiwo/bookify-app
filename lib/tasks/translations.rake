@@ -32,7 +32,7 @@ namespace :translations do
   end
 
   # Top-level YAML keys treated as namespaces (mirrors rs-web namespace concept).
-  NAMESPACES = %w[common pages shops skill_pages clients shop_admin freelancer onboarding profiles].freeze
+  NAMESPACES = %w[common pages shops skill_pages clients shop_admin freelancer onboarding profiles skills].freeze
 
   desc "Sync translation keys to BeMyWords (source: #{SOURCE_LANG})"
   task sync: :environment do

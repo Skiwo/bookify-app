@@ -32,9 +32,12 @@
                 placeholder: t("onboarding.shops.new.description_hint")
 
           .mb-3
-            = f.label :skill_tags, t("onboarding.shops.new.skills_label"), class: "form-label fw-medium"
-            = f.text_field :skill_tags, value: @shop.skill_tags.join(", "),
-                class: "form-control", placeholder: t("onboarding.shops.new.skills_placeholder")
+            = f.label :skill_slugs, t("onboarding.shops.new.skills_label"), class: "form-label fw-medium"
+            = f.select :skill_slugs,
+                Skill.ordered.map { |s| [s.name, s.slug] },
+                { selected: @shop.skill_slugs },
+                multiple: true,
+                data: { controller: "multi-select", "multi-select-placeholder-value": t("onboarding.shops.new.skills_placeholder") }
             %div.form-text= t("onboarding.shops.new.skills_hint")
 
           .row

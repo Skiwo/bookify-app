@@ -4,7 +4,14 @@ class ShopsController < ApplicationController
   def index
     @shops = Shop.active.order(:name)
     @shops = @shops.where("city ILIKE ?", "%#{params[:city]}%") if params[:city].present?
-    @shops = @shops.where("EXISTS (SELECT 1 FROM unnest(skill_tags) AS tag WHERE tag ILIKE ?)", "%#{params[:skill]}%") if params[:skill].present?
+
+    query = params[:q].presence || params[:skill].presence
+    if query.present?
+      pattern = "%#{query}%"
+      @shops = @shops.left_joins(:skills)
+                     .where("shops.name ILIKE :q OR skills.slug ILIKE :q", q: pattern)
+                     .distinct
+    end
   end
 
   def show

@@ -31,7 +31,7 @@ module ShopAdmin
     private
 
     def shop_params
-      params.require(:shop).permit(:name, :description, :city, :visibility, :commission_percent, :pop_worker_id, :avatar, :skill_tags)
+      params.require(:shop).permit(:name, :description, :city, :visibility, :commission_percent, :pop_worker_id, :avatar, :skill_slugs, skill_slugs: [])
     end
   end
 end

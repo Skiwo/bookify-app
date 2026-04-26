@@ -20,7 +20,7 @@ module ShopAdmin
     private
 
     def profile_params
-      params.require(:shop).permit(:name, :slug, :description, :city, :skill_tags)
+      params.require(:shop).permit(:name, :slug, :description, :city, :skill_slugs, skill_slugs: [])
     end
   end
 end
