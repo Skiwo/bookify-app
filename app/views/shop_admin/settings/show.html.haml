@@ -54,20 +54,17 @@
         %h6.fw-bold.text-muted= t("shop_admin.settings.pop_section")
         .mb-3
           = f.label :pop_worker_id, t("shop_admin.settings.pop_worker_id"), class: "form-label fw-medium"
-          .input-group
-            = f.text_field :pop_worker_id, class: "form-control font-monospace", disabled: true
-            = link_to bookify_onboarding_shop_path, class: "btn btn-outline-secondary" do
-              - if @shop.pop_worker_id.present?
-                %i.bi.bi-arrow-repeat.me-1
-                = t("shop_admin.settings.pop_reenroll")
-              - else
-                %i.bi.bi-box-arrow-up-right.me-1
-                = t("shop_admin.settings.pop_connect")
           - if @shop.pop_worker_id.present?
+            = f.text_field :pop_worker_id, class: "form-control font-monospace", disabled: true
             %div.form-text.text-success
               %i.bi.bi-check-circle.me-1
               = t("shop_admin.settings.pop_enrolled")
           - else
+            .input-group
+              = f.text_field :pop_worker_id, class: "form-control font-monospace", disabled: true
+              = link_to bookify_onboarding_shop_path, class: "btn btn-outline-secondary" do
+                %i.bi.bi-box-arrow-up-right.me-1
+                = t("shop_admin.settings.pop_connect")
             %div.form-text.text-warning
               %i.bi.bi-exclamation-triangle.me-1
               = t("shop_admin.settings.pop_not_enrolled")

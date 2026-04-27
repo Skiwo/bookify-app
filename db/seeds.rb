@@ -8,20 +8,6 @@
 
 puts "Seeding Bookify demo data..."
 
-# ─── Helpers ────────────────────────────────────────────────────────────────
-
-def fake_worker_id(n) = "demo-bookify-worker-%03d" % n
-def fake_profile_data(email, first, last, worker_n)
-  {
-    "enrollment_id"    => "00000000-0000-0000-0000-%012d" % worker_n,
-    "partner_worker_id"=> fake_worker_id(worker_n),
-    "payout_preference"=> "salary",
-    "approved"         => true,
-    "status"           => "Approved",
-    "freelancer"       => { "email" => email, "first_name" => first, "last_name" => last, "freelance_type" => "individual" }
-  }
-end
-
 # ─── Legacy booker (existing seed — keep intact) ────────────────────────────
 
 booker = User.find_or_create_by!(email: "demo@bookify.test") do |u|
@@ -53,7 +39,7 @@ unless active_enrollment.persisted?
     name: freelancer_legacy.name, freelancer: freelancer_legacy,
     pop_worker_id: "demo-worker-001", pop_enrollment_id: "00000000-0000-0000-0000-000000000001",
     invited_at: 7.days.ago, onboarded_at: 5.days.ago,
-    pop_profile_data: fake_profile_data(freelancer_legacy.email, "Anna", "Hansen", 1)
+    pop_profile_data: { "partner_worker_id" => "demo-worker-001", "status" => "Approved", "freelancer" => { "email" => freelancer_legacy.email, "first_name" => "Anna", "last_name" => "Hansen" } }
   )
   active_enrollment.status = :invited; active_enrollment.save!
   active_enrollment.update_columns(status: Enrollment.statuses[:active])
@@ -89,6 +75,29 @@ end
 
 puts "\n─── Bookify Marketplace ───"
 
+# ─── Skills ─────────────────────────────────────────────────────────────────
+
+SKILL_SLUGS = %w[
+  kokker bartendere servitorer cateringassistenter
+  renholdere vektere resepsjonister konferanseverter
+  fotografer videografer musikere dj-er lydteknikere lysteknikere rigger scenearbeidere
+  snekkere malere elektrikere rorleggere murere flisleggere taktekkere gartnere landskapsarkitekter
+  it-konsulenter grafikere tekstforfattere oversettere webdesignere utviklere
+  regnskapsforere administratorer prosjektledere konsulenter forretningsanalytikere
+  sykepleiere helsefagarbeidere barnehageassistenter laerere
+  personlige-trenere massorer yogainstruktorer ernaerings-veiledere
+  sjaforer budbringer lagerarbeidere flyttehjelpere transportarbeidere
+  frisorer sminkorer neglteknikere
+  eventplanleggere foredragsholdere
+  mekanikere bilpleiere
+  tannlegeassistenter veterinaerassistenter
+].freeze
+
+SKILL_SLUGS.each_with_index do |slug, i|
+  Skill.find_or_create_by!(slug: slug) { |s| s.position = i }
+end
+puts "  Skills: #{Skill.count}"
+
 # ─── Shop owners ────────────────────────────────────────────────────────────
 
 owner1 = User.find_or_create_by!(email: "oslo.catering@bookify.test") { |u| u.name = "Erik Solberg";   u.role = :shop_owner }
@@ -106,7 +115,6 @@ shop1 = Shop.find_or_create_by!(slug: "oslo-catering") do |s|
   s.visibility  = :public_shop
   s.status      = :active
   s.commission_percent = 5
-  s.pop_worker_id      = fake_worker_id(10)
 end
 
 shop2 = Shop.find_or_create_by!(slug: "renhold-pro-bergen") do |s|
@@ -118,7 +126,6 @@ shop2 = Shop.find_or_create_by!(slug: "renhold-pro-bergen") do |s|
   s.visibility  = :public_shop
   s.status      = :active
   s.commission_percent = 7
-  s.pop_worker_id      = fake_worker_id(11)
 end
 
 shop3 = Shop.find_or_create_by!(slug: "tech-konsulenter-oslo") do |s|
@@ -130,7 +137,6 @@ shop3 = Shop.find_or_create_by!(slug: "tech-konsulenter-oslo") do |s|
   s.visibility  = :public_shop
   s.status      = :active
   s.commission_percent = 8
-  s.pop_worker_id      = fake_worker_id(12)
 end
 
 puts "  Shops: #{[shop1, shop2, shop3].map(&:name).join(", ")}"
@@ -154,20 +160,17 @@ freelancers.each do |f|
   unless enrollment.persisted?
     enrollment.assign_attributes(
       name: f[:name], freelancer: user,
-      pop_worker_id: fake_worker_id(f[:n]),
-      invited_at: 2.weeks.ago, onboarded_at: 10.days.ago,
-      pop_profile_data: fake_profile_data(f[:email], first, last, f[:n])
+      invited_at: 2.weeks.ago, onboarded_at: 10.days.ago
     )
     enrollment.status = :invited; enrollment.save!
     enrollment.update_columns(status: Enrollment.statuses[:active])
   end
 
-  # ShopMember
+  # ShopMember — bookify_pop_worker_id is nil until real POP onboarding
   ShopMember.find_or_create_by!(shop: f[:shop], enrollment: enrollment) do |m|
-    m.status               = :active
-    m.bookify_pop_worker_id = fake_worker_id(f[:n])
-    m.invited_at           = enrollment.invited_at
-    m.accepted_at          = enrollment.onboarded_at
+    m.status     = :active
+    m.invited_at = enrollment.invited_at
+    m.accepted_at = enrollment.onboarded_at
   end
 
   f[:user]       = user
@@ -187,8 +190,8 @@ end
 client_user = User.find_or_create_by!(email: "client@bookify.test") { |u| u.name = "Knut Andersen"; u.role = :client }
 
 client = Client.find_or_create_by!(user: client_user) do |c|
-  c.org_number  = "914994583"   # Skiwo AS
-  c.org_name    = "Skiwo AS"
+  c.org_number  = "984089554"
+  c.org_name    = "SØR-VARANGER KOMMUNE KULTUR- OG OPPVEKSTETATEN"
   c.org_address = "Karenslyst allé 2, 0278 Oslo, Norge"
   c.verified_at = 1.week.ago
 end
