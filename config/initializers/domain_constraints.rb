@@ -5,7 +5,11 @@ end
 
 # Domain routing is enforced in production and when DOMAIN_ROUTING=true in dev.
 # In plain development (localhost) both constraints pass so all routes are reachable.
-DOMAIN_ROUTING_ENABLED = Rails.env.production? || ENV["DOMAIN_ROUTING"] == "true"
+DOMAIN_ROUTING_ENABLED = if ENV.key?("DOMAIN_ROUTING")
+  ENV["DOMAIN_ROUTING"] == "true"
+else
+  Rails.env.production?
+end
 
 class BookifyDomainConstraint
   def self.matches?(request)
