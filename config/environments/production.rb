@@ -21,7 +21,19 @@ Rails.application.configure do
   config.i18n.fallbacks = true
 
   app_host = ENV.fetch("APP_HOST", "bookify.app")
-  config.hosts = [app_host, ".#{app_host}"]
+  pop_host  = ENV.fetch("POP_HOST",  "payoutpartner.com")
+
+  config.hosts = [
+    app_host, ".#{app_host}",
+    pop_host,  ".#{pop_host}",
+    /.*\.herokuapp\.com/
+  ]
+
+  # Allow additional hosts via comma-separated env var (useful for staging aliases)
+  ENV.fetch("RAILS_ALLOWED_HOSTS", "").split(",").each do |h|
+    config.hosts << h.strip unless h.strip.empty?
+  end
+
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   ses_region = ENV.fetch("AWS_SES_REGION", "eu-west-1")
