@@ -84,12 +84,39 @@ Rails.application.routes.draw do
     resources :shop_invitations, only: [:show], param: :token do
       member { post :accept }
     end
+
+    # Shop owner Bookify cabinet — on bookify.app, not payoutpartner.com
+    namespace :shop_admin, path: "shop", as: "shop" do
+      get "dashboard", to: "dashboard#show"
+      resource :settings, only: [:show, :update] do
+        member do
+          post :pause
+          post :close
+          post :reopen
+        end
+      end
+      resource  :profile, only: [:show, :edit, :update]
+      resources :members, only: [:index, :new, :create, :destroy] do
+        collection { post :invite }
+        member     { post :resend }
+      end
+      resources :jobs, only: [:index, :show] do
+        member do
+          post :issue_quote
+          post :mark_complete
+          post :sync_payout
+          post :respond_dispute
+          post :resolve_dispute
+        end
+      end
+      resources :quotes, only: [:new, :create, :show]
+    end
   end
 
-  # ─── payoutpartner.com — operator / supply surface ──────────────────────────
+  # ─── payoutpartner.com — existing POP platform (legacy booker/freelancer flow) ─
 
   constraints(PopDomainConstraint) do
-    get "/", to: redirect("/shop/dashboard"), as: :pop_root
+    get "/", to: redirect("/booker/dashboard"), as: :pop_root
 
     sidekiq_web = Rack::Builder.new do
       use Rack::Auth::Basic, "Sidekiq" do |user, password|
@@ -146,30 +173,5 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :shop_admin, path: "shop", as: "shop" do
-      get "dashboard", to: "dashboard#show"
-      resource :settings, only: [:show, :update] do
-        member do
-          post :pause
-          post :close
-          post :reopen
-        end
-      end
-      resource  :profile, only: [:show, :edit, :update]
-      resources :members, only: [:index, :new, :create, :destroy] do
-        collection { post :invite }
-        member     { post :resend }
-      end
-      resources :jobs, only: [:index, :show] do
-        member do
-          post :issue_quote
-          post :mark_complete
-          post :sync_payout
-          post :respond_dispute
-          post :resolve_dispute
-        end
-      end
-      resources :quotes, only: [:new, :create, :show]
-    end
   end
 end
