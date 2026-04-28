@@ -22,7 +22,7 @@
       .card { border-radius: 12px; }
       .sidebar-tint { background-color: #d1e7dd; }
       .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-      .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
+      .navbar .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
     - if Rails.env.development?
       :css
         .dev-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: #1e1e2e; color: #cdd6f4; z-index: 1050; transition: right 0.3s ease; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
@@ -48,13 +48,14 @@
                 %i.bi.bi-speedometer2.me-1
                 = t("common.nav.dashboard")
             %li.nav-item
-              %a.nav-link{href: freelancer_bookings_path, class: nav_active?("freelancer/booking")}
-                %i.bi.bi-calendar-check.me-1
-                = t("common.nav.bookings")
-            %li.nav-item
               %a.nav-link{href: freelancer_profile_path, class: nav_active?("freelancer/profile")}
                 %i.bi.bi-person.me-1
                 = t("common.nav.profile")
+            - if current_user&.freelancer? && Shop.exists?(owner: current_user, solo: true)
+              %li.nav-item
+                %a.nav-link{href: shop_dashboard_path, class: nav_active?("shop_admin")}
+                  %i.bi.bi-shop.me-1
+                  = t("common.nav.my_clients")
           %ul.navbar-nav
             %li.nav-item
               %a.nav-link.text-white-50.d-flex.align-items-center.gap-2{href: edit_profile_path}

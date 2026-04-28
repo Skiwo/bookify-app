@@ -54,22 +54,25 @@
                 = t("shop_admin.quotes.new.total_label")
                 %span{"data-quote-lines-target": "total"} —
 
-          .mb-3
-            = f.label :assigned_member_id, t("shop_admin.quotes.new.assign_member"), class: "form-label fw-medium"
-            - if @members.any?
-              = f.select :assigned_member_id,
-                  @members.map { |m| [m.bookify_pop_worker_id.present? ? m.name : "#{m.name} #{t("shop_admin.quotes.new.not_enrolled_suffix")}", m.id, m.bookify_pop_worker_id.blank? ? { disabled: true } : {}] },
-                  { include_blank: t("shop_admin.quotes.new.select_member") },
-                  class: "form-select"
-              - if @members.any? { |m| m.bookify_pop_worker_id.blank? }
-                %p.form-text.text-warning
-                  %i.bi.bi-shield-exclamation.me-1
-                  = t("shop_admin.quotes.new.not_enrolled_hint")
-            - else
-              .alert.alert-warning.small.mb-0
-                %i.bi.bi-people.me-2
-                = t("shop_admin.quotes.new.no_members")
-                = link_to t("shop_admin.quotes.new.add_member_link"), shop_members_path, class: "alert-link"
+          - if current_shop.solo? && @members.one?
+            = f.hidden_field :assigned_member_id, value: @members.first.id
+          - else
+            .mb-3
+              = f.label :assigned_member_id, t("shop_admin.quotes.new.assign_member"), class: "form-label fw-medium"
+              - if @members.any?
+                = f.select :assigned_member_id,
+                    @members.map { |m| [m.bookify_pop_worker_id.present? ? m.name : "#{m.name} #{t("shop_admin.quotes.new.not_enrolled_suffix")}", m.id, m.bookify_pop_worker_id.blank? ? { disabled: true } : {}] },
+                    { include_blank: t("shop_admin.quotes.new.select_member") },
+                    class: "form-select"
+                - if @members.any? { |m| m.bookify_pop_worker_id.blank? }
+                  %p.form-text.text-warning
+                    %i.bi.bi-shield-exclamation.me-1
+                    = t("shop_admin.quotes.new.not_enrolled_hint")
+              - else
+                .alert.alert-warning.small.mb-0
+                  %i.bi.bi-people.me-2
+                  = t("shop_admin.quotes.new.no_members")
+                  = link_to t("shop_admin.quotes.new.add_member_link"), shop_members_path, class: "alert-link"
 
           .alert.alert-info.small
             %i.bi.bi-info-circle.me-1

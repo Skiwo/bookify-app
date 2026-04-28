@@ -26,7 +26,7 @@
       .card { border-radius: 12px; }
       .sidebar-tint { background-color: #d1e7dd; }
       .navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-      .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
+      .navbar .nav-link.active { border-bottom: 3px solid #fff; color: #fff !important; padding-bottom: calc(0.5rem - 3px); }
       .status-badge { font-size: 0.75rem; }
       a:not(.btn):not(.nav-link):not(.navbar-brand):not(.dropdown-item) { color: var(--brand); }
       a:not(.btn):not(.nav-link):not(.navbar-brand):not(.dropdown-item):hover { color: var(--brand-dark); }
@@ -49,10 +49,11 @@
               %a.nav-link{href: shop_jobs_path, class: nav_active?("shop_admin/job")}
                 %i.bi.bi-briefcase.me-1
                 = t("common.nav.jobs")
-            %li.nav-item
-              %a.nav-link{href: shop_members_path, class: nav_active?("shop_admin/member")}
-                %i.bi.bi-people.me-1
-                = t("common.nav.members")
+            - unless current_user&.freelancer?
+              %li.nav-item
+                %a.nav-link{href: shop_members_path, class: nav_active?("shop_admin/member")}
+                  %i.bi.bi-people.me-1
+                  = t("common.nav.members")
             %li.nav-item
               %a.nav-link{href: shop_settings_path, class: nav_active?("shop_admin/setting")}
                 %i.bi.bi-gear.me-1

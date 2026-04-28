@@ -30,8 +30,10 @@ module Freelancer
         .order(created_at: :desc)
         .limit(10)
 
-      @bookify_jobs = Job.joins(assigned_member: :enrollment)
+      assigned = Job.joins(assigned_member: :enrollment)
         .where(enrollments: { freelancer_id: current_user.id })
+      solo_owned = Job.joins(:shop).where(shops: { owner_id: current_user.id, solo: true })
+      @bookify_jobs = Job.where(id: assigned.select(:id)).or(Job.where(id: solo_owned.select(:id)))
         .includes(:shop, :client)
         .order(created_at: :desc)
 

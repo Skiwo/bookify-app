@@ -1,13 +1,17 @@
+- owner = @shop.owner if @shop.solo?
 .row
   .col-lg-8
     .d-flex.align-items-start.mb-4
       = shop_avatar(@shop, size: 64)
       .me-auto.ms-3
         %h2.fw-bold.mb-1= @shop.name
-        - if @shop.city.present?
+        - city = @shop.solo? ? (owner.location.presence || @shop.city) : @shop.city
+        - if city.present?
           %p.text-muted.mb-2
             %i.bi.bi-geo-alt.me-1
-            = @shop.city
+            = city
+        - if @shop.solo? && owner.headline.present?
+          %p.fst-italic.text-primary.mb-2= owner.headline
         - if @shop.skills.any?
           - @shop.skills.ordered.each do |skill|
             = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border me-1 text-decoration-none"
@@ -17,7 +21,39 @@
         .card-body
           %p.mb-0= @shop.description
 
-    - if @members.any?
+    - if @shop.solo?
+      - if owner.freelancer_experiences.any?
+        .card.border-0.shadow-sm.mb-4
+          .card-body
+            %h5.fw-bold.mb-3
+              %i.bi.bi-briefcase.me-2
+              = t("shops.show.experience_heading")
+            - owner.freelancer_experiences.each do |exp|
+              .mb-3
+                .fw-medium= exp.title
+                .text-muted.small
+                  - if exp.company.present?
+                    = exp.company
+                  - if exp.started_on || exp.ended_on
+                    %span.ms-2
+                      = [exp.started_on&.strftime("%b %Y"), exp.ended_on&.strftime("%b %Y") || t("shops.show.present")].compact.join(" — ")
+                - if exp.description.present?
+                  %p.small.text-muted.mb-0.mt-1= exp.description
+
+      - if owner.freelancer_educations.any?
+        .card.border-0.shadow-sm.mb-4
+          .card-body
+            %h5.fw-bold.mb-3
+              %i.bi.bi-mortarboard.me-2
+              = t("shops.show.education_heading")
+            - owner.freelancer_educations.each do |edu|
+              .mb-2
+                .fw-medium= edu.institution
+                - parts = [edu.degree, edu.field_of_study, edu.graduation_year].compact_blank
+                - if parts.any?
+                  .text-muted.small= parts.join(" · ")
+
+    - if !@shop.solo? && @members.any?
       %h5.fw-bold.mb-3= t("shops.show.team_heading")
       .row.row-cols-1.row-cols-md-2.g-3.mb-4
         - @members.each do |member|
@@ -44,6 +80,16 @@
           %p.text-muted.small.mb-0= t("shops.show.closed_body")
 
     - else
+      - if @shop.solo? && owner.hourly_rate_ore.to_i > 0
+        .card.border-0.shadow-sm.mb-3.bg-success-subtle.border-success-subtle
+          .card-body.text-center.py-3
+            .fs-3.fw-bold.text-success-emphasis= format_nok(owner.hourly_rate_ore)
+            .small.text-muted= "/ #{t("shops.index.per_hour")}"
+            - if owner.experience_level.present?
+              .small.text-muted.mt-1
+                %i.bi.bi-bar-chart.me-1
+                = owner.experience_level_label
+
       .card.border-0.shadow-sm.sticky-top{style: "top: 1rem"}
         .card-header.fw-bold.bg-white= t("shops.show.request_heading")
         .card-body

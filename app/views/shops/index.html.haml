@@ -7,11 +7,20 @@
     - Skill.ordered.limit(8).each do |skill|
       = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border text-decoration-none px-3 py-2"
 
+%ul.nav.nav-tabs.mb-4
+  %li.nav-item
+    = link_to t("shops.index.tab_shops"), shops_path(request.query_parameters.merge(kind: "shops")),
+        class: "nav-link #{'active' if @kind == 'shops'}"
+  %li.nav-item
+    = link_to t("shops.index.tab_solo"), shops_path(request.query_parameters.merge(kind: "solo")),
+        class: "nav-link #{'active' if @kind == 'solo'}"
+
 = form_with url: shops_path, method: :get, local: true, class: "row g-2 mb-4" do |f|
   .col-md-4
     = f.text_field :city, value: params[:city], placeholder: t("shops.index.search_city_placeholder"), class: "form-control"
   .col-md-4
-    = f.text_field :q, value: params[:q] || params[:skill], placeholder: t("shops.index.search_query_placeholder"), class: "form-control"
+    - search_placeholder = @kind == "solo" ? t("shops.index.search_freelancer_placeholder") : t("shops.index.search_query_placeholder")
+    = f.text_field :q, value: params[:q] || params[:skill], placeholder: search_placeholder, class: "form-control"
   .col-auto
     = f.submit t("common.actions.search"), class: "btn btn-primary"
   - if params[:city].present? || params[:q].present? || params[:skill].present?
@@ -27,7 +36,12 @@
     .row.row-cols-1.row-cols-md-3.g-4.mb-6
       - @shops.each do |shop|
         .col
-          .card.h-100.border-0.shadow-sm
+          .card.h-100.border-0.shadow-sm.position-relative
+            - if shop.solo? && shop.owner.hourly_rate_ore.to_i > 0
+              .position-absolute.top-0.end-0.m-3.text-end
+                .badge.bg-success-subtle.text-success-emphasis.fs-6.fw-semibold.px-2.py-1
+                  = format_nok(shop.owner.hourly_rate_ore)
+                .small.text-muted.mt-1{style: "font-size: 0.7rem;"}= "/ #{t("shops.index.per_hour")}"
             .card-body
               .d-flex.align-items-start.gap-3.mb-2
                 .form-check.mt-1
@@ -36,22 +50,50 @@
                     data: { "shop-selector-target": "checkbox", slug: shop.slug, action: "change->shop-selector#toggle" }
                   }
                 = shop_avatar(shop, size: 48)
-                .lh-sm
-                  %h5.card-title.fw-bold.mb-0= shop.name
-                  - if shop.city.present?
+                .lh-sm.flex-grow-1
+                  .d-flex.align-items-center.gap-2.flex-wrap
+                    %h5.card-title.fw-bold.mb-0= shop.name
+                    - if shop.solo?
+                      %span.badge.bg-info-subtle.text-info-emphasis.border.border-info-subtle
+                        %i.bi.bi-person.me-1
+                        = t("shops.index.badge_solo")
+                    - else
+                      %span.badge.bg-secondary-subtle.text-secondary-emphasis.border.border-secondary-subtle
+                        %i.bi.bi-shop.me-1
+                        = t("shops.index.badge_shop")
+                  - city = shop.solo? ? (shop.owner.location.presence || shop.city) : shop.city
+                  - if city.present?
                     %span.text-muted.small
                       %i.bi.bi-geo-alt.me-1
-                      = shop.city
-              %p.card-text.text-muted.small= truncate(shop.description, length: 120)
+                      = city
+              - if shop.solo? && shop.owner.headline.present?
+                %p.fst-italic.small.text-primary.mb-2= shop.owner.headline
+              %p.card-text.text-muted.small.mb-2= truncate(shop.description, length: 100)
+              - if shop.solo? && shop.owner.experience_level.present?
+                .mb-2
+                  %span.badge.bg-light.text-dark.border
+                    %i.bi.bi-bar-chart.me-1
+                    = shop.owner.experience_level_label
               - if shop.skills.any?
-                .mb-3
+                .mb-2.d-flex.flex-wrap.gap-1
                   - shop.skills.ordered.limit(4).each do |skill|
-                    = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border me-1 text-decoration-none"
+                    = link_to skill.name, skill_page_path(skill: skill.slug), class: "badge bg-light text-dark border text-decoration-none"
+              - if shop.solo? && (educations = shop.owner.freelancer_educations.limit(2)).any?
+                %hr.my-2
+                - educations.each do |edu|
+                  .small.text-muted.d-flex.align-items-start.gap-1
+                    %i.bi.bi-mortarboard.mt-1
+                    .lh-sm
+                      .fw-medium.text-dark= edu.institution
+                      - if edu.degree.present?
+                        .small= edu.degree
             .card-footer.bg-white.border-0.pb-3
               = link_to shop_path(shop.slug), class: "btn btn-outline-primary btn-sm w-100" do
-                = t("shops.index.view_shop")
+                = shop.solo? ? t("shops.index.view_profile") : t("shops.index.view_shop")
                 %i.bi.bi-arrow-right.ms-1
 
+    - selected_one_key = @kind == "solo" ? "shops.index.freelancers_selected" : "skill_pages.show.shops_selected"
+    - selected_template_key = @kind == "solo" ? "shops.index.freelancers_selected_template" : "skill_pages.show.shops_selected_template"
     .d-none{"data-shop-selector-target": "bar", style: "position:fixed; bottom:0; left:0; right:0; z-index:200; background:rgba(255,255,255,0.97); border-top:1px solid #e9ecef; box-shadow:0 -4px 16px rgba(0,0,0,0.1);"}
       = form_with url: multi_shop_requests_path, method: :post, local: true, class: "container py-3" do |f|
         %div{"data-shop-selector-target": "slugContainer"}
@@ -59,10 +101,10 @@
           .col-auto
             .fw-semibold.text-primary.small{
               "data-shop-selector-target": "selectedLabel",
-              "data-one": t("skill_pages.show.shops_selected", count: 1),
-              "data-other": t("skill_pages.show.shops_selected_template", default: "%{count} shops selected").gsub("%{count}", "{count}")}
+              "data-one": t(selected_one_key, count: 1),
+              "data-other": t(selected_template_key, default: "%{count} selected").gsub("%{count}", "{count}")}
               %i.bi.bi-check2-square.me-1
-              %span{"data-shop-selector-target": "selectedText"}= t("skill_pages.show.shops_selected", count: 0)
+              %span{"data-shop-selector-target": "selectedText"}= t(selected_one_key, count: 0)
             .text-warning.small.d-none{"data-shop-selector-target": "limitNotice"}
               %i.bi.bi-exclamation-triangle.me-1
               = t("skill_pages.show.max_reached")
@@ -72,8 +114,12 @@
             = f.text_area "job[description]", placeholder: t("skill_pages.show.details_placeholder"), class: "form-control form-control-sm", rows: 1
           .col-md-2
             = f.date_field "job[desired_date]", class: "form-control form-control-sm"
+          - send_one = @kind == "solo" ? t("shops.index.send_to_one_freelancer") : t("shops.index.send_to_one_shop")
+          - send_other = @kind == "solo" ? t("shops.index.send_to_n_freelancers", n: "{count}") : t("shops.index.send_to_n_shops", n: "{count}")
           .col-auto
-            = f.submit t("skill_pages.show.send_request"), class: "btn btn-primary btn-sm", "data-shop-selector-target": "submitBtn"
+            = f.submit t("skill_pages.show.send_request"), class: "btn btn-primary btn-sm",
+                "data-shop-selector-target": "submitBtn",
+                "data-one": send_one, "data-other": send_other
 
     .pb-5
 

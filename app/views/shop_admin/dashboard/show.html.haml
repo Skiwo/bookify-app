@@ -3,22 +3,24 @@
   %span.badge.ms-2{class: @shop.active? ? "bg-success" : "bg-secondary"}
     = t("common.status.#{@shop.status}", default: @shop.status.humanize)
 
+- stat_col = current_shop.solo? ? "col-md-6" : "col-md-4"
 .row.mb-4
-  .col-md-4.mb-3
+  .mb-3{class: stat_col}
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @pending_jobs.size
         %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.new_requests")
-  .col-md-4.mb-3
+  .mb-3{class: stat_col}
     .card.border-0.shadow-sm.sidebar-tint
       .card-body.text-center.py-3
         %h3.text-primary.fw-bold.mb-0= @active_jobs.size
         %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.active_jobs")
-  .col-md-4.mb-3
-    .card.border-0.shadow-sm.sidebar-tint
-      .card-body.text-center.py-3
-        %h3.text-primary.fw-bold.mb-0= @members_count
-        %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.active_members")
+  - unless current_shop.solo?
+    .col-md-4.mb-3
+      .card.border-0.shadow-sm.sidebar-tint
+        .card-body.text-center.py-3
+          %h3.text-primary.fw-bold.mb-0= @members_count
+          %p.text-muted.small.mb-0= t("shop_admin.dashboard.show.active_members")
 
 .row
   .col-md-6

@@ -73,7 +73,7 @@ module Bookify
         pop_worker_id: user.bookify_pop_worker_id || shop.pop_worker_id
       )
 
-      member = shop.shop_members.find_by(enrollment: { freelancer_id: user.id })
+      member = shop.shop_members.joins(:enrollment).where(enrollments: { freelancer_id: user.id }).first
       member&.update_columns(bookify_pop_worker_id: user.bookify_pop_worker_id) if user.bookify_pop_worker_id.present?
     end
 

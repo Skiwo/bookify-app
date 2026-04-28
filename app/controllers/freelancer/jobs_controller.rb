@@ -54,8 +54,10 @@ module Freelancer
     private
 
     def find_job
-      Job.joins(assigned_member: :enrollment)
-         .where(enrollments: { freelancer_id: current_user.id })
+      assigned = Job.joins(assigned_member: :enrollment)
+                    .where(enrollments: { freelancer_id: current_user.id })
+      solo_owned = Job.joins(:shop).where(shops: { owner_id: current_user.id, solo: true })
+      Job.where(id: assigned.select(:id)).or(Job.where(id: solo_owned.select(:id)))
          .includes(:shop, :client, assigned_member: :enrollment)
          .find(params[:id])
     end

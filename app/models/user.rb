@@ -18,7 +18,7 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true
   validates :locale, inclusion: { in: %w[nb en] }
-  validates :experience_level, inclusion: { in: EXPERIENCE_LEVELS }, allow_nil: true
+  validates :experience_level, inclusion: { in: EXPERIENCE_LEVELS }, allow_blank: true
   validates :profile_slug, uniqueness: true, allow_nil: true,
             format: { with: /\A[a-z0-9-]+\z/, message: "only lowercase letters, numbers and hyphens" }
 

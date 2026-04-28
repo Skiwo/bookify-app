@@ -21,7 +21,8 @@
     .card-body
       .list-group.list-group-flush
         - @bookify_jobs.each do |job|
-          = link_to freelancer_job_path(job), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
+          - target_path = (job.shop.solo? && job.shop.owner_id == current_user.id) ? shop_job_path(job) : freelancer_job_path(job)
+          = link_to target_path, class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
             %div
               %span.fw-medium= job.title
               %br

@@ -4,15 +4,22 @@ module ShopAdmin
     before_action :require_shop_owner!
     before_action :shop_status_banner
 
-    layout "shop"
+    layout :resolve_layout
 
     helper_method :current_shop
 
     private
 
+    def resolve_layout
+      current_user&.freelancer? ? "freelancer" : "shop"
+    end
+
     def require_shop_owner!
       return if performed?
-      redirect_to root_path, alert: "Access denied." unless current_user&.shop_owner?
+      return if current_user&.shop_owner?
+      # Solo shop: a freelancer owning a solo shop also has access to shop admin.
+      return if current_user&.freelancer? && Shop.exists?(owner: current_user, solo: true)
+      redirect_to root_path, alert: "Access denied."
     end
 
     def shop_status_banner

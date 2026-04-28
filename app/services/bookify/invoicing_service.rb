@@ -56,16 +56,18 @@ module Bookify
 
         build_work_lines(booking)
 
-        booking.booking_lines.build(
-          description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
-          line_type: :commission,
-          booking_type: :project_based,
-          rate_ore: @job.commission_amount_ore,
-          total_hours: 1,
-          work_start_date: Date.current,
-          work_end_date: Date.current,
-          position: @job.quote_lines.size + 1
-        )
+        if @job.commission_amount_ore.to_i > 0
+          booking.booking_lines.build(
+            description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
+            line_type: :commission,
+            booking_type: :project_based,
+            rate_ore: @job.commission_amount_ore,
+            total_hours: 1,
+            work_start_date: Date.current,
+            work_end_date: Date.current,
+            position: @job.quote_lines.size + 1
+          )
+        end
 
         if @job.bookify_fee?
           booking.booking_lines.build(
@@ -154,14 +156,17 @@ module Bookify
         }]
       end
 
-      commission = [{
-        description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
-        line_type: "commission",
-        rate: @job.commission_amount_ore / 100.0,
-        quantity: 1,
-        payee_freelance_profile_id: @job.shop.pop_worker_id,
-        group: "job-work"
-      }]
+      commission = []
+      if @job.commission_amount_ore.to_i > 0
+        commission << {
+          description: "Commission #{@job.shop.commission_percent}% — #{@job.shop.name}",
+          line_type: "commission",
+          rate: @job.commission_amount_ore / 100.0,
+          quantity: 1,
+          payee_freelance_profile_id: @job.shop.pop_worker_id,
+          group: "job-work"
+        }
+      end
 
       if @job.bookify_fee?
         commission << {

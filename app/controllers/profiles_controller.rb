@@ -16,7 +16,7 @@ class ProfilesController < ApplicationController
         redirect_to edit_profile_path, notice: t("flash.profile_updated")
       end
     else
-      @user = current_user.reload
+      flash.now[:alert] = @user.errors.full_messages.to_sentence.presence || "Could not save profile."
       render :edit, status: :unprocessable_entity
     end
   end

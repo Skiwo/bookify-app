@@ -49,9 +49,15 @@ export default class extends Controller {
     }
 
     if (this.hasSubmitBtnTarget) {
-      this.submitBtnTarget.value = count === 1
-        ? "Send request to 1 shop"
-        : `Send request to ${count} shops`
+      const oneTpl = this.submitBtnTarget.dataset.one
+      const otherTpl = this.submitBtnTarget.dataset.other
+      if (oneTpl && otherTpl) {
+        this.submitBtnTarget.value = (count === 1 ? oneTpl : otherTpl).replace("{count}", count)
+      } else {
+        this.submitBtnTarget.value = count === 1
+          ? "Send request to 1 shop"
+          : `Send request to ${count} shops`
+      }
       this.submitBtnTarget.disabled = count === 0
     }
 

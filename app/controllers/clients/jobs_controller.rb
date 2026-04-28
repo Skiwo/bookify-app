@@ -35,6 +35,10 @@ module Clients
       else
         redirect_to clients_job_path(@job), alert: "Could not issue invoice: #{result.error&.message}. Please contact support."
       end
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to clients_job_path(@job), alert: e.record.errors.full_messages.to_sentence
+    rescue ArgumentError => e
+      redirect_to clients_job_path(@job), alert: e.message
     end
 
     def cancel

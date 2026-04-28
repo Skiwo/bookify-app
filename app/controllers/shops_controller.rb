@@ -12,6 +12,9 @@ class ShopsController < ApplicationController
                      .where("shops.name ILIKE :q OR skills.slug ILIKE :q", q: pattern)
                      .distinct
     end
+
+    @kind = params[:kind].presence_in(%w[shops solo]) || "shops"
+    @shops = @shops.where(solo: @kind == "solo")
   end
 
   def show
