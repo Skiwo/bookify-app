@@ -1,16 +1,29 @@
 class User < ApplicationRecord
   enum :role, { booker: 0, freelancer: 1, client: 2, shop_owner: 3 }
 
+  EXPERIENCE_LEVELS = %w[beginner junior experienced specialist].freeze
+
   has_one_attached :avatar
   has_many :enrollments_as_booker, class_name: "Enrollment", foreign_key: :booker_id, dependent: :restrict_with_error, inverse_of: :booker
   has_many :enrollments_as_freelancer, class_name: "Enrollment", foreign_key: :freelancer_id, dependent: :nullify, inverse_of: :freelancer
   has_many :job_reads, dependent: :destroy
+  has_many :freelancer_experiences, dependent: :destroy
+  has_many :freelancer_educations,  dependent: :destroy
+
+  accepts_nested_attributes_for :freelancer_experiences,
+    allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :freelancer_educations,
+    allow_destroy: true, reject_if: :all_blank
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true
   validates :locale, inclusion: { in: %w[nb en] }
+  validates :experience_level, inclusion: { in: EXPERIENCE_LEVELS }, allow_nil: true
+  validates :profile_slug, uniqueness: true, allow_nil: true,
+            format: { with: /\A[a-z0-9-]+\z/, message: "only lowercase letters, numbers and hyphens" }
 
   before_validation :normalize_email
+  before_save :generate_profile_slug, if: -> { profile_public? && profile_slug.blank? }
 
   passwordless_with :email
 
@@ -69,9 +82,29 @@ class User < ApplicationRecord
     pop_sandbox? ? pop_sandbox_partner_id : pop_production_partner_id
   end
 
+  def experience_level_label
+    I18n.t("freelancer_profile.experience_levels.#{experience_level}", default: experience_level&.humanize)
+  end
+
   private
 
   def normalize_email
     self.email = email&.downcase&.strip
+  end
+
+  def generate_profile_slug
+    base = name.to_s.downcase
+                .unicode_normalize(:nfkd)
+                .gsub(/[^\x00-\x7f]/, "")
+                .gsub(/[^a-z0-9]+/, "-")
+                .gsub(/^-|-$/, "")
+                .presence || "freelancer"
+    slug = base
+    n = 2
+    while User.where(profile_slug: slug).where.not(id: id).exists?
+      slug = "#{base}-#{n}"
+      n += 1
+    end
+    self.profile_slug = slug
   end
 end

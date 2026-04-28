@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_28_200001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -130,6 +130,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
     t.index ["freelancer_id"], name: "index_enrollments_on_freelancer_id"
     t.index ["invitation_token"], name: "index_enrollments_on_invitation_token", unique: true
     t.index ["pop_worker_id"], name: "index_enrollments_on_pop_worker_id"
+  end
+
+  create_table "freelancer_educations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "institution", null: false
+    t.string "degree"
+    t.string "field_of_study"
+    t.integer "graduation_year"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_freelancer_educations_on_user_id"
+  end
+
+  create_table "freelancer_experiences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "title", null: false
+    t.string "company", null: false
+    t.text "description"
+    t.date "started_on", null: false
+    t.date "ended_on"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_freelancer_experiences_on_user_id"
   end
 
   create_table "job_reads", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -279,6 +304,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "pop_worker_id"
+    t.boolean "solo", default: false, null: false
     t.index ["owner_id"], name: "index_shops_on_owner_id", unique: true
     t.index ["slug"], name: "index_shops_on_slug", unique: true
     t.index ["status"], name: "index_shops_on_status"
@@ -311,7 +337,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
     t.string "pop_production_partner_id"
     t.datetime "last_online_at"
     t.string "locale", default: "nb", null: false
+    t.string "headline"
+    t.text "bio"
+    t.string "location"
+    t.integer "hourly_rate_ore"
+    t.string "experience_level"
+    t.boolean "profile_public", default: false, null: false
+    t.string "profile_slug"
+    t.string "profile_skill_tags", default: [], array: true
+    t.string "bookify_pop_worker_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["profile_slug"], name: "index_users_on_profile_slug", unique: true, where: "(profile_slug IS NOT NULL)"
     t.index ["role"], name: "index_users_on_role"
   end
 
@@ -326,6 +362,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_25_200003) do
   add_foreign_key "disputes", "users", column: "responded_by_id"
   add_foreign_key "enrollments", "users", column: "booker_id"
   add_foreign_key "enrollments", "users", column: "freelancer_id"
+  add_foreign_key "freelancer_educations", "users"
+  add_foreign_key "freelancer_experiences", "users"
   add_foreign_key "job_reads", "jobs"
   add_foreign_key "job_reads", "users"
   add_foreign_key "jobs", "bookings"

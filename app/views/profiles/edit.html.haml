@@ -1,34 +1,132 @@
 %h2.fw-bold.mb-4= t("profiles.edit.title")
 
-.row
-  .col-lg-6
-    .card.border-0.shadow-sm
-      .card-body
-        = form_with model: @user, url: profile_path, method: :patch,
-            data: { controller: "avatar-preview" } do |f|
-          .text-center.mb-4{"data-avatar-preview-target": "preview"}
+= form_with model: @user, url: profile_path, method: :patch,
+    multipart: true, local: true,
+    data: { controller: "avatar-preview" } do |f|
+
+  / ─── Basic info ────────────────────────────────────────────────────────
+  .card.border-0.shadow-sm.mb-4
+    .card-header.bg-white.fw-bold= t("profiles.edit.section_basic")
+    .card-body
+      .row.g-3
+        .col-md-2.text-center.d-flex.flex-column.align-items-center
+          %div.flex-grow-1.d-flex.align-items-center.justify-content-center{"data-avatar-preview-target": "preview"}
             = user_avatar(@user, size: 80)
-          .mb-3
-            = f.label :avatar, t("profiles.edit.photo_label"), class: "form-label fw-medium"
-            = f.file_field :avatar, accept: "image/*", class: "form-control",
-                data: { "avatar-preview-target": "input", action: "change->avatar-preview#update" }
+          = f.file_field :avatar, accept: "image/*", class: "form-control form-control-sm",
+              data: { "avatar-preview-target": "input", action: "change->avatar-preview#update" }
 
-          .mb-3
-            = f.label :name, t("profiles.edit.name_label"), class: "form-label fw-medium"
-            = f.text_field :name, class: "form-control",
-                placeholder: t("profiles.edit.name_placeholder")
+        .col-md-10
+          .row.g-3
+            .col-md-6
+              = f.label :name, t("profiles.edit.name_label"), class: "form-label fw-medium"
+              = f.text_field :name, class: "form-control", placeholder: t("profiles.edit.name_placeholder")
+            .col-md-6
+              %label.form-label.fw-medium= t("profiles.edit.email_label")
+              %input.form-control{type: "email", value: @user.email, disabled: true}
+              %div.form-text= t("profiles.edit.email_hint")
+            .col-md-6
+              = f.label :locale, t("profiles.edit.locale_label"), class: "form-label fw-medium"
+              = f.select :locale, [["Norsk bokmål", "nb"], ["English", "en"]], {}, class: "form-select"
 
-          .mb-3
-            %label.form-label.fw-medium= t("profiles.edit.email_label")
-            %input.form-control{type: "email", value: @user.email, disabled: true}
-            %div.form-text= t("profiles.edit.email_hint")
+  / ─── Freelancer profile (only for freelancers) ─────────────────────────
+  - if @user.freelancer?
+    .card.border-0.shadow-sm.mb-4
+      .card-header.bg-white.d-flex.justify-content-between.align-items-center
+        %span.fw-bold= t("profiles.edit.section_public_profile")
+        .form-check.form-switch.mb-0
+          = f.check_box :profile_public, class: "form-check-input", role: "switch", id: "profile_public"
+          = f.label :profile_public, t("profiles.edit.profile_public_label"), class: "form-check-label"
+      .card-body
+        - if @user.profile_public? && @user.bookify_pop_worker_id.blank?
+          .alert.alert-warning.small.mb-3
+            %i.bi.bi-shield-exclamation.me-1
+            %strong POP-registrering kreves.
+            Du må fullføre registreringen på Payout Partner (BankID) for å aktivere offentlig profil og ta imot bookinger.
+            = link_to "Registrer nå →", bookify_onboarding_freelancer_profile_path, class: "alert-link ms-1"
 
-          .mb-3
-            = f.label :locale, t("profiles.edit.locale_label"), class: "form-label fw-medium"
-            = f.select :locale,
-                [["Norsk bokmål", "nb"], ["English", "en"]],
-                {},
+        - elsif @user.profile_slug.present?
+          .alert.alert-success.small.mb-3
+            %i.bi.bi-check-circle.me-1
+            %strong POP-registrert.
+            = link_to "Se profil →", public_freelancer_profile_url(@user.profile_slug), target: "_blank", class: "alert-link ms-1"
+
+        .row.g-3
+          .col-12
+            = f.label :headline, t("profiles.edit.headline_label"), class: "form-label fw-medium"
+            = f.text_field :headline, class: "form-control",
+                placeholder: t("profiles.edit.headline_placeholder")
+
+          .col-md-6
+            = f.label :location, t("profiles.edit.location_label"), class: "form-label fw-medium"
+            = f.text_field :location, class: "form-control", placeholder: "Oslo"
+
+          .col-md-6
+            = f.label :experience_level, t("profiles.edit.experience_level_label"), class: "form-label fw-medium"
+            = f.select :experience_level,
+                User::EXPERIENCE_LEVELS.map { |l| [t("freelancer_profile.experience_levels.#{l}"), l] },
+                { include_blank: "— #{t("profiles.edit.select_level")} —" },
                 class: "form-select"
 
-          = f.submit t("profiles.edit.save"), class: "btn btn-primary w-100",
-              data: { disable_with: t("profiles.edit.saving") }
+          .col-md-6
+            = f.label :hourly_rate_ore, t("profiles.edit.rate_label"), class: "form-label fw-medium"
+            .input-group
+              %span.input-group-text kr
+              = f.number_field :hourly_rate_ore, value: (@user.hourly_rate_ore.to_i / 100 if @user.hourly_rate_ore),
+                  class: "form-control", placeholder: "800", min: 0,
+                  data: { action: "input->profile-rate#convert" }
+              %span.input-group-text /time
+            %div.form-text= t("profiles.edit.rate_hint")
+
+          .col-12
+            = f.label :bio, t("profiles.edit.bio_label"), class: "form-label fw-medium"
+            = f.text_area :bio, class: "form-control", rows: 4,
+                placeholder: t("profiles.edit.bio_placeholder")
+
+          .col-12
+            = f.label :profile_skill_tags, t("profiles.edit.skills_label"), class: "form-label fw-medium"
+            = f.text_field :profile_skill_tags, value: @user.profile_skill_tags.join(", "),
+                class: "form-control",
+                placeholder: t("profiles.edit.skills_placeholder")
+            %div.form-text= t("profiles.edit.skills_hint")
+
+    / ─── Work experience ──────────────────────────────────────────────
+    .card.border-0.shadow-sm.mb-4{"data-controller": "nested-form"}
+      .card-header.bg-white.d-flex.justify-content-between.align-items-center
+        %span.fw-bold= t("profiles.edit.section_experience")
+        %button.btn.btn-sm.btn-outline-primary{type: "button", "data-action": "nested-form#add",
+          "data-nested-form-target": "addButton"}
+          %i.bi.bi-plus.me-1
+          = t("profiles.edit.add_experience")
+      .card-body
+        %div{"data-nested-form-target": "container"}
+          = f.fields_for :freelancer_experiences do |ef|
+            = render "profiles/experience_fields", f: ef
+        %template{"data-nested-form-target": "template"}
+          = f.fields_for :freelancer_experiences, FreelancerExperience.new, child_index: "NEW_RECORD" do |ef|
+            = render "profiles/experience_fields", f: ef
+        - if @user.freelancer_experiences.empty?
+          %p.text-muted.small.fst-italic.mb-0{"data-nested-form-target": "empty"}
+            = t("profiles.edit.no_experience")
+
+    / ─── Education ────────────────────────────────────────────────────
+    .card.border-0.shadow-sm.mb-4{"data-controller": "nested-form"}
+      .card-header.bg-white.d-flex.justify-content-between.align-items-center
+        %span.fw-bold= t("profiles.edit.section_education")
+        %button.btn.btn-sm.btn-outline-primary{type: "button", "data-action": "nested-form#add",
+          "data-nested-form-target": "addButton"}
+          %i.bi.bi-plus.me-1
+          = t("profiles.edit.add_education")
+      .card-body
+        %div{"data-nested-form-target": "container"}
+          = f.fields_for :freelancer_educations do |ef|
+            = render "profiles/education_fields", f: ef
+        %template{"data-nested-form-target": "template"}
+          = f.fields_for :freelancer_educations, FreelancerEducation.new, child_index: "NEW_RECORD" do |ef|
+            = render "profiles/education_fields", f: ef
+        - if @user.freelancer_educations.empty?
+          %p.text-muted.small.fst-italic.mb-0{"data-nested-form-target": "empty"}
+            = t("profiles.edit.no_education")
+
+  .d-flex.justify-content-end
+    = f.submit t("profiles.edit.save"), class: "btn btn-primary px-5",
+        data: { disable_with: t("profiles.edit.saving") }

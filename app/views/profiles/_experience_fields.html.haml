@@ -1,0 +1,25 @@
+.border.rounded-3.p-3.mb-3.position-relative{"data-nested-form-target": "item"}
+  = f.hidden_field :id
+  = f.hidden_field :_destroy, "data-nested-form-target": "destroy"
+  %button.btn-close.position-absolute{type: "button", style: "top: 12px; right: 12px;",
+    "data-action": "nested-form#remove"}
+
+  .row.g-3
+    .col-md-6
+      = f.label :title, t("profiles.edit.exp_title"), class: "form-label fw-medium small"
+      = f.text_field :title, class: "form-control form-control-sm", required: true,
+          placeholder: "Fotograf"
+    .col-md-6
+      = f.label :company, t("profiles.edit.exp_company"), class: "form-label fw-medium small"
+      = f.text_field :company, class: "form-control form-control-sm", required: true,
+          placeholder: "Oslo Media AS"
+    .col-md-4
+      = f.label :started_on, t("profiles.edit.exp_started"), class: "form-label fw-medium small"
+      = f.date_field :started_on, class: "form-control form-control-sm"
+    .col-md-4
+      = f.label :ended_on, t("profiles.edit.exp_ended"), class: "form-label fw-medium small"
+      = f.date_field :ended_on, class: "form-control form-control-sm"
+      %div.form-text.small= t("profiles.edit.exp_ended_hint")
+    .col-12
+      = f.label :description, t("profiles.edit.exp_description"), class: "form-label fw-medium small"
+      = f.text_area :description, class: "form-control form-control-sm", rows: 2

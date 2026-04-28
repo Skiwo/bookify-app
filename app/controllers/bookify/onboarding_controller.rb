@@ -2,6 +2,19 @@ module Bookify
   class OnboardingController < ApplicationController
     before_action :require_authentication!, except: [:member]
 
+    # Solo freelancer: enroll on POP directly via public profile (no shop needed)
+    def freelancer_profile
+      if current_user.bookify_pop_worker_id.present?
+        redirect_to edit_profile_path, notice: t("flash.shop_already_enrolled")
+        return
+      end
+
+      client   = PopApiClient.for_bookify
+      callback = bookify_callback_freelancer_profile_url(user_id: current_user.id)
+      url      = client.connect_url(worker_id: current_user.id, callback_url: callback)
+      redirect_to url, allow_other_host: true
+    end
+
     # Shop owner: redirect to POP to enroll as a freelancer (to receive commissions)
     def shop
       shop = Shop.find_by!(owner: current_user)

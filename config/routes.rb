@@ -28,10 +28,12 @@ Rails.application.routes.draw do
   # Shared because the callback URL is generated from whatever domain
   # the user is on when they start POP enrollment.
   namespace :bookify do
-    get "onboarding/shop",   to: "onboarding#shop",      as: :onboarding_shop
-    get "onboarding/member", to: "onboarding#member",    as: :onboarding_member
-    get "callbacks/shop",    to: "callbacks#shop_owner", as: :callback_shop
-    get "callbacks/member",  to: "callbacks#member",     as: :callback_member
+    get "onboarding/shop",               to: "onboarding#shop",               as: :onboarding_shop
+    get "onboarding/member",             to: "onboarding#member",             as: :onboarding_member
+    get "onboarding/freelancer-profile", to: "onboarding#freelancer_profile", as: :onboarding_freelancer_profile
+    get "callbacks/shop",                to: "callbacks#shop_owner",          as: :callback_shop
+    get "callbacks/member",              to: "callbacks#member",              as: :callback_member
+    get "callbacks/freelancer-profile",  to: "callbacks#freelancer_profile",  as: :callback_freelancer_profile
   end
 
   # Shop member invitations — shared because freelancers can be on any domain
@@ -84,6 +86,9 @@ Rails.application.routes.draw do
     resources :shop_invitations, only: [:show], param: :token do
       member { post :accept }
     end
+
+    # Public freelancer profiles
+    get "freelancers/:slug", to: "freelancer/public_profiles#show", as: :public_freelancer_profile
 
     # Shop owner Bookify cabinet — on bookify.app, not payoutpartner.com
     namespace :shop_admin, path: "shop", as: "shop" do

@@ -34,6 +34,28 @@ module Bookify
       redirect_to shop_dashboard_path, notice: t("flash.shop_enrolled")
     end
 
+    # GET /bookify/callbacks/freelancer_profile?worker_id=X&status=approved&user_id=Y
+    def freelancer_profile
+      unless %w[approved updated].include?(params[:status])
+        redirect_to edit_profile_path, alert: t("flash.enrollment_failed")
+        return
+      end
+
+      user = User.find(params[:user_id])
+      user.update!(bookify_pop_worker_id: params[:worker_id])
+
+      Bookify::SoloShopService.find_or_create!(user)
+
+      # Sign in the returning user (they may have been redirected unauthenticated)
+      unless current_user&.id == user.id
+        pwless_session = create_passwordless_session!(user)
+        sign_in(pwless_session)
+      end
+
+      redirect_to edit_profile_path,
+        notice: "POP-registrering fullført! Profilen din er nå offentlig og klar til å ta imot bookinger."
+    end
+
     # GET /bookify/callbacks/member?worker_id=X&status=approved&token=Y
     def member
       unless %w[approved updated].include?(params[:status])

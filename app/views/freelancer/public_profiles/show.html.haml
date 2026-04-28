@@ -1,0 +1,127 @@
+- content_for :title, @freelancer.name
+
+.container.py-5
+
+  / ─── Hero card ──────────────────────────────────────────────────────────
+  .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px; overflow: hidden;"}
+    .p-4.p-lg-5{style: "background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #d1fae5 100%); border-bottom: 1px solid rgba(25,135,84,0.1);"}
+      .d-flex.flex-column.flex-md-row.gap-4.gap-md-5
+        / Avatar
+        .flex-shrink-0.d-flex.justify-content-center.justify-content-md-start
+          %div{style: "padding: 6px; background: linear-gradient(135deg, #198754, #0D9488, #059669); border-radius: 50%; box-shadow: 0 8px 24px rgba(25,135,84,0.25);"}
+            %div{style: "background: white; border-radius: 50%; padding: 5px;"}
+              = user_avatar(@freelancer, size: 160)
+
+        / Info
+        .flex-grow-1.d-flex.flex-column.justify-content-center
+          %h1.fw-bold.mb-1{style: "font-size: 2rem; color: #052e16;"}= @freelancer.name
+          - if @freelancer.headline.present?
+            %p.mb-3{style: "font-size: 1.1rem; color: #166534; font-weight: 500;"}= @freelancer.headline
+
+          .d-flex.flex-wrap.align-items-center.gap-3.mb-3
+            - if @freelancer.location.present?
+              .d-flex.align-items-center.gap-1{style: "color: #4b5563;"}
+                %i.bi.bi-geo-fill{style: "color: #198754;"}
+                %span.fw-medium= @freelancer.location
+
+            - if @freelancer.experience_level.present?
+              %span.badge.fw-semibold{style: "background: white; color: #374151; border: 1px solid #d1d5db; font-size: 0.75rem; padding: 5px 12px; border-radius: 20px;"}= @freelancer.experience_level_label
+
+          / Skill tags
+          - if @freelancer.profile_skill_tags.any?
+            .d-flex.flex-wrap.gap-2.mb-4
+              - @freelancer.profile_skill_tags.each do |tag|
+                %span.badge.fw-semibold{style: "background: white; color: #374151; border: 1px solid #d1d5db; font-size: 0.75rem; padding: 5px 12px; border-radius: 20px;"}= tag
+
+
+  / ─── Body ────────────────────────────────────────────────────────────────
+  .row.g-4
+
+    / Left: bio + experience + education
+    .col-lg-8
+
+      - if @freelancer.bio.present?
+        .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px; background: rgba(25,135,84,0.03); border: 1px solid rgba(25,135,84,0.08) !important;"}
+          .card-body.p-4
+            %h4.fw-semibold.text-uppercase.small.mb-3{style: "color: #198754; letter-spacing: 0.06em;"} Om meg
+            .lh-lg{style: "color: #374151;"}= simple_format(@freelancer.bio)
+
+      / Experience
+      .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px;"}
+        .card-body.p-4
+          %h4.fw-semibold.d-flex.align-items-center.gap-2.mb-4{style: "color: #052e16;"}
+            %i.bi.bi-person-workspace{style: "color: #198754;"}
+            = t("freelancer_profile.experience")
+          - if @freelancer.freelancer_experiences.any?
+            .d-flex.flex-column.gap-3
+              - @freelancer.freelancer_experiences.each do |exp|
+                .d-flex.gap-3
+                  .flex-shrink-0
+                    .rounded-circle.d-flex.align-items-center.justify-content-center{style: "width:40px;height:40px;background:#f0fdf4;"}
+                      %i.bi.bi-buildings{style: "color: #198754;"}
+                  .flex-grow-1
+                    %p.fw-semibold.mb-0{style: "color: #052e16;"}= exp.title
+                    %p.text-muted.small.mb-1= exp.company
+                    %p.small.mb-1{style: "color: #6b7280;"}
+                      = exp.started_on.strftime("%b %Y")
+                      = " – "
+                      = exp.current? ? "Nå" : exp.ended_on.strftime("%b %Y")
+                      = " · #{exp.duration_label}"
+                    - if exp.description.present?
+                      %p.small.mb-0{style: "color: #6b7280;"}= exp.description
+          - else
+            %p.text-muted.small.fst-italic.mb-0 Ingen arbeidserfaring lagt til
+
+      / Education
+      .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px;"}
+        .card-body.p-4
+          %h4.fw-semibold.d-flex.align-items-center.gap-2.mb-4{style: "color: #052e16;"}
+            %i.bi.bi-mortarboard-fill{style: "color: #0D9488;"}
+            = t("freelancer_profile.education")
+          - if @freelancer.freelancer_educations.any?
+            .d-flex.flex-column.gap-3
+              - @freelancer.freelancer_educations.each do |edu|
+                .d-flex.gap-3
+                  .flex-shrink-0
+                    .rounded-circle.d-flex.align-items-center.justify-content-center{style: "width:40px;height:40px;background:#f0fdfa;"}
+                      %i.bi.bi-journal-text{style: "color: #0D9488;"}
+                  .flex-grow-1
+                    %p.fw-semibold.mb-0{style: "color: #052e16;"}= edu.degree.presence || edu.institution
+                    %p.text-muted.small.mb-0= [edu.institution, edu.field_of_study].compact.join(" · ")
+                    - if edu.graduation_year.present?
+                      %p.text-muted.small.mb-0= edu.graduation_year
+          - else
+            %p.text-muted.small.fst-italic.mb-0 Ingen utdanning lagt til
+
+    / Right: rate
+    .col-lg-4
+      / ─── Booking / rate block ───────────────────────────────────────────
+      - if !current_user&.freelancer? && @solo_shop
+        .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px; border: 1px solid rgba(25,135,84,0.15) !important;"}
+          .card-body.p-4
+            - if @freelancer.hourly_rate_ore.present?
+              .d-flex.align-items-center.gap-2.mb-3
+                %i.bi.bi-coin{style: "color: #198754;"}
+                .lh-1
+                  %span.fw-bold{style: "font-size: 1.5rem; color: #052e16;"}= format_nok(@freelancer.hourly_rate_ore)
+                  %span.fw-normal.small.text-muted / time
+
+            - if current_user&.client?
+              = link_to shop_path(@solo_shop.slug), class: "btn btn-success w-100 fw-semibold py-2", style: "border-radius: 8px;" do
+                %i.bi.bi-send-fill.me-2
+                Send forespørsel
+            - elsif !signed_in?
+              %p.small.text-muted.mb-3 Logg inn med organisasjonsnummer for å sende forespørsel.
+              = link_to users_sign_in_path, class: "btn btn-outline-success w-100 fw-semibold py-2", style: "border-radius: 8px;" do
+                %i.bi.bi-box-arrow-in-right.me-2
+                Logg inn for å booke
+
+      - elsif !current_user&.freelancer? && @freelancer.hourly_rate_ore.present?
+        .card.border-0.shadow-sm.mb-4{style: "border-radius: 16px;"}
+          .card-body.p-4
+            %h4.fw-semibold.mb-3{style: "color: #052e16;"}= t("freelancer_profile.rate")
+            .d-flex.align-items-center.gap-2
+              %i.bi.bi-coin{style: "color: #198754;"}
+              .lh-1
+                %span.fw-bold{style: "font-size: 1.5rem; color: #052e16;"}= format_nok(@freelancer.hourly_rate_ore)
+                %span.fw-normal.small.text-muted / time

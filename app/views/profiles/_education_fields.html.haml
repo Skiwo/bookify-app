@@ -1,0 +1,23 @@
+.border.rounded-3.p-3.mb-3.position-relative{"data-nested-form-target": "item"}
+  = f.hidden_field :id
+  = f.hidden_field :_destroy, "data-nested-form-target": "destroy"
+  %button.btn-close.position-absolute{type: "button", style: "top: 12px; right: 12px;",
+    "data-action": "nested-form#remove"}
+
+  .row.g-3
+    .col-md-6
+      = f.label :institution, t("profiles.edit.edu_institution"), class: "form-label fw-medium small"
+      = f.text_field :institution, class: "form-control form-control-sm", required: true,
+          placeholder: "Universitetet i Oslo"
+    .col-md-6
+      = f.label :degree, t("profiles.edit.edu_degree"), class: "form-label fw-medium small"
+      = f.text_field :degree, class: "form-control form-control-sm",
+          placeholder: "Bachelor"
+    .col-md-6
+      = f.label :field_of_study, t("profiles.edit.edu_field"), class: "form-label fw-medium small"
+      = f.text_field :field_of_study, class: "form-control form-control-sm",
+          placeholder: "Medievitenskap"
+    .col-md-6
+      = f.label :graduation_year, t("profiles.edit.edu_year"), class: "form-label fw-medium small"
+      = f.number_field :graduation_year, class: "form-control form-control-sm",
+          min: 1950, max: Date.current.year + 6, placeholder: "2020"
