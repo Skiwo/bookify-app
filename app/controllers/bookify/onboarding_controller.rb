@@ -36,7 +36,13 @@ module Bookify
       @member = ShopMember.find_by!(invitation_token: token)
 
       unless @member.invited?
-        redirect_to shop_path(@member.shop.slug), notice: "Already enrolled."
+        # Backfill bookify_pop_worker_id if enrollment or user already has one
+        if @member.bookify_pop_worker_id.blank?
+          worker_id = @member.enrollment&.pop_worker_id.presence ||
+                      @member.enrollment&.freelancer&.bookify_pop_worker_id.presence
+          @member.update_columns(bookify_pop_worker_id: worker_id) if worker_id.present?
+        end
+        redirect_to shop_path(@member.shop.slug), notice: t("flash.shop_already_enrolled")
         return
       end
 

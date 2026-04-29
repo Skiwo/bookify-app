@@ -732,6 +732,7 @@ nb:
       load_earlier: "Last %{count} tidligere meldinger"
       new_messages: "Nye meldinger"
       empty_hint: "Chatten er åpen. Diskuter detaljer med butikken."
+      closed_hint: "Chatten er lukket — jobben er avsluttet."
       placeholder: "Skriv en melding…"
       today: "I dag"
       yesterday: "I går"

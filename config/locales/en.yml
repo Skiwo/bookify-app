@@ -732,6 +732,7 @@ en:
       load_earlier: "Load %{count} earlier messages"
       new_messages: "New messages"
       empty_hint: "Chat is open. Discuss details with the shop."
+      closed_hint: "Chat is closed — this job has ended."
       placeholder: "Type a message…"
       today: "Today"
       yesterday: "Yesterday"

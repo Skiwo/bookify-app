@@ -13,16 +13,24 @@
       = t("freelancer.dashboard.show.complete_onboarding")
       %i.bi.bi-arrow-right.ms-1
 
-- if @bookify_jobs.any?
+- if @bookify_jobs.any? || @status_filter.present?
   .card.border-0.shadow-sm.mb-4
-    .card-header.bg-white.fw-bold
-      %i.bi.bi-shop.me-2
-      = t("freelancer.dashboard.show.bookify_jobs_heading")
-    .card-body
+    .card-header.bg-white
+      .d-flex.align-items-center.justify-content-between.flex-wrap.gap-2
+        .fw-bold
+          %i.bi.bi-shop.me-2
+          = t("freelancer.dashboard.show.bookify_jobs_heading")
+        .d-flex.flex-wrap.gap-1
+          = link_to t("common.actions.view") + " all", freelancer_dashboard_path,
+              class: "btn btn-sm #{@status_filter.nil? ? 'btn-primary' : 'btn-outline-secondary'}"
+          - @job_statuses.each do |s|
+            = link_to t("common.status.#{s}", default: s.humanize), freelancer_dashboard_path(status: s),
+                class: "btn btn-sm #{@status_filter == s ? 'btn-primary' : 'btn-outline-secondary'}"
+    - if @bookify_jobs.any?
       .list-group.list-group-flush
         - @bookify_jobs.each do |job|
           - target_path = (job.shop.solo? && job.shop.owner_id == current_user.id) ? shop_job_path(job) : freelancer_job_path(job)
-          = link_to target_path, class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do
+          = link_to target_path, class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3" do
             %div
               %span.fw-medium= job.title
               %br
@@ -32,6 +40,12 @@
                 %span.text-muted.small= format_nok(job.work_amount_ore)
               %span.badge{class: job.invoiced? || job.paid? ? "bg-success" : job.disputed? ? "bg-danger" : "bg-primary"}
                 = t("common.status.#{job.status}", default: job.status.humanize)
+      - if @bookify_jobs.total_pages > 1
+        .card-footer.bg-white.d-flex.justify-content-center.py-3
+          = paginate @bookify_jobs
+    - else
+      .card-body
+        %p.text-muted.small.mb-0.text-center Ingen jobber med denne statusen.
 
 - if @booker_count == 0 && @bookify_jobs.empty?
   .card.border-0.shadow-sm.text-center.py-5
@@ -41,26 +55,26 @@
       %p.text-muted.mb-0= t("freelancer.dashboard.show.waiting_body")
 
 - if @bookify_jobs.any?
-  .row.mb-4
+  .row.mb-4.align-items-stretch
     - @bookify_shops.each do |shop|
       - shop_jobs = @bookify_jobs.select { |j| j.shop_id == shop.id }
-      .col-md-4.mb-3
-        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
-          .card-body.text-center.py-3
+      .col-md-4.mb-3.d-flex
+        .card.shadow-sm.border-0.w-100{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3.d-flex.flex-column.align-items-center.justify-content-center
             .d-flex.align-items-center.justify-content-center.gap-2.mb-1
               = shop_avatar(shop, size: 28)
               %span.fw-bold.small= shop.name
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}= shop_jobs.size
             %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_jobs")
-      .col-md-4.mb-3
-        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
-          .card-body.text-center.py-3
+      .col-md-4.mb-3.d-flex
+        .card.shadow-sm.border-0.w-100{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3.d-flex.flex-column.align-items-center.justify-content-center
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}
               = shop_jobs.count { |j| %w[accepted in_progress pending_confirmation].include?(j.status) }
             %p.text-muted.small.mb-0= t("freelancer.dashboard.show.active_jobs")
-      .col-md-4.mb-3
-        .card.shadow-sm.border-0{style: "background-color: #F0FDFA;"}
-          .card-body.text-center.py-3
+      .col-md-4.mb-3.d-flex
+        .card.shadow-sm.border-0.w-100{style: "background-color: #F0FDFA;"}
+          .card-body.text-center.py-3.d-flex.flex-column.align-items-center.justify-content-center
             %h3.fw-bold.mb-0{style: "color: #0D9488;"}
               = format_nok(shop_jobs.select { |j| %w[invoiced paid completed].include?(j.status) }.sum { |j| j.work_amount_ore.to_i })
             %p.text-muted.small.mb-0= t("freelancer.dashboard.show.total_earned")

@@ -48,7 +48,7 @@
                 %i.bi.bi-speedometer2.me-1
                 = t("common.nav.dashboard")
             %li.nav-item
-              %a.nav-link{href: freelancer_profile_path, class: nav_active?("freelancer/profile")}
+              %a.nav-link{href: edit_profile_path, class: nav_active?("profiles")}
                 %i.bi.bi-person.me-1
                 = t("common.nav.profile")
             - if current_user&.freelancer? && Shop.exists?(owner: current_user, solo: true)

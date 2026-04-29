@@ -89,7 +89,10 @@
           - prev_sender_id = message.system_message? ? nil : message.sender_id
       - else
         %p.text-muted.small.mb-0.text-center.py-3#chat-empty
-          = t("shared.job_chat.empty_hint")
+          - if job.invoiced? || job.paid? || job.completed? || job.cancelled?
+            = t("shared.job_chat.closed_hint")
+          - else
+            = t("shared.job_chat.empty_hint")
 
   - if signed_in? && !job.invoiced? && !job.paid? && !job.completed?
     .chat-input-wrap{"data-controller": "voice-recorder"}
