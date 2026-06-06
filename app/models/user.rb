@@ -40,7 +40,9 @@ class User < ApplicationRecord
 
   def effective_pop_base_url
     return ENV["POP_BASE_URL"] if ENV["POP_BASE_URL"].present?
-    pop_sandbox? ? "https://sandbox.core.payoutpartner.com" : "https://core.payoutpartner.com"
+    # The partner REST API is served on the api.* subdomain (api-guide.md;
+    # core.* serves admin/app, not /api/v2/partner/*).
+    pop_sandbox? ? "https://sandbox.api.payoutpartner.com" : "https://api.payoutpartner.com"
   end
 
   def effective_pop_app_url

@@ -1,5 +1,5 @@
 module PopApiHelpers
-  POP_BASE = "https://sandbox.core.payoutpartner.com"
+  POP_BASE = "https://sandbox.api.payoutpartner.com"
 
   POP_ENV = {
     "POP_API_KEY" => "test-api-key",

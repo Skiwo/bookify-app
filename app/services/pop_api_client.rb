@@ -241,7 +241,7 @@ class PopApiClient
   end
 
   def base_url
-    @credentials[:base_url].presence || ENV.fetch("POP_BASE_URL", "https://sandbox.core.payoutpartner.com")
+    @credentials[:base_url].presence || ENV.fetch("POP_BASE_URL", "https://sandbox.api.payoutpartner.com")
   end
 
 end
