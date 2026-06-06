@@ -143,6 +143,14 @@ module PopApiHelpers
     stub_request(:any, /#{Regexp.escape(POP_BASE)}/)
       .to_return(status: 401, body: body.to_json, headers: { "Content-Type" => "application/json" })
   end
+
+  # POST /enrollment_requests → POP emails the freelancer a code and returns a
+  # non-secret handoff URL.
+  def stub_pop_enrollment_request(enroll_url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
+    body = { "enroll_url" => enroll_url, "expires_at" => 30.minutes.from_now.iso8601 }
+    stub_request(:post, "#{POP_BASE}/api/v2/partner/enrollment_requests")
+      .to_return(status: 200, body: body.to_json, headers: { "Content-Type" => "application/json" })
+  end
 end
 
 RSpec.configure do |config|

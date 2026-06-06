@@ -121,18 +121,25 @@ RSpec.describe PopApiClient do
     end
   end
 
-  describe "#connect_url" do
-    it "generates a signed JWT URL for the unified connect endpoint" do
-      url = client.connect_url(
+  describe "#request_enrollment" do
+    it "POSTs worker_id + email + callback_url and returns the enroll_url" do
+      stub_pop_enrollment_request(enroll_url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
+
+      result = client.request_enrollment(
         worker_id: "wk_123",
-        callback_url: "https://bookify.app/callbacks/connect"
+        email: "freelancer@example.com",
+        callback_url: "https://bookify.app/callbacks/onboard"
       )
 
-      expect(url).to start_with("https://sandbox.app.payoutpartner.com/freelancer/connect?token=")
-      token = url.split("token=").last
-      decoded = JWT.decode(token, PopApiHelpers::POP_ENV["POP_HMAC_SECRET"], true, algorithm: "HS256").first
-      expect(decoded["partner_worker_id"]).to eq("wk_123")
-      expect(decoded["partner_id"]).to eq(PopApiHelpers::POP_ENV["POP_PARTNER_ID"])
+      expect(result.success?).to be true
+      expect(result.data["enroll_url"]).to eq("https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
+
+      expect(WebMock).to have_requested(:post, "#{PopApiHelpers::POP_BASE}/api/v2/partner/enrollment_requests")
+        .with(body: hash_including(
+          "partner_worker_id" => "wk_123",
+          "email" => "freelancer@example.com",
+          "callback_url" => "https://bookify.app/callbacks/onboard"
+        ))
     end
   end
 

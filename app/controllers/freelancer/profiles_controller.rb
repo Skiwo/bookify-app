@@ -10,13 +10,13 @@ module Freelancer
             enrollment: enrollment,
             profile: enrollment.pop_profile_data.presence,
             error: nil,
-            connect_url: booker_client.connect_url(
-              worker_id: enrollment.pop_worker_id,
-              callback_url: callbacks_manage_url
-            )
+            # The code-based flow has no partner-initiated "manage" round-trip
+            # (POP doesn't call back for an already-onboarded freelancer), so we
+            # send them to POP to sign in and manage their profile directly.
+            manage_url: "#{booker_client.app_url}/login"
           }
         else
-          { enrollment: enrollment, profile: enrollment.pop_profile_data, error: nil, connect_url: nil }
+          { enrollment: enrollment, profile: enrollment.pop_profile_data, error: nil, manage_url: nil }
         end
       end
     end

@@ -49,24 +49,31 @@ sequenceDiagram
     Booker->>Bookify: Add freelancer (name, email)
     Bookify->>Bookify: Create Enrollment, send invitation email
     Note over Bookify: Freelancer clicks invite link
-    Bookify->>POP: Redirect to app.payoutpartner.com/freelancer/connect?token=JWT
-    POP->>POP: Email OTP, BankID, profile, bank account
-    POP->>Bookify: Callback with worker_id
+    Bookify->>POP: POST /api/v2/partner/enrollment_requests (worker_id, email, callback_url)
+    POP->>POP: Email the freelancer a one-time code
+    Bookify->>POP: Redirect to the returned enroll_url
+    POP->>POP: Freelancer enters code → BankID, profile, bank account
+    POP->>Bookify: Callback with worker_id & status=approved
     Bookify->>POP: GET /api/v2/partner/profiles/:worker_id
     Bookify->>Bookify: Create User, activate Enrollment
 ```
 
-The `/freelancer/connect` endpoint on `app.payoutpartner.com` serves both onboarding (new freelancers) and profile management (returning freelancers). Bookify generates a signed JWT containing the `partner_worker_id` and `callback_url`, then redirects the freelancer to POP.
+Bookify calls `POST /api/v2/partner/enrollment_requests` with the freelancer's `partner_worker_id`, `email`, and a `callback_url`. POP emails the freelancer a one-time **code** (not a clickable link) and returns a non-secret `enroll_url`; Bookify redirects the freelancer there to enter the code. This replaces the deprecated bearer-JWT `/f/connect?token=…` flow (a credential in a URL leaks via logs/referer and enabled worker-identity poisoning) — Bookify no longer mints JWTs or needs the HMAC secret for onboarding.
 
-**JWT claims sent to POP:**
+**Request body sent to POP:**
 ```json
 {
   "partner_worker_id": "wk_abc123",
-  "callback_url": "https://bookify.app/callbacks/onboard?token=INVITATION_TOKEN",
-  "partner_id": "YOUR_PARTNER_UUID",
-  "exp": 1743267600,
-  "iat": 1743265800,
-  "jti": "unique-token-id"
+  "email": "freelancer@example.com",
+  "callback_url": "https://bookify.app/callbacks/onboard?token=INVITATION_TOKEN"
+}
+```
+
+**Response:**
+```json
+{
+  "enroll_url": "https://app.payoutpartner.com/enroll?partner=<slug>&worker=wk_abc123",
+  "expires_at": "2026-04-20T15:30:00Z"
 }
 ```
 
@@ -198,21 +205,12 @@ sequenceDiagram
     participant Bookify
     participant POP
 
-    Freelancer->>Bookify: Click "Update Profile on POP"
-    Bookify->>POP: Redirect to app.payoutpartner.com/freelancer/connect?token=JWT
-    Note over POP: Same entry point as onboarding —<br/>POP detects existing enrollment<br/>and routes to manage flow
-    POP->>POP: Edit email, bank account, address, or switch payout profile
-    POP->>Bookify: Redirect to callback with worker_id & status=updated
-    Bookify->>POP: GET /api/v2/partner/profiles/:worker_id
-    Bookify->>Bookify: Update cached profile data
+    Freelancer->>Bookify: Click "Manage on Payout Partner"
+    Bookify->>POP: Open app.payoutpartner.com/login (new tab)
+    POP->>POP: Freelancer signs in and edits their profile directly
 ```
 
-The manage flow reuses the same `/freelancer/connect` entry point and JWT as onboarding. POP detects that the freelancer already has an approved enrollment and routes them to the profile management UI instead of the onboarding wizard.
-
-**POP redirects back with:**
-```
-https://bookify.app/callbacks/manage?worker_id=wk_abc123&status=updated
-```
+The code-based flow has no partner-initiated "manage" round-trip: POP does not call back for an already-onboarded freelancer (they skip the onboarding wizard). So the manage affordance simply links the freelancer to POP's login, where they sign in and edit their profile, bank account, or address directly. Bookify re-syncs the cached profile via `GET /api/v2/partner/profiles/:worker_id` on its own schedule.
 
 ---
 
@@ -260,9 +258,8 @@ For ENK/AS (organization) payout profiles, you need a valid Norwegian organizati
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/payoutpartner/bookify-app)
 
 You'll need:
-- A POP sandbox API key (`POP_API_KEY`)
-- A POP HMAC secret (`POP_HMAC_SECRET`)
-- A POP Partner ID (`POP_PARTNER_ID`)
+- A POP sandbox API key (`POP_API_KEY`) — the only credential the code-based flow requires
+- _(legacy, optional)_ A POP HMAC secret (`POP_HMAC_SECRET`) and Partner ID (`POP_PARTNER_ID`) — only used by the deprecated bearer-JWT connect flow; not needed for `enrollment_requests`
 
 Optional (for emails):
 - Amazon SES SMTP credentials

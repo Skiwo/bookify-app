@@ -98,13 +98,22 @@ class PopApiClient
     get("/api/v2/partner/payouts", params)
   end
 
-  # Browser flow JWT generation
-  def connect_url(worker_id:, callback_url:)
-    jwt = generate_jwt(
+  # Browser flow: ask POP to enroll a freelancer. POP emails the freelancer a
+  # one-time code (no bearer link) and returns a handoff URL (`enroll_url`) to
+  # redirect their browser to. Replaces the deprecated, JWT-in-URL connect_url.
+  def request_enrollment(worker_id:, email:, callback_url:)
+    post("/api/v2/partner/enrollment_requests", {
       partner_worker_id: worker_id,
+      email: email,
       callback_url: callback_url
-    )
-    "#{app_url}/freelancer/connect?token=#{jwt}"
+    })
+  end
+
+  # POP's app host — where the freelancer logs in to manage their profile.
+  def app_url
+    @credentials[:app_url].presence || ENV.fetch("POP_APP_URL") do
+      base_url.sub("core.", "app.")
+    end
   end
 
   private
@@ -219,17 +228,6 @@ class PopApiClient
     }
   end
 
-  def generate_jwt(payload)
-    now = Time.current.to_i
-    full_payload = payload.merge(
-      partner_id: partner_id,
-      iat: now,
-      exp: now + 1800,
-      jti: SecureRandom.uuid
-    )
-    JWT.encode(full_payload, hmac_secret, "HS256")
-  end
-
   def encode_path(segment)
     ERB::Util.url_encode(segment.to_s)
   end
@@ -238,26 +236,12 @@ class PopApiClient
     @credentials[:api_key].presence || ENV["POP_API_KEY"] || raise_missing("POP_API_KEY")
   end
 
-  def hmac_secret
-    @credentials[:hmac_secret].presence || ENV["POP_HMAC_SECRET"] || raise_missing("POP_HMAC_SECRET")
-  end
-
-  def partner_id
-    @credentials[:partner_id].presence || ENV["POP_PARTNER_ID"] || raise_missing("POP_PARTNER_ID")
-  end
-
   def raise_missing(name)
     raise PopCredentialsMissing, "#{name} is not configured. Add it in Settings or set the environment variable."
   end
 
   def base_url
     @credentials[:base_url].presence || ENV.fetch("POP_BASE_URL", "https://sandbox.core.payoutpartner.com")
-  end
-
-  def app_url
-    @credentials[:app_url].presence || ENV.fetch("POP_APP_URL") do
-      base_url.sub("core.", "app.")
-    end
   end
 
 end

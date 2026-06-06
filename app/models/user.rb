@@ -24,7 +24,10 @@ class User < ApplicationRecord
   end
 
   def pop_configured?
-    active_api_key.present? && active_hmac_secret.present? && active_partner_id.present?
+    # The REST API (Bearer api_key) is all the code-based enrollment flow needs.
+    # hmac_secret / partner_id were only used to mint the deprecated bearer-JWT
+    # connect link; they're retained as legacy settings but no longer required.
+    active_api_key.present?
   end
 
   def pop_sandbox?

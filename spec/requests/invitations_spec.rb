@@ -17,11 +17,13 @@ RSpec.describe "Invitations", type: :request do
   end
 
   describe "POST /invitations/:token/accept" do
-    it "redirects to POP connect URL" do
+    it "requests enrollment and redirects to the POP enroll URL" do
+      stub_pop_enrollment_request(enroll_url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=#{enrollment.id}")
+
       post accept_invitation_path(token: enrollment.invitation_token)
 
       expect(response).to have_http_status(:redirect)
-      expect(response.location).to include("payoutpartner.com/freelancer/connect")
+      expect(response.location).to include("payoutpartner.com/enroll")
       expect(enrollment.reload.status).to eq("onboarding")
     end
 
