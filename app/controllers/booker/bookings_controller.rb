@@ -136,18 +136,22 @@ module Booker
       )
 
       if result.success?
-        ActiveRecord::Base.transaction do
-          @booking.create_payout!(
-            pop_payout_id: result.data["id"],
-            pop_status: result.data["status"],
-            amount_ore: result.data["amount"] || @booking.total_ore,
-            pop_invoice_number: result.data["invoice_number"],
-            pop_response: result.data,
-            synced_at: Time.current
-          )
-          @booking.update!(status: :paid)
+        begin
+          ActiveRecord::Base.transaction do
+            @booking.create_payout!(
+              pop_payout_id: result.data["id"],
+              pop_status: result.data["status"],
+              amount_ore: result.data["amount"].to_i,
+              pop_invoice_number: result.data["invoice_number"],
+              pop_response: result.data,
+              synced_at: Time.current
+            )
+            @booking.update!(status: :paid)
+          end
+          redirect_to booker_payout_path(@booking.payout), notice: "Payout created successfully."
+        rescue ActiveRecord::RecordInvalid => e
+          redirect_to booker_booking_path(@booking), alert: "Payout failed: #{e.record.errors.full_messages.to_sentence}"
         end
-        redirect_to booker_payout_path(@booking.payout), notice: "Payout created successfully."
       else
         redirect_to booker_booking_path(@booking), alert: "Payout failed: #{helpers.format_pop_error(result.error)}"
       end
