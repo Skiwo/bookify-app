@@ -9,7 +9,7 @@ Bookify demonstrates how to onboard freelancers, create bookings, and process pa
 - Source code: https://github.com/payoutpartner/bookify-app
 - Live demo: https://bookify.app
 - About page: https://bookify.app/about
-- POP API docs: https://sandbox.core.payoutpartner.com/api-docs
+- POP API docs: https://sandbox.api.payoutpartner.com/api-docs
 
 ## Key concepts
 
@@ -21,4 +21,6 @@ Bookify demonstrates how to onboard freelancers, create bookings, and process pa
 
 ## Tech stack
 
-Ruby on Rails, PostgreSQL, Bootstrap 5, Faraday HTTP client, JWT for browser redirects.
+Ruby on Rails, PostgreSQL, Bootstrap 5, Faraday HTTP client. Onboarding is an
+OTP-gated redirect handoff (no JWTs): POP emails the freelancer a 6-digit code
+and hosts identity/bank collection on app.payoutpartner.com.

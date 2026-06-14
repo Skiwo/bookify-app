@@ -27,10 +27,10 @@ Bookify interacts with two POP domains:
 
 | Domain | Purpose |
 |--------|---------|
-| `core.payoutpartner.com` | **API endpoint** — all REST API calls (`/api/v2/partner/*`) |
+| `api.payoutpartner.com` | **API endpoint** — all REST API calls (`/api/v2/partner/*`) |
 | `app.payoutpartner.com` | **Freelancer portal** — onboarding and profile management |
 
-Sandbox variants use the `sandbox.` prefix: `sandbox.core.payoutpartner.com` and `sandbox.app.payoutpartner.com`.
+Sandbox variants use the `sandbox.` prefix: `sandbox.api.payoutpartner.com` and `sandbox.app.payoutpartner.com`.
 
 The partner portal for managing credentials is at `app.payoutpartner.com/partner`.
 
@@ -49,30 +49,31 @@ sequenceDiagram
     Booker->>Bookify: Add freelancer (name, email)
     Bookify->>Bookify: Create Enrollment, send invitation email
     Note over Bookify: Freelancer clicks invite link
-    Bookify->>POP: POST /api/v2/partner/enrollment_requests (worker_id, email, callback_url)
-    POP->>POP: Email the freelancer a one-time code
-    Bookify->>POP: Redirect to the returned enroll_url
+    Bookify->>POP: POST /api/v2/partner/enroll_sessions (worker_id, email, return_url)
+    POP->>POP: Email the freelancer a 6-digit code
+    Bookify->>POP: Redirect to the returned url (app.payoutpartner.com)
     POP->>POP: Freelancer enters code → BankID, profile, bank account
     POP->>Bookify: Callback with worker_id & status=approved
     Bookify->>POP: GET /api/v2/partner/profiles/:worker_id
     Bookify->>Bookify: Create User, activate Enrollment
 ```
 
-Bookify calls `POST /api/v2/partner/enrollment_requests` with the freelancer's `partner_worker_id`, `email`, and a `callback_url`. POP emails the freelancer a one-time **code** (not a clickable link) and returns a non-secret `enroll_url`; Bookify redirects the freelancer there to enter the code. This replaces the deprecated bearer-JWT `/f/connect?token=…` flow (a credential in a URL leaks via logs/referer and enabled worker-identity poisoning) — Bookify no longer mints JWTs or needs the HMAC secret for onboarding.
+Bookify calls `POST /api/v2/partner/enroll_sessions` with the freelancer's `worker_id` (any stable id you choose), `email`, and a `return_url`. POP emails the freelancer a **6-digit code** (not a clickable link) and returns a non-secret co-branded `url`; Bookify redirects the freelancer there to enter the code. POP then collects identity (BankID) + bank details on its own hosted page — Bookify never handles them, and needs no JWT or HMAC secret.
 
 **Request body sent to POP:**
 ```json
 {
-  "partner_worker_id": "wk_abc123",
+  "worker_id": "wk_abc123",
   "email": "freelancer@example.com",
-  "callback_url": "https://bookify.app/callbacks/onboard?token=INVITATION_TOKEN"
+  "return_url": "https://bookify.app/callbacks/onboard?token=INVITATION_TOKEN"
 }
 ```
 
 **Response:**
 ```json
 {
-  "enroll_url": "https://app.payoutpartner.com/enroll?partner=<slug>&worker=wk_abc123",
+  "id": "es_…",
+  "url": "https://app.payoutpartner.com/enroll?partner=<slug>&worker=wk_abc123",
   "expires_at": "2026-04-20T15:30:00Z"
 }
 ```
@@ -82,40 +83,45 @@ Bookify calls `POST /api/v2/partner/enrollment_requests` with the freelancer's `
 https://bookify.app/callbacks/onboard?token=INVITATION_TOKEN&worker_id=wk_abc123&status=approved
 ```
 
-If the freelancer switched from a previous worker ID during onboarding, POP also appends `&abandoned_worker_id=wk_old456`.
+`status` is `approved | cancelled | expired`.
 
 **After the callback, fetch the freelancer's profile:**
 ```bash
-curl -X GET https://sandbox.core.payoutpartner.com/api/v2/partner/profiles/wk_abc123 \
+curl -X GET https://sandbox.api.payoutpartner.com/api/v2/partner/profiles/wk_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json"
 ```
 
-**Real response shape from the sandbox** (single enrollment, data anonymized):
+**Response shape** (masked per B-022 — you never receive a full bank account or
+personal number; POP holds those):
 ```json
 {
-  "enrollment_id": "68a9c8bf-0642-403e-b657-c057b1a1edf0",
-  "partner_worker_id": "wk_abc123",
+  "worker_id": "wk_abc123",
+  "status": "approved",
   "payout_preference": "salary",
-  "approved": true,
-  "status": "Approved",
   "freelancer": {
-    "address": { "line1": "Testgata 1", "postal_code": "0150", "city": "Oslo", "country": "NO" },
-    "bank_account_number": "12345678903",
+    "name": "Anna Hansen",
     "email": "anna@example.com",
-    "first_name": "Anna",
     "freelance_type": "individual",
-    "last_name": "Hansen",
     "organization_number": null,
-    "personal_number": "25848296360"
+    "personal_number": "250482*****",
+    "address": { "line1": "Testgata 1", "postal_code": "0150", "city": "Oslo", "country": "NO" }
   },
-  "bank_account": "12345678903",
+  "payout_method": {
+    "bank_account_number": "****8903",
+    "currency": "NOK",
+    "tax_rate": "22%",
+    "tax_card_valid": true,
+    "frikort_amount": 0
+  },
   "created_at": "2026-03-29T17:55:26.279Z",
   "updated_at": "2026-03-29T18:03:40.686Z"
 }
 ```
 
-> Note: the top-level ID field is `enrollment_id`, not `id`. If the freelancer has multiple payout profiles (e.g., individual + ENK), the response is an **array** of these objects. See [Profile Response](#profile-response) for field details.
+> The join key is `worker_id` (the id you assigned). Bank account and personal
+> number are masked; `payout_method` is read-only metadata. See
+> [Profile Response](#profile-response) for field details.
 
 ### 2. Create Booking + Pay
 
@@ -128,67 +134,61 @@ sequenceDiagram
     Booker->>Bookify: Create booking (600 NOK/hr, 3 hours)
     Booker->>Bookify: Mark completed, click "Pay"
     Bookify->>POP: POST /api/v2/partner/payouts
-    POP->>Bookify: 201 Created {id, status, amount, lines}
+    POP->>Bookify: 201 Created {id, status, amount, total, work_lines}
     Bookify->>Bookify: Store Payout with full POP response
 ```
 
-**curl equivalent:**
+**curl equivalent** (money is integer **øre** — 60000 = 600.00 NOK; `idempotency_key`
+is mandatory):
 ```bash
-curl -X POST https://sandbox.core.payoutpartner.com/api/v2/partner/payouts \
+curl -X POST https://sandbox.api.payoutpartner.com/api/v2/partner/payouts \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "worker_id": "wk_abc123",
-    "occupation_code": "7223.14",
-    "invoiced_on": "2026-03-29",
+    "idempotency_key": "booking-123",
     "due_on": "2026-04-12",
     "buyer_reference": "Bookify Demo",
     "order_reference": "BOOK-2026-001",
     "external_note": "March logo work",
-    "lines": [{
-      "description": "Logo design",
-      "rate": 600,
+    "work_lines": [{
+      "occupation_code": "7223.14",
+      "unit_price": 60000,
       "quantity": 3,
-      "work_started_at": "2026-03-29T09:00:00",
-      "work_ended_at": "2026-03-29T12:00:00",
-      "external_id": "booking-123"
+      "duration": { "start_date": "2026-03-29", "end_date": "2026-03-29", "duration_hours": 3 }
     }]
   }'
 ```
 
-**Real response shape from the sandbox** (data anonymized):
+**Response shape:**
 ```json
 {
   "id": "47c47210-ae90-4d1d-ab0f-968e686daf0e",
-  "amount": 180000,
-  "buyer_reference": "Bookify Demo",
-  "created_at": "2026-03-29T21:19:38.946Z",
-  "due_on": "2026-04-12",
-  "external_note": null,
-  "freelancer": { "email": "anna@example.com", "name": "Anna Hansen", "enrolled": true },
-  "idempotency_key": "booking-a1d456d4-3d71-476b-8ca5-70518044b0ab",
-  "invoice_number": null,
-  "invoiced_on": "2026-03-29",
-  "lines": [{
-    "id": "674c0357-d984-48e1-966d-1b45fc174fb3",
-    "amount": 180000,
-    "description": "Logo design",
-    "external_id": null,
-    "line_type": "work",
-    "occupation_code": "7223.14",
-    "quantity": "3.0",
-    "unit_price": 60000,
-    "vat": 45000,
-    "vat_rate": "0.25",
-    "work_ended_at": "2026-03-29T12:00:00.000Z",
-    "work_started_at": "2026-03-29T09:00:00.000Z"
-  }],
-  "order_reference": null,
   "status": "submitted",
+  "worker_id": "wk_abc123",
+  "idempotency_key": "booking-123",
+  "invoice_number": null,
+  "amount": 180000,
+  "vat": 45000,
+  "total": 225000,
+  "currency": "NOK",
+  "invoiced_on": "2026-03-29",
+  "due_on": "2026-04-12",
+  "order_reference": "BOOK-2026-001",
+  "buyer_reference": "Bookify Demo",
+  "paid_out_at": null,
+  "created_at": "2026-03-29T21:19:38.946Z",
   "updated_at": "2026-03-29T21:49:11.107Z",
-  "vat": 45000
+  "work_lines": [{
+    "occupation_code": "7223.14",
+    "unit_price": 60000,
+    "quantity": "3.0",
+    "vat_rate": "0.25"
+  }]
 }
 ```
+`paid_out_at` is the paid signal — null until POP processes the salary run. No
+freelancer salary breakdown is exposed.
 
 > **Key things to note:**
 > - `invoice_number` is `null` while the payout is in `submitted` status — it only appears once the invoice is `published`
@@ -216,7 +216,7 @@ The code-based flow has no partner-initiated "manage" round-trip: POP does not c
 
 ## Sandbox Testing Guide
 
-Bookify connects to POP's sandbox at `sandbox.core.payoutpartner.com`. During onboarding, freelancers verify their identity using test credentials. No real money is involved — sandbox payouts are simulated.
+Bookify connects to POP's sandbox at `sandbox.api.payoutpartner.com`. During onboarding, freelancers verify their identity using test credentials. No real money is involved — sandbox payouts are simulated.
 
 Contact [Payout Partner](https://payoutpartner.com) to get your sandbox API key.
 
@@ -258,8 +258,8 @@ For ENK/AS (organization) payout profiles, you need a valid Norwegian organizati
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/payoutpartner/bookify-app)
 
 You'll need:
-- A POP sandbox API key (`POP_API_KEY`) — the only credential the code-based flow requires
-- _(legacy, optional)_ A POP HMAC secret (`POP_HMAC_SECRET`) and Partner ID (`POP_PARTNER_ID`) — only used by the deprecated bearer-JWT connect flow; not needed for `enrollment_requests`
+- A POP sandbox API key (`POP_API_KEY`, `pk_sandbox_…`) — the only credential the integration requires
+- Optionally `POP_BASE_URL` / `POP_APP_URL` to override the default sandbox hosts
 
 Optional (for emails):
 - Amazon SES SMTP credentials
@@ -271,7 +271,7 @@ git clone https://github.com/payoutpartner/bookify-app.git
 cd bookify-app
 heroku create my-bookify
 heroku addons:create heroku-postgresql:essential-0
-heroku config:set POP_API_KEY=your-key POP_HMAC_SECRET=your-secret POP_PARTNER_ID=your-id
+heroku config:set POP_API_KEY=pk_sandbox_your_key
 heroku config:set SECRET_KEY_BASE=$(rails secret)
 git push heroku main
 ```
@@ -359,7 +359,9 @@ Each booker only sees their own data. Queries scope through `current_user`:
 
 ### Money in Øre
 
-All monetary values are stored as integers in øre (1/100 NOK). `rate_ore = 60000` means 600.00 NOK/hr. POP's API accepts `rate` in whole NOK, so `PopApiClient` converts: `rate_ore / 100`.
+All monetary values are integers in øre (1/100 NOK). `rate_ore = 60000` means
+600.00 NOK. API v2 takes amounts as `unit_price` in **øre directly** — there is no
+NOK conversion, so `PopApiClient` sends `rate_ore` verbatim. Never use floats.
 
 ---
 
@@ -367,85 +369,80 @@ All monetary values are stored as integers in øre (1/100 NOK). `rate_ore = 6000
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v2/partner/enrollments` | GET | List enrolled freelancers |
-| `/api/v2/partner/enrollments/:id` | GET | Get single enrollment |
-| `/api/v2/partner/enrollments/:id` | DELETE | Delete enrollment |
-| `/api/v2/partner/enrollments/:id/deactivate` | POST | Deactivate enrollment |
-| `/api/v2/partner/enrollments/:id/reactivate` | POST | Reactivate enrollment |
-| `/api/v2/partner/profiles/:worker_id` | GET | Get freelancer profile(s) |
+| `/api/v2/partner/enroll_sessions` | POST | Start an OTP-gated onboarding session |
+| `/api/v2/partner/payout_method_sessions` | POST | Start an OTP session to change payout preference |
+| `/api/v2/partner/profiles` | GET | List enrolled freelancers (paginated, masked) |
+| `/api/v2/partner/profiles/:worker_id` | GET | Get one freelancer profile (masked) |
 | `/api/v2/partner/occupation_codes` | GET | List valid occupation codes |
-| `/api/v2/partner/payouts` | POST | Create a payout |
+| `/api/v2/partner/payouts` | POST | Create (and submit) a payout |
 | `/api/v2/partner/payouts` | GET | List payouts (paginated) |
-| `/api/v2/partner/payouts/:id` | GET | Get payout status |
-| `/api/v2/partner/bundles` | POST | Create a bundle (batch approval) |
+| `/api/v2/partner/payouts/:id` | GET | Get a payout |
 
-Full API documentation: [POP API Docs](https://sandbox.core.payoutpartner.com/api-docs)
+There is no enrollment-CRUD surface — enrollments are created via the onboarding
+flow and read through `/profiles`. Full machine-readable contract: POP's OpenAPI
+spec (`partner-api-v2.openapi.yaml`).
 
 ### Payout Request Fields
 
-When creating a payout via `POST /api/v2/partner/payouts`, you can send the following fields. Bookify sends a minimal subset — your integration can send much more.
+`POST /api/v2/partner/payouts`. Bookify sends a minimal subset; your integration
+can send more.
 
 **Invoice-level fields:**
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `worker_id` | Yes | The `partner_worker_id` identifying the freelancer |
-| `lines` | Yes | Array of line items (see below) |
-| `occupation_code` | No | Default occupation code for all lines; falls back to partner default on POP |
-| `invoiced_on` | No | Invoice date (ISO 8601). Defaults to today |
-| `due_on` | No | Payment due date (ISO 8601). Defaults to `invoiced_on` + 14 days |
-| `buyer_reference` | No | Client/buyer reference. Defaults to partner account name |
-| `order_reference` | No | PO number or partner reference. Used for idempotency if no `idempotency_key` |
-| `external_note` | No | Memo or note attached to the invoice |
-| `idempotency_key` | No | UUID for idempotent requests. Auto-generated from invoice contents if omitted |
+| `worker_id` | Yes | The worker id you assigned (or `freelance_profile_id`) |
+| `idempotency_key` | **Yes** | Customer-generated, unique per partner (≤200 chars). Replaying returns the original payout (200). The **sole** dedupe key |
+| `work_lines` | Yes | Array of work lines (see below) |
+| `invoiced_on` | No | ISO 8601 date. If omitted, POP derives it from the last work end date |
+| `due_on` | No | ISO 8601 date. Defaults to `invoiced_on` + 14 days |
+| `buyer_reference` | No | Defaults to partner account name |
+| `order_reference` | No | PO/partner reference (freely duplicable) |
+| `external_note` | No | Memo on the invoice |
 
-**Line-level fields (each item in `lines`):**
+**Work-line fields (each item in `work_lines`):**
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `description` | Yes | Work description (e.g., "Logo design", "Consulting March 2026") |
-| `rate` | Yes* | Hourly/unit rate in **NOK** (not øre). POP converts to øre internally |
-| `unit_price` | Yes* | Alternative to `rate` — price in **øre** (1 NOK = 100 øre) |
-| `quantity` | No | Hours or units worked. Defaults to 1 |
-| `occupation_code` | No | Line-specific code; overrides the invoice-level code |
-| `work_started_at` | No | ISO 8601 timestamp. Defaults to `invoiced_on` at 08:00 |
-| `work_ended_at` | No | ISO 8601 timestamp. Defaults to `work_started_at` + `work_hours` |
-| `work_hours` | No | Hours worked. Used to calculate `work_ended_at` if not provided. Defaults to 1 |
-| `external_id` | No | Partner's own line item reference/ID |
+| `unit_price` | Yes | Integer **øre**. Non-integers are rejected |
+| `occupation_code` | No | Resolves per-line → partner default → profile default → else 422. Each distinct code → its own A-melding arbeidsforhold |
+| `quantity` | No | Pricing multiplier (amount = `unit_price × quantity`), up to 3 decimals. Default 1. NOT the hours |
+| `vat_rate` | No | `0` or `0.25`. Non-exempt occupations are forced to 0.25 |
+| `duration` | No | `{ start_date, end_date, duration_hours }` or `{ start_date_time, end_date_time }`. Hours present → timeloenn (hourly); absent → honorar (commission) |
+| `sub_lines` | No | Dependent lines (expense/mileage/diet/benefit/extra) nested under this work line |
 
-*Either `rate` or `unit_price` is required per line.
+**Sub-line fields:** `line_type` (`expense`/`mileage`/`diet`/`benefit`/`extra`),
+`unit_price` (øre), `quantity`; plus `receipt_url` (expense — public HTTPS URL POP
+fetches), `address_from`/`address_to` (mileage), `trip_type` (diet).
 
 **Comprehensive example:**
 
 ```bash
-curl -X POST https://sandbox.core.payoutpartner.com/api/v2/partner/payouts \
+curl -X POST https://sandbox.api.payoutpartner.com/api/v2/partner/payouts \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "worker_id": "freelancer-42",
-    "occupation_code": "7223.14",
-    "invoiced_on": "2026-03-29",
+    "idempotency_key": "PO-2026-0042",
     "due_on": "2026-04-12",
     "buyer_reference": "Acme Corp",
     "order_reference": "PO-2026-0042",
     "external_note": "March consulting work",
-    "lines": [
+    "work_lines": [
       {
-        "description": "Frontend development",
-        "rate": 800,
+        "occupation_code": "7223.14",
+        "unit_price": 80000,
         "quantity": 40,
-        "work_started_at": "2026-03-01T09:00:00",
-        "work_ended_at": "2026-03-29T17:00:00",
-        "external_id": "task-frontend-march"
+        "duration": { "start_date": "2026-03-01", "end_date": "2026-03-29", "duration_hours": 40 },
+        "sub_lines": [
+          { "line_type": "expense", "unit_price": 12000, "receipt_url": "https://files.acme.com/r/abc.pdf" }
+        ]
       },
       {
-        "description": "Code review",
-        "rate": 600,
-        "quantity": 8,
         "occupation_code": "2512.01",
-        "work_started_at": "2026-03-15T09:00:00",
-        "work_hours": 8,
-        "external_id": "task-review-march"
+        "unit_price": 60000,
+        "quantity": 8,
+        "duration": { "start_date": "2026-03-15", "end_date": "2026-03-15", "duration_hours": 8 }
       }
     ]
   }'
@@ -456,54 +453,44 @@ curl -X POST https://sandbox.core.payoutpartner.com/api/v2/partner/payouts \
 | Field | Description |
 |-------|-------------|
 | `id` | POP's payout/invoice UUID |
-| `status` | Invoice status: `submitted`, `published`, `paid`, etc. |
-| `invoice_number` | Invoice number (integer). **`null` while `submitted`** — only set once `published` |
-| `amount` | Total amount in øre (integer) |
-| `vat` | Total VAT in øre (integer) |
-| `invoiced_on` | Invoice date (ISO 8601 date) |
-| `due_on` | Due date (ISO 8601 date) |
-| `buyer_reference` | Client reference (defaults to partner account name) |
-| `order_reference` | Partner reference |
-| `external_note` | Note/memo |
-| `idempotency_key` | Idempotency key used |
-| `created_at` | ISO 8601 timestamp |
-| `updated_at` | ISO 8601 timestamp |
-| `freelancer` | Nested: `{ email, name, enrolled }` |
-| `lines[].id` | Line item UUID |
-| `lines[].description` | Work description |
-| `lines[].unit_price` | Price per unit in øre (integer) |
-| `lines[].quantity` | Quantity (string, e.g., `"3.0"`) |
-| `lines[].amount` | Line total in øre (integer) |
-| `lines[].vat` | Line VAT in øre (integer) |
-| `lines[].vat_rate` | VAT rate (string, e.g., `"0.25"`) |
-| `lines[].line_type` | Always `"work"` for payouts |
-| `lines[].occupation_code` | Occupation code for this line |
-| `lines[].work_started_at` | ISO 8601 timestamp |
-| `lines[].work_ended_at` | ISO 8601 timestamp |
-| `lines[].external_id` | Partner's line item reference |
+| `status` | `submitted`, `approved`, `published`, `rejected`, `nullified` (starts at `submitted`) |
+| `worker_id` | The worker id |
+| `invoice_number` | **`null` until `published`** |
+| `amount` | Total amount in øre (live; reflects current VAT) |
+| `vat` | Total VAT in øre |
+| `total` | `amount + vat` — the partner's liability, in øre |
+| `currency` | e.g. `"NOK"` |
+| `invoiced_on` / `due_on` | ISO 8601 dates |
+| `order_reference` / `buyer_reference` / `external_note` | Echoed |
+| `idempotency_key` | Echoed raw (without POP's internal prefix) |
+| `paid_out_at` | **The paid signal** — null until POP processes the salary run. Poll for this |
+| `work_lines` | The work lines, echoed (with nested `sub_lines`) |
+| `created_at` / `updated_at` | ISO 8601 timestamps |
+
+No freelancer salary breakdown is exposed.
 
 ### Profile Response
 
-`GET /api/v2/partner/profiles/:worker_id` returns enrollment and freelancer data. Note: if the freelancer has multiple payout profiles (e.g., individual salary + ENK organization), the response is an **array** of profile objects.
+`GET /api/v2/partner/profiles/:worker_id` returns one masked profile (B-022 — you
+never receive a full bank account or personal number).
 
 | Field | Description |
 |-------|-------------|
-| `enrollment_id` | Enrollment UUID on POP (note: **not** `id`) |
-| `partner_worker_id` | The worker ID you assigned |
+| `worker_id` | The worker id you assigned (the join key) |
+| `status` | Enrollment status |
 | `payout_preference` | `salary` or `enk` |
-| `approved` | Whether the enrollment is approved |
-| `status` | Enrollment status (e.g., `"Approved"`) |
-| `freelancer.email` | Freelancer's email |
-| `freelancer.first_name` | First name |
-| `freelancer.last_name` | Last name |
+| `freelancer.name` | Full name |
+| `freelancer.email` | Email |
 | `freelancer.freelance_type` | `individual` or `organization` |
-| `freelancer.personal_number` | Norwegian personal number (fødselsnummer) |
-| `freelancer.organization_number` | Norwegian org number (null for individuals) |
-| `freelancer.address` | Nested object: `line1`, `postal_code`, `city`, `country` |
-| `freelancer.bank_account_number` | Bank account number (nested in freelancer) |
-| `bank_account` | Bank account number (top-level duplicate) |
-| `created_at` | ISO 8601 timestamp |
-| `updated_at` | ISO 8601 timestamp |
+| `freelancer.organization_number` | Org number (full; orgs only) |
+| `freelancer.personal_number` | **Masked** `DDMMYY*****` |
+| `freelancer.address` | `{ line1, postal_code, city, country }` |
+| `payout_method.bank_account_number` | **Masked** `****1234` |
+| `payout_method.currency` | e.g. `"NOK"` |
+| `payout_method.tax_rate` | e.g. `"22%"` |
+| `payout_method.tax_card_valid` | boolean |
+| `payout_method.frikort_amount` | Minor units (øre) |
+| `created_at` / `updated_at` | ISO 8601 timestamps |
 
 ---
 
