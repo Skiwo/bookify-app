@@ -51,13 +51,12 @@ module Booker
     def destroy
       @enrollment = current_user.enrollments_as_booker.find(params[:id])
 
-      if @enrollment.pop_enrollment_id.present? && current_user.pop_configured?
-        pop_client.delete_enrollment(@enrollment.pop_enrollment_id)
-      end
-
+      # API v2 has no enrollment-delete endpoint — the POP-side enrollment
+      # persists (the freelancer keeps their POP account). We only remove the
+      # local Bookify link.
       name = @enrollment.name
       @enrollment.destroy!
-      redirect_to booker_freelancers_path, notice: "Freelancer #{name} has been removed."
+      redirect_to booker_freelancers_path, notice: "Freelancer #{name} has been removed from Bookify."
     end
 
     def sync

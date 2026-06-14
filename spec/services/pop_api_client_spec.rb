@@ -10,8 +10,8 @@ RSpec.describe PopApiClient do
       result = client.get_profile("wk_123")
 
       expect(result.success?).to be true
-      expect(result.data.dig("freelancer", "first_name")).to eq("Anna")
-      expect(result.data["partner_worker_id"]).to eq("wk_123")
+      expect(result.data.dig("freelancer", "name")).to eq("Anna Hansen")
+      expect(result.data["worker_id"]).to eq("wk_123")
       expect(result.status).to eq(200)
     end
 
@@ -39,29 +39,41 @@ RSpec.describe PopApiClient do
   end
 
   describe "#create_payout" do
+    let(:work_lines) do
+      [{ occupation_code: "2519", unit_price: 60_000, quantity: 3,
+         duration: { start_date: "2026-06-10", end_date: "2026-06-10", duration_hours: 3 } }]
+    end
+
     it "creates a payout on success" do
       stub_pop_create_payout
 
-      result = client.create_payout(
-        worker_id: "wk_123",
-        lines: [{ description: "Work", rate: 600, quantity: 3 }]
-      )
+      result = client.create_payout(worker_id: "wk_123", idempotency_key: "idem-1", work_lines: work_lines)
 
       expect(result.success?).to be true
       expect(result.data["status"]).to eq("submitted")
       expect(result.status).to eq(201)
     end
 
+    it "sends work_lines + a mandatory idempotency_key (øre, no NOK conversion)" do
+      stub_pop_create_payout
+
+      client.create_payout(worker_id: "wk_123", idempotency_key: "idem-1", work_lines: work_lines)
+
+      expect(WebMock).to have_requested(:post, "#{PopApiHelpers::POP_BASE}/api/v2/partner/payouts").with { |req|
+        body = JSON.parse(req.body)
+        body["worker_id"] == "wk_123" &&
+          body["idempotency_key"] == "idem-1" &&
+          body.dig("work_lines", 0, "unit_price") == 60_000
+      }
+    end
+
     it "returns error on failure" do
       stub_pop_create_payout_failure
 
-      result = client.create_payout(
-        worker_id: "wk_bad",
-        lines: [{ description: "Work", rate: 600, quantity: 3 }]
-      )
+      result = client.create_payout(worker_id: "wk_bad", idempotency_key: "idem-2", work_lines: work_lines)
 
       expect(result.success?).to be false
-      expect(result.error.code).to eq("validation_error")
+      expect(result.error.code).to eq("validation_failed")
       expect(result.status).to eq(422)
     end
 
@@ -70,32 +82,21 @@ RSpec.describe PopApiClient do
       stub_pop_create_payout
 
       client.get_profile("wk_123")
-      client.create_payout(worker_id: "wk_123", lines: [{ description: "Work", rate: 600, quantity: 1 }])
+      client.create_payout(worker_id: "wk_123", idempotency_key: "idem-3", work_lines: work_lines)
 
       expect(client.api_calls.size).to eq(2)
       expect(client.api_calls.map { |c| c[:method] }).to eq(%w[GET POST])
     end
   end
 
-  describe "#list_enrollments" do
-    it "returns enrollment data" do
-      stub_pop_list_enrollments
+  describe "#list_profiles" do
+    it "returns profile data" do
+      stub_pop_list_profiles
 
-      result = client.list_enrollments
+      result = client.list_profiles
 
       expect(result.success?).to be true
       expect(result.data["data"]).to be_an(Array)
-    end
-  end
-
-  describe "#get_enrollment" do
-    it "returns enrollment data" do
-      stub_pop_get_enrollment("enr_123")
-
-      result = client.get_enrollment("enr_123")
-
-      expect(result.success?).to be true
-      expect(result.data["id"]).to eq("enr_123")
     end
   end
 
@@ -121,25 +122,39 @@ RSpec.describe PopApiClient do
     end
   end
 
-  describe "#request_enrollment" do
-    it "POSTs worker_id + email + callback_url and returns the enroll_url" do
-      stub_pop_enrollment_request(enroll_url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
+  describe "#start_enrollment" do
+    it "POSTs worker_id + email + return_url and returns the handoff url" do
+      stub_pop_enroll_session(url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
 
-      result = client.request_enrollment(
+      result = client.start_enrollment(
         worker_id: "wk_123",
         email: "freelancer@example.com",
-        callback_url: "https://bookify.app/callbacks/onboard"
+        return_url: "https://bookify.app/callbacks/onboard"
       )
 
       expect(result.success?).to be true
-      expect(result.data["enroll_url"]).to eq("https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
+      expect(result.data["url"]).to eq("https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=wk_123")
 
-      expect(WebMock).to have_requested(:post, "#{PopApiHelpers::POP_BASE}/api/v2/partner/enrollment_requests")
+      expect(WebMock).to have_requested(:post, "#{PopApiHelpers::POP_BASE}/api/v2/partner/enroll_sessions")
         .with(body: hash_including(
-          "partner_worker_id" => "wk_123",
+          "worker_id" => "wk_123",
           "email" => "freelancer@example.com",
-          "callback_url" => "https://bookify.app/callbacks/onboard"
+          "return_url" => "https://bookify.app/callbacks/onboard"
         ))
+    end
+  end
+
+  describe "#start_payout_method_session" do
+    it "POSTs to payout_method_sessions and returns the handoff url" do
+      stub_pop_payout_method_session
+
+      result = client.start_payout_method_session(
+        worker_id: "wk_123", email: "freelancer@example.com",
+        return_url: "https://bookify.app/callbacks/manage"
+      )
+
+      expect(result.success?).to be true
+      expect(result.data["url"]).to be_present
     end
   end
 

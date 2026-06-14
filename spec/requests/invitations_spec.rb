@@ -18,7 +18,7 @@ RSpec.describe "Invitations", type: :request do
 
   describe "POST /invitations/:token/accept" do
     it "requests enrollment and redirects to the POP enroll URL" do
-      stub_pop_enrollment_request(enroll_url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=#{enrollment.id}")
+      stub_pop_enroll_session(url: "https://sandbox.app.payoutpartner.com/enroll?partner=acme&worker=#{enrollment.id}")
 
       post accept_invitation_path(token: enrollment.invitation_token)
 

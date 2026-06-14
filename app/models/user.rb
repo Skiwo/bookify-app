@@ -49,11 +49,11 @@ class User < ApplicationRecord
     pop_sandbox? ? "https://sandbox.app.payoutpartner.com" : "https://app.payoutpartner.com"
   end
 
+  # API v2 needs only the API key — the HMAC secret + partner id belonged to the
+  # retired connect-JWT flow and are no longer used.
   def pop_credentials
     {
       api_key: active_api_key,
-      hmac_secret: active_hmac_secret,
-      partner_id: active_partner_id,
       base_url: effective_pop_base_url,
       app_url: effective_pop_app_url
     }
@@ -61,14 +61,6 @@ class User < ApplicationRecord
 
   def active_api_key
     pop_sandbox? ? pop_sandbox_api_key : pop_production_api_key
-  end
-
-  def active_hmac_secret
-    pop_sandbox? ? pop_sandbox_hmac_secret : pop_production_hmac_secret
-  end
-
-  def active_partner_id
-    pop_sandbox? ? pop_sandbox_partner_id : pop_production_partner_id
   end
 
   private

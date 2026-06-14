@@ -14,9 +14,11 @@ module Booker
 
     private
 
+    # API v2 needs only the API key (Bearer). HMAC secret / partner id were for
+    # the retired connect-JWT flow and are no longer collected.
     CREDENTIAL_KEYS = %w[
-      pop_sandbox_api_key pop_sandbox_hmac_secret pop_sandbox_partner_id
-      pop_production_api_key pop_production_hmac_secret pop_production_partner_id
+      pop_sandbox_api_key
+      pop_production_api_key
     ].freeze
 
     def settings_params

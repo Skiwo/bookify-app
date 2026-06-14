@@ -27,7 +27,6 @@ class CallbacksController < ApplicationController
         enrollment.update!(
           freelancer: user,
           pop_worker_id: worker_id,
-          pop_enrollment_id: profile_data["enrollment_id"],
           pop_profile_data: sanitize_profile_data(profile_data),
           status: :active,
           onboarded_at: Time.current
@@ -69,10 +68,7 @@ class CallbacksController < ApplicationController
     result = client.get_profile(worker_id)
     if result.success?
       profile_data = extract_profile(result.data, worker_id)
-      enrollment.update!(
-        pop_profile_data: sanitize_profile_data(profile_data),
-        pop_enrollment_id: profile_data["enrollment_id"] || enrollment.pop_enrollment_id
-      )
+      enrollment.update!(pop_profile_data: sanitize_profile_data(profile_data))
     end
 
     handle_abandoned_worker(enrollment, params[:abandoned_worker_id])
@@ -112,9 +108,7 @@ class CallbacksController < ApplicationController
 
   def find_or_create_freelancer(profile_data, enrollment)
     email = (profile_data.dig("freelancer", "email") || profile_data["email"]).to_s.downcase.strip.presence || enrollment.email.downcase.strip
-    first = profile_data.dig("freelancer", "first_name") || profile_data["first_name"]
-    last = profile_data.dig("freelancer", "last_name") || profile_data["last_name"]
-    name = [first, last].compact.join(" ")
+    name = (profile_data.dig("freelancer", "name") || profile_data["name"]).to_s.strip
     name = enrollment.name if name.blank?
 
     user = User.find_by(email: email)

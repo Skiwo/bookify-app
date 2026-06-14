@@ -19,10 +19,11 @@ class InvitationsController < ApplicationController
     end
 
     client = PopApiClient.for_user(booker)
-    result = client.request_enrollment(
+    result = client.start_enrollment(
       worker_id: @enrollment.id,
       email: @enrollment.email,
-      callback_url: callbacks_onboard_url(token: @enrollment.invitation_token)
+      return_url: callbacks_onboard_url(token: @enrollment.invitation_token),
+      name: @enrollment.name
     )
 
     unless result.success?
@@ -30,9 +31,9 @@ class InvitationsController < ApplicationController
     end
 
     @enrollment.update!(status: :onboarding)
-    # POP has emailed the freelancer a one-time code; send them to the returned
-    # handoff page to enter it.
-    redirect_to result.data.fetch("enroll_url"), allow_other_host: true
+    # POP has emailed the freelancer a 6-digit code; send them to the returned
+    # co-branded handoff page to enter it.
+    redirect_to result.data.fetch("url"), allow_other_host: true
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Invalid or expired invitation."
   end

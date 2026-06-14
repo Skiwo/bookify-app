@@ -51,17 +51,11 @@
             .tab-pane.fade.show.active{id: "sandbox-pane", role: "tabpanel"}
               %p.text-muted.small.mb-3
                 Credentials for the sandbox API at
-                %code sandbox.core.payoutpartner.com
+                %code sandbox.api.payoutpartner.com
 
               .mb-3
                 = f.label :pop_sandbox_api_key, "API Key", class: "form-label fw-medium"
                 = f.password_field :pop_sandbox_api_key, class: "form-control font-monospace", placeholder: current_user.pop_sandbox_api_key.present? ? "••••••••#{current_user.pop_sandbox_api_key.last(4)}" : "pk_sandbox_abc123...", autocomplete: "off"
-              .mb-3
-                = f.label :pop_sandbox_hmac_secret, "HMAC Secret", class: "form-label fw-medium"
-                = f.password_field :pop_sandbox_hmac_secret, class: "form-control font-monospace", placeholder: current_user.pop_sandbox_hmac_secret.present? ? "••••••••#{current_user.pop_sandbox_hmac_secret.last(4)}" : "64-character hex string", autocomplete: "off"
-              .mb-3
-                = f.label :pop_sandbox_partner_id, "Partner ID", class: "form-label fw-medium"
-                = f.text_field :pop_sandbox_partner_id, class: "form-control font-monospace", placeholder: "uuid", autocomplete: "off"
 
             .tab-pane.fade{id: "production-pane", role: "tabpanel"}
               .alert.alert-warning.small.mb-3
@@ -71,12 +65,6 @@
               .mb-3
                 = f.label :pop_production_api_key, "API Key", class: "form-label fw-medium"
                 = f.password_field :pop_production_api_key, class: "form-control font-monospace", placeholder: current_user.pop_production_api_key.present? ? "••••••••#{current_user.pop_production_api_key.last(4)}" : "pk_live_abc123...", autocomplete: "off"
-              .mb-3
-                = f.label :pop_production_hmac_secret, "HMAC Secret", class: "form-label fw-medium"
-                = f.password_field :pop_production_hmac_secret, class: "form-control font-monospace", placeholder: current_user.pop_production_hmac_secret.present? ? "••••••••#{current_user.pop_production_hmac_secret.last(4)}" : "64-character hex string", autocomplete: "off"
-              .mb-3
-                = f.label :pop_production_partner_id, "Partner ID", class: "form-label fw-medium"
-                = f.text_field :pop_production_partner_id, class: "form-control font-monospace", placeholder: "uuid", autocomplete: "off"
 
           = f.submit "Save credentials", class: "btn btn-primary mt-2"
 

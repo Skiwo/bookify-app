@@ -8,8 +8,7 @@ RSpec.describe "Callbacks", type: :request do
     it "creates a freelancer user and activates the enrollment" do
       stub_pop_get_profile("wk_new", {
         "email" => "anna@example.com",
-        "first_name" => "Anna",
-        "last_name" => "Hansen"
+        "name" => "Anna Hansen"
       })
 
       get callbacks_onboard_path, params: { token: enrollment.invitation_token, worker_id: "wk_new", status: "approved" }
@@ -17,7 +16,6 @@ RSpec.describe "Callbacks", type: :request do
       enrollment.reload
       expect(enrollment.status).to eq("active")
       expect(enrollment.pop_worker_id).to eq("wk_new")
-      expect(enrollment.pop_enrollment_id).to be_present
       expect(enrollment.freelancer).to be_present
       expect(enrollment.freelancer.email).to eq("anna@example.com")
       expect(enrollment.freelancer.freelancer?).to be true
@@ -28,8 +26,7 @@ RSpec.describe "Callbacks", type: :request do
 
       stub_pop_get_profile("wk_existing", {
         "email" => "anna@example.com",
-        "first_name" => "Anna",
-        "last_name" => "Hansen"
+        "name" => "Anna Hansen"
       })
 
       get callbacks_onboard_path, params: { token: enrollment.invitation_token, worker_id: "wk_existing", status: "approved" }
@@ -43,8 +40,7 @@ RSpec.describe "Callbacks", type: :request do
 
       stub_pop_get_profile("wk_booker", {
         "email" => "anna@example.com",
-        "first_name" => "Anna",
-        "last_name" => "Hansen"
+        "name" => "Anna Hansen"
       })
 
       get callbacks_onboard_path, params: { token: enrollment.invitation_token, worker_id: "wk_booker", status: "approved" }
@@ -89,8 +85,7 @@ RSpec.describe "Callbacks", type: :request do
     it "handles abandoned_worker_id param" do
       stub_pop_get_profile("wk_new", {
         "email" => "anna@example.com",
-        "first_name" => "Anna",
-        "last_name" => "Hansen"
+        "name" => "Anna Hansen"
       })
 
       get callbacks_onboard_path, params: {

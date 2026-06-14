@@ -93,46 +93,33 @@ module Booker
 
       enrollment = @booking.enrollment
 
-      lines = @booking.booking_lines.order(:position).map do |line|
-        payout_line = {
+      ordered = @booking.booking_lines.order(:position)
+      # API v2: each work line is a work_line (unit_price in øre, a duration);
+      # all dependent lines (expense/benefit/diet) nest as sub_lines under the
+      # first work line. amount = unit_price × quantity.
+      sub_lines = ordered.reject(&:work?).map { |line| build_sub_line(line) }
+
+      work_lines = ordered.select(&:work?).each_with_index.map do |line, idx|
+        wl = {
           description: line.description,
-          line_type: line.line_type,
-          rate: line.rate_ore / 100.0,
-          quantity: line.effective_hours,
           occupation_code: line.occupation_code.presence,
-          external_id: line.line_external_id.presence,
-          receipt_url: line.receipt_url.presence
-        }
-
-        if line.work?
-          work_started, work_ended = work_timestamps_for_line(line)
-          payout_line[:work_started_at] = work_started&.iso8601
-          payout_line[:work_ended_at] = work_ended&.iso8601
-          payout_line[:work_hours] = line.effective_hours
-          payout_line[:group] = "line-#{line.position}"
-        else
-          # Dependent lines reference the first work line's group
-          first_work = @booking.booking_lines.order(:position).find(&:work?)
-          payout_line[:group] = "line-#{first_work.position}" if first_work
-        end
-
-        payout_line.compact
+          unit_price: line.rate_ore,
+          quantity: line.effective_hours,
+          duration: duration_for(line)
+        }.compact
+        wl[:sub_lines] = sub_lines if idx.zero? && sub_lines.any?
+        wl
       end
-
-      invoiced_on_date = @booking.invoiced_on.presence ||
-        @booking.booking_lines.first&.work_date.presence ||
-        @booking.booking_lines.first&.work_start_date.presence ||
-        Date.current
 
       result = pop_client.create_payout(
         worker_id: enrollment.pop_worker_id,
-        lines: lines,
-        invoiced_on: invoiced_on_date.iso8601,
+        idempotency_key: "booking-#{@booking.id}",
+        work_lines: work_lines,
+        invoiced_on: @booking.invoiced_on&.iso8601, # else POP derives from the last work end date
         due_on: @booking.due_on&.iso8601,
         buyer_reference: @booking.buyer_reference.presence,
         order_reference: @booking.order_reference.presence,
-        external_note: @booking.external_note.presence,
-        idempotency_key: "booking-#{@booking.id}"
+        external_note: @booking.external_note.presence
       )
 
       if result.success?
@@ -185,17 +172,33 @@ module Booker
       @occupation_codes_error = result.error unless result.success?
     end
 
-    def work_timestamps_for_line(line)
+    # Earning date + worked hours for a work line. Hours present → POP files it
+    # as timeloenn (hourly); date only would be honorar (commission).
+    def duration_for(line)
       if line.time_based?
-        date = line.work_date || Date.current
-        started = line.start_time ? Time.zone.local(date.year, date.month, date.day, line.start_time.hour, line.start_time.min) : Time.zone.local(date.year, date.month, date.day, 8, 0)
-        ended = line.end_time ? Time.zone.local(date.year, date.month, date.day, line.end_time.hour, line.end_time.min) : started + line.hours.hours
-        [started, ended]
+        date = line.work_date&.iso8601
+        { start_date: date, end_date: date, duration_hours: line.hours }.compact
       else
-        started = line.work_start_date&.beginning_of_day
-        ended = line.work_end_date&.end_of_day
-        [started, ended]
+        {
+          start_date: line.work_start_date&.iso8601,
+          end_date: line.work_end_date&.iso8601,
+          duration_hours: line.total_hours
+        }.compact
       end
+    end
+
+    # A dependent (non-work) booking line → a v2 sub_line. unit_price in øre;
+    # quantity defaults to 1 for flat items. expense lines carry a receipt_url
+    # (POP fetches it server-side, so it must be a public URL). diet lines need
+    # a trip_type, which Bookify does not model yet — POP will 422 those.
+    def build_sub_line(line)
+      sub = {
+        line_type: line.line_type,
+        unit_price: line.rate_ore,
+        quantity: line.effective_hours.positive? ? line.effective_hours : 1
+      }
+      sub[:receipt_url] = line.receipt_url if line.expense? && line.receipt_url.present?
+      sub
     end
   end
 end

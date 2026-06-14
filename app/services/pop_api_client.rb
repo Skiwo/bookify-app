@@ -14,28 +14,13 @@ class PopApiClient
     new(user.pop_credentials)
   end
 
-  # Enrollments
-  def list_enrollments(page: 1, per_page: 25)
-    get("/api/v2/partner/enrollments", page: page, per_page: per_page)
+  # Profiles (enrolled freelancers). API v2 has no enrollment-CRUD surface:
+  # enrollment state is created through the OTP onboarding flow (see
+  # #start_enrollment) and read back here.
+  def list_profiles(page: 1, per_page: 25)
+    get("/api/v2/partner/profiles", page: page, per_page: per_page)
   end
 
-  def get_enrollment(enrollment_id)
-    get("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}")
-  end
-
-  def delete_enrollment(enrollment_id)
-    delete("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}")
-  end
-
-  def deactivate_enrollment(enrollment_id)
-    post("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}/deactivate", {})
-  end
-
-  def reactivate_enrollment(enrollment_id)
-    post("/api/v2/partner/enrollments/#{encode_path(enrollment_id)}/reactivate", {})
-  end
-
-  # Profiles
   def get_profile(worker_id)
     get("/api/v2/partner/profiles/#{encode_path(worker_id)}")
   end
@@ -46,41 +31,31 @@ class PopApiClient
   end
 
   # Payouts
-  # Create a payout (invoice) for a freelancer. Submitted immediately (no draft state).
+  # Create (and submit) a payout for an enrolled freelancer (API v2).
   #
   # Invoice-level fields:
-  #   worker_id       — required, the partner_worker_id for the freelancer
-  #   occupation_code — optional, falls back to partner default on POP
-  #   invoiced_on     — optional, defaults to today
+  #   worker_id       — required, the partner's stable worker id
+  #   idempotency_key — REQUIRED, customer-generated, unique per partner (≤200 chars).
+  #                     Replaying a key returns the original payout (200) instead of duplicating.
+  #   invoiced_on     — optional (POP derives from the last work end date if omitted)
   #   due_on          — optional, defaults to invoiced_on + 14 days
   #   buyer_reference — optional, defaults to partner account name
   #   order_reference — optional, partner's PO/reference number
   #   external_note   — optional, memo/note field on the invoice
-  #   idempotency_key — optional, auto-generated from invoice contents if omitted
   #
-  # Each line in `lines` accepts:
-  #   description     — required, work description
-  #   line_type       — optional, defaults to "work". Allowed: work, benefit, expense, diet
-  #   rate            — required, hourly/unit rate in NOK (not øre)
-  #   quantity        — optional, defaults to 1
-  #   occupation_code — optional, overrides invoice-level code for this line
-  #   work_started_at — optional, ISO8601 timestamp (required for work lines on individual invoices)
-  #   work_ended_at   — optional, ISO8601 timestamp
-  #   work_hours      — optional, used to calculate work_ended_at if not provided
-  #   external_id     — optional, partner's line item reference
-  #   group           — optional, links non-work lines to a work line with the same group value
-  #   receipt_url     — optional, URL to a receipt file (must be publicly accessible)
-  def create_payout(worker_id:, lines:, occupation_code: nil, invoiced_on: nil, due_on: nil,
-                    buyer_reference: nil, order_reference: nil, external_note: nil, idempotency_key: nil)
-    # Omit nil and blank strings — Hash#compact alone still sends "" which POP may reject as "blank".
-    cleaned_lines = lines.map { |line| omit_blank_values(line) }
+  # `work_lines` is an array of work lines (see Booker::BookingsController#pay for the
+  # builder). Each work line: { occupation_code?, unit_price (øre, int), quantity?,
+  # vat_rate? (0|0.25), duration { start_date, end_date, duration_hours? }, sub_lines? }.
+  # Sub-lines (expense/mileage/diet/benefit/extra) nest under their work line.
+  # All money is integer minor units (øre). Never floats.
+  def create_payout(worker_id:, idempotency_key:, work_lines:, invoiced_on: nil, due_on: nil,
+                    buyer_reference: nil, order_reference: nil, external_note: nil)
     body = {
       worker_id: worker_id,
-      invoiced_on: invoiced_on.presence || Date.current.iso8601,
       idempotency_key: idempotency_key,
-      lines: cleaned_lines
+      work_lines: work_lines
     }
-    body[:occupation_code] = occupation_code if occupation_code.present?
+    body[:invoiced_on] = invoiced_on if invoiced_on.present?
     body[:due_on] = due_on if due_on.present?
     body[:buyer_reference] = buyer_reference if buyer_reference.present?
     body[:order_reference] = order_reference if order_reference.present?
@@ -98,21 +73,36 @@ class PopApiClient
     get("/api/v2/partner/payouts", params)
   end
 
-  # Browser flow: ask POP to enroll a freelancer. POP emails the freelancer a
-  # one-time code (no bearer link) and returns a handoff URL (`enroll_url`) to
-  # redirect their browser to. Replaces the deprecated, JWT-in-URL connect_url.
-  def request_enrollment(worker_id:, email:, callback_url:)
-    post("/api/v2/partner/enrollment_requests", {
-      partner_worker_id: worker_id,
+  # Onboarding (browser flow). POP emails the freelancer a 6-digit code (no
+  # clickable link) and returns a co-branded handoff URL. Redirect the
+  # freelancer's browser to response `url`; POP collects identity + bank on its
+  # own hosted page, then redirects to return_url with
+  # ?worker_id=…&status=approved|cancelled|expired.
+  def start_enrollment(worker_id:, email:, return_url:, name: nil, locale: nil)
+    post("/api/v2/partner/enroll_sessions", {
+      worker_id: worker_id,
       email: email,
-      callback_url: callback_url
+      return_url: return_url,
+      name: name,
+      locale: locale
+    }.compact)
+  end
+
+  # Same OTP handoff, but lands the freelancer on the portal to change their
+  # payout preference (salary↔company). Redirects back with status=updated|….
+  def start_payout_method_session(worker_id:, email:, return_url:)
+    post("/api/v2/partner/payout_method_sessions", {
+      worker_id: worker_id,
+      email: email,
+      return_url: return_url
     })
   end
 
   # POP's app host — where the freelancer logs in to manage their profile.
   def app_url
     @credentials[:app_url].presence || ENV.fetch("POP_APP_URL") do
-      base_url.sub("core.", "app.")
+      # api.payoutpartner.com → app.payoutpartner.com (and the sandbox.* variant)
+      base_url.sub("api.", "app.")
     end
   end
 
