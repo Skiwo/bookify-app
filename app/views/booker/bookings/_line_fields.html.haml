@@ -97,10 +97,20 @@
           = lf.label :hours, "Quantity", class: "form-label", for: "qty_dep_#{idx}"
           = lf.number_field :hours, class: "form-control", step: "0.25", placeholder: "1", min: 0.25, value: line.hours || 1, id: "qty_dep_#{idx}", "data-booking-line-target": "hoursDependent"
 
-    .mb-3
-      = lf.label :receipt_url, "Receipt URL (optional)", class: "form-label"
-      = lf.url_field :receipt_url, class: "form-control", placeholder: "https://example.com/receipt.pdf"
-      %small.text-muted Link to receipt file (PDF or image). Must be accessible without login.
+    -# Diet-only: the per-diem band. Amount above is the per-day rate, Quantity is
+    -# the number of days; POP makes each day tax-free up to the satser for the band.
+    %div{"data-booking-line-target": "dietFields", style: line.diet? ? '' : 'display:none'}
+      .mb-3
+        = lf.label :trip_type, "Trip type (diet band)", class: "form-label"
+        = lf.select :trip_type, [["Day trip (6–12 hours)", "day_trip_6_12h"], ["Day trip (over 12 hours)", "day_trip_over_12h"]], { prompt: "Select trip band", selected: line.trip_type }, class: "form-select"
+        %small.text-muted Required for diet lines. POP applies the Skatteetaten tax-free per-diem for the band.
+
+    -# Expense-only: POP fetches this server-side, so it must be a public URL.
+    %div{"data-booking-line-target": "expenseFields", style: line.expense? ? '' : 'display:none'}
+      .mb-3
+        = lf.label :receipt_url, "Receipt URL", class: "form-label"
+        = lf.url_field :receipt_url, class: "form-control", placeholder: "https://example.com/receipt.pdf"
+        %small.text-muted Required for expense lines. Link to receipt file (PDF or image), accessible without login.
 
     .mb-3
       = lf.label :line_external_id, "Line external ID (optional)", class: "form-label"

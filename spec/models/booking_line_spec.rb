@@ -58,4 +58,35 @@ RSpec.describe BookingLine, type: :model do
       expect(line.total_ore).to eq(180_000)
     end
   end
+
+  describe "dependent sub-line validations (POP contract)" do
+    # belongs_to :booking is required, so attach one to isolate the line's own rules.
+    let(:booking) { build(:booking) }
+
+    it "requires a receipt_url for expense lines" do
+      line = build(:booking_line, booking: booking, line_type: :expense, receipt_url: nil)
+      expect(line).not_to be_valid
+      expect(line.errors[:receipt_url]).to be_present
+    end
+
+    it "accepts an expense line with a receipt_url" do
+      line = build(:booking_line, booking: booking, line_type: :expense, receipt_url: "https://example.com/r.pdf")
+      expect(line).to be_valid
+    end
+
+    it "requires a valid trip_type for diet lines" do
+      expect(build(:booking_line, booking: booking, line_type: :diet, trip_type: nil)).not_to be_valid
+      line = build(:booking_line, booking: booking, line_type: :diet, trip_type: "nope")
+      expect(line).not_to be_valid
+      expect(line.errors[:trip_type]).to be_present
+    end
+
+    it "accepts a diet line with a valid trip_type" do
+      expect(build(:booking_line, booking: booking, line_type: :diet, trip_type: "day_trip_over_12h")).to be_valid
+    end
+
+    it "does not require receipt_url or trip_type for benefit lines" do
+      expect(build(:booking_line, booking: booking, line_type: :benefit)).to be_valid
+    end
+  end
 end

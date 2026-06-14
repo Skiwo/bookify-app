@@ -111,6 +111,14 @@ module Booker
         wl
       end
 
+      # Sub-lines (expense/diet/benefit) attach to a work line; a booking with no
+      # work line would send empty work_lines and POP would 422. Catch it here
+      # with a message the booker can act on, and don't silently drop the subs.
+      if work_lines.empty?
+        redirect_to(booker_booking_path(@booking),
+          alert: "Add at least one work line before paying — expenses and per-diems attach to a work line.") and return
+      end
+
       result = pop_client.create_payout(
         worker_id: enrollment.pop_worker_id,
         idempotency_key: "booking-#{@booking.id}",
@@ -160,7 +168,8 @@ module Booker
         booking_lines_attributes: [
           :id, :_destroy, :description, :occupation_code, :booking_type, :line_type,
           :rate_nok, :hours, :work_date, :start_time, :end_time,
-          :total_hours, :work_start_date, :work_end_date, :line_external_id, :receipt_url, :position
+          :total_hours, :work_start_date, :work_end_date, :line_external_id,
+          :receipt_url, :trip_type, :position
         ]
       )
     end
@@ -187,17 +196,20 @@ module Booker
       end
     end
 
-    # A dependent (non-work) booking line → a v2 sub_line. unit_price in øre;
-    # quantity defaults to 1 for flat items. expense lines carry a receipt_url
-    # (POP fetches it server-side, so it must be a public URL). diet lines need
-    # a trip_type, which Bookify does not model yet — POP will 422 those.
+    # A dependent (non-work) booking line → a v2 sub_line. unit_price in øre
+    # (the per-unit amount); quantity defaults to 1 for flat items. expense lines
+    # carry a receipt_url (POP fetches it server-side, so it must be a public
+    # URL); diet lines carry a trip_type + a per-day unit_price × quantity (days)
+    # — POP splits each day tax-free up to the satser for the band. The model
+    # validations guarantee both fields are present here.
     def build_sub_line(line)
       sub = {
         line_type: line.line_type,
         unit_price: line.rate_ore,
         quantity: line.effective_hours.positive? ? line.effective_hours : 1
       }
-      sub[:receipt_url] = line.receipt_url if line.expense? && line.receipt_url.present?
+      sub[:receipt_url] = line.receipt_url if line.expense?
+      sub[:trip_type] = line.trip_type if line.diet?
       sub
     end
   end

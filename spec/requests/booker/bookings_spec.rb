@@ -48,6 +48,56 @@ RSpec.describe "Booker::Bookings", type: :request do
       expect(response).to redirect_to(booker_booking_path(booking))
       expect(flash[:alert]).to include("already been paid")
     end
+
+    it "sends trip_type for diet and receipt_url for expense sub-lines" do
+      booking = create(:booking, :completed, enrollment: enrollment)
+      booking.booking_lines.create!(line_type: :expense, booking_type: :time_based,
+        description: "Taxi", rate_ore: 20_000, hours: 1, receipt_url: "https://example.com/r.pdf")
+      booking.booking_lines.create!(line_type: :diet, booking_type: :time_based,
+        description: "Per diem", rate_ore: 40_000, hours: 2, trip_type: "day_trip_over_12h")
+
+      captured = nil
+      stub_request(:post, "#{PopApiHelpers::POP_BASE}/api/v2/partner/payouts")
+        .with { |req| captured = JSON.parse(req.body); true }
+        .to_return(status: 201,
+          body: { "id" => SecureRandom.uuid, "status" => "submitted", "amount" => 200_000 }.to_json,
+          headers: { "Content-Type" => "application/json" })
+
+      post pay_booker_booking_path(booking)
+
+      subs = captured.fetch("work_lines").first.fetch("sub_lines")
+      diet = subs.find { |s| s["line_type"] == "diet" }
+      expense = subs.find { |s| s["line_type"] == "expense" }
+      expect(diet["trip_type"]).to eq("day_trip_over_12h")
+      expect(diet["unit_price"]).to eq(40_000)
+      expect(expense["receipt_url"]).to eq("https://example.com/r.pdf")
+    end
+
+    it "refuses to pay a booking with no work line" do
+      booking = create(:booking, :completed, enrollment: enrollment)
+      booking.booking_lines.destroy_all
+      booking.booking_lines.create!(line_type: :expense, booking_type: :time_based,
+        description: "Taxi", rate_ore: 20_000, hours: 1, receipt_url: "https://example.com/r.pdf")
+
+      post pay_booker_booking_path(booking)
+
+      expect(response).to redirect_to(booker_booking_path(booking))
+      expect(flash[:alert]).to include("work line")
+      expect(booking.reload.payout).to be_nil
+    end
+  end
+
+  describe "GET /booker/bookings/new" do
+    it "renders the booking form (incl. diet trip_type + expense receipt fields)" do
+      enrollment # the form only renders when the booker has an active freelancer
+      stub_pop_list_occupation_codes
+
+      get new_booker_booking_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Trip type (diet band)")
+      expect(response.body).to include("day_trip_over_12h")
+    end
   end
 
   describe "POST /booker/bookings/:id/complete" do

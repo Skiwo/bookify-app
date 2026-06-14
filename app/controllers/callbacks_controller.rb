@@ -107,8 +107,11 @@ class CallbacksController < ApplicationController
   end
 
   def find_or_create_freelancer(profile_data, enrollment)
-    email = (profile_data.dig("freelancer", "email") || profile_data["email"]).to_s.downcase.strip.presence || enrollment.email.downcase.strip
-    name = (profile_data.dig("freelancer", "name") || profile_data["name"]).to_s.strip
+    freelancer = profile_data["freelancer"].is_a?(Hash) ? profile_data["freelancer"] : {}
+    email = (freelancer["email"] || profile_data["email"]).to_s.downcase.strip.presence || enrollment.email.downcase.strip
+    # POP returns the BankID-verified first_name/last_name (no single "name"
+    # field). Prefer those; fall back to the invitation name.
+    name = [freelancer["first_name"], freelancer["last_name"]].map { |s| s.to_s.strip }.reject(&:blank?).join(" ")
     name = enrollment.name if name.blank?
 
     user = User.find_by(email: email)
