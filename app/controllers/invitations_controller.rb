@@ -27,6 +27,7 @@ class InvitationsController < ApplicationController
     )
 
     unless result.success?
+      Rails.logger.error "[InvitationsController] start_enrollment failed: status=#{result.status} error=#{result.error.inspect}"
       redirect_to(root_path, alert: "Couldn't start setup with Payout Partner. Please try again.") and return
     end
 
