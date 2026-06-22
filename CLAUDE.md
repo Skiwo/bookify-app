@@ -1,5 +1,15 @@
 # CLAUDE.md — Bookify App
 
+---
+
+## We have all the time in the world
+
+**There is no rush. Ever. On any task.** We ALWAYS have ALL THE TIME IN THE WORLD for EVERY TASK. There is no launch deadline, no clock, no "ship it fast" pressure here — and you must never invent one. Do not use urgency (real or imagined) to justify deferring the correct approach, cutting a corner, skipping verification, or choosing a quick hack over the right design. If you catch yourself reaching for "given the timeline", "before launch", or "for now, to move fast" — stop: that pressure does not exist, and inventing it is a mistake.
+
+**Do every task the way a senior developer would.** Find the root cause before fixing symptoms. Prefer the framework/idiomatic solution over a hand-rolled one. Centralize when copies start to hurt. Verify your work, leave the code better than you found it, and write down what matters. Correctness and quality are the only deadline.
+
+---
+
 Bookify is an open-source reference application built on the Payout Partner API v2. It demonstrates freelancer onboarding, booking management, payout creation, and invoice bundling.
 
 This is a **public repository** — do not add credentials, secrets, or internal-only information here.
