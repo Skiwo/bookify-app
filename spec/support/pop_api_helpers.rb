@@ -7,9 +7,9 @@ module PopApiHelpers
     "POP_APP_URL" => "https://sandbox.app.payoutpartner.com"
   }.freeze
 
-  # GET /profiles/:worker_id — POP's masked ProfileBlueprint (API v2).
-  # Pass a flat hash like { "name" => "x", "email" => "y" } and it is nested
-  # under "freelancer" automatically.
+  # GET /profiles/:worker_id — POP's masked FreelancerBlueprint (API v2).
+  # Pass a flat hash like { "first_name" => "x", "email" => "y" } and it is
+  # nested under "freelancer" automatically.
   def stub_pop_get_profile(worker_id, response_body = nil)
     if response_body && !response_body.key?("freelancer")
       response_body = profile_body(worker_id, freelancer: default_freelancer.merge(response_body))
@@ -20,12 +20,16 @@ module PopApiHelpers
   end
 
   def default_freelancer
+    # Mirrors POP's FreelancerBlueprint: first_name/last_name (no single "name"),
+    # masked personal_number + bank account number.
     {
-      "name" => "Anna Hansen",
+      "first_name" => "Anna",
+      "last_name" => "Hansen",
       "email" => "freelancer@example.com",
       "freelance_type" => "individual",
       "organization_number" => nil,
       "personal_number" => "250482*****", # masked
+      "bank_account_number" => "****8903", # masked
       "address" => { "line1" => "Testgata 1", "postal_code" => "0150", "city" => "Oslo", "country" => "NO" }
     }
   end

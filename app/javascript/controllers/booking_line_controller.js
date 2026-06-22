@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // Manages a single booking line card: line type toggle, booking type toggle, per-line total, submit prep.
 // Each line card gets its own instance via data-controller="booking-line".
 export default class extends Controller {
-  static targets = ["workFields", "dependentFields", "lineTypeRadio",
+  static targets = ["workFields", "dependentFields", "dietFields", "expenseFields", "lineTypeRadio",
                     "timeFields", "projectFields", "timeRadio", "projectRadio",
                     "rate", "hours", "rateProject", "totalHours",
                     "rateDependent", "hoursDependent", "lineTotal"]
@@ -13,22 +13,31 @@ export default class extends Controller {
     this.toggleFields()
   }
 
-  isWorkLine() {
+  selectedLineType() {
     const checked = this.lineTypeRadioTargets.find(r => r.checked)
-    return !checked || checked.value === "work"
+    return checked ? checked.value : "work"
+  }
+
+  isWorkLine() {
+    return this.selectedLineType() === "work"
+  }
+
+  // Show a section and (un)disable its fields so hidden inputs aren't posted.
+  setSection(target, visible) {
+    if (!target) return
+    target.style.display = visible ? "" : "none"
+    target.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = !visible })
   }
 
   toggleLineType() {
-    const isWork = this.isWorkLine()
+    const type = this.selectedLineType()
+    const isWork = type === "work"
 
-    if (this.hasWorkFieldsTarget) {
-      this.workFieldsTarget.style.display = isWork ? "" : "none"
-      this.workFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = !isWork })
-    }
-    if (this.hasDependentFieldsTarget) {
-      this.dependentFieldsTarget.style.display = isWork ? "none" : ""
-      this.dependentFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = isWork })
-    }
+    if (this.hasWorkFieldsTarget) this.setSection(this.workFieldsTarget, isWork)
+    if (this.hasDependentFieldsTarget) this.setSection(this.dependentFieldsTarget, !isWork)
+    // Type-specific dependent sub-sections (only one applies at a time).
+    if (this.hasDietFieldsTarget) this.setSection(this.dietFieldsTarget, type === "diet")
+    if (this.hasExpenseFieldsTarget) this.setSection(this.expenseFieldsTarget, type === "expense")
 
     if (isWork) {
       this.toggleFields()
@@ -81,26 +90,30 @@ export default class extends Controller {
     this.dispatch("totalChanged", { detail: { total } })
   }
 
+  enableFields(target) {
+    if (target) target.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
+  }
+
+  stripNames(target) {
+    if (target) target.querySelectorAll("input, select, textarea").forEach((el) => { if (el.name) el.removeAttribute("name") })
+  }
+
   // Called by the parent form controller before submit: enable all fields,
   // then strip name from inactive section so duplicates aren't posted.
   prepareSubmit() {
-    const isWork = this.isWorkLine()
+    const type = this.selectedLineType()
+    const isWork = type === "work"
 
-    // Enable all fields first
-    if (this.hasWorkFieldsTarget) {
-      this.workFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
-    }
-    if (this.hasDependentFieldsTarget) {
-      this.dependentFieldsTarget.querySelectorAll("input, select, textarea").forEach((el) => { el.disabled = false })
-    }
+    // Enable everything first, then strip names from whatever doesn't apply.
+    if (this.hasWorkFieldsTarget) this.enableFields(this.workFieldsTarget)
+    if (this.hasDependentFieldsTarget) this.enableFields(this.dependentFieldsTarget)
+    if (this.hasDietFieldsTarget) this.enableFields(this.dietFieldsTarget)
+    if (this.hasExpenseFieldsTarget) this.enableFields(this.expenseFieldsTarget)
 
-    // Strip names from inactive sections
-    const inactiveSection = isWork ? this.dependentFieldsTarget : this.workFieldsTarget
-    if (inactiveSection) {
-      inactiveSection.querySelectorAll("input, select, textarea").forEach((el) => {
-        if (el.name) el.removeAttribute("name")
-      })
-    }
+    this.stripNames(isWork ? this.dependentFieldsTarget : this.workFieldsTarget)
+    // Type-specific dependent sub-sections: keep only the one that applies.
+    if (type !== "diet" && this.hasDietFieldsTarget) this.stripNames(this.dietFieldsTarget)
+    if (type !== "expense" && this.hasExpenseFieldsTarget) this.stripNames(this.expenseFieldsTarget)
 
     // For work lines, also handle time/project toggle
     if (isWork) {

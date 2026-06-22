@@ -10,7 +10,8 @@ RSpec.describe PopApiClient do
       result = client.get_profile("wk_123")
 
       expect(result.success?).to be true
-      expect(result.data.dig("freelancer", "name")).to eq("Anna Hansen")
+      expect(result.data.dig("freelancer", "first_name")).to eq("Anna")
+      expect(result.data.dig("freelancer", "last_name")).to eq("Hansen")
       expect(result.data["worker_id"]).to eq("wk_123")
       expect(result.status).to eq(200)
     end
