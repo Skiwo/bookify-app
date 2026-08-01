@@ -5,7 +5,7 @@
 [![Rails](https://img.shields.io/badge/Rails-8.0-red.svg)](https://rubyonrails.org/)
 [![Deploy to Heroku](https://img.shields.io/badge/Deploy-Heroku-purple.svg)](https://heroku.com/deploy?template=https://github.com/payoutpartner/bookify-app)
 
-Bookify is an open-source reference app built on the [Payout Partner](https://payoutpartner.com) (POP) API v2. It demonstrates how to onboard freelancers, create bookings, and process payouts using POP's REST API. Operators clone this codebase to study the integration patterns and build their own payout solution. A live demo runs at [bookify.app](https://bookify.app).
+Bookify is an open-source reference app built on the [Payout Partner](https://payoutpartner.com) (POP) API v2. It demonstrates how to onboard freelancers, create bookings, and process payouts using POP's REST API. Operators clone this codebase to study the integration patterns and build their own payout solution. A demo deployment lives at [bookify.app](https://bookify.app) (currently not functional — pending fix or retirement).
 
 > **Screenshots will be added after the UI is deployed.**
 
