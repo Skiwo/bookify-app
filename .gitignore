@@ -42,3 +42,6 @@
 .Identifier
 
 .claude/*
+
+# Windows/WSL alternate-data-stream metadata — never wanted in git.
+*:Zone.Identifier
