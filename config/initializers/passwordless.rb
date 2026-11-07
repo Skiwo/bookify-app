@@ -4,6 +4,7 @@ Passwordless.configure do |config|
   config.timeout_at = -> { 24.hours.from_now }
   config.sign_out_redirect_path = "/"
   config.paranoid = false
+  config.after_session_confirm = ->(session, _request) { session.authenticatable.touch(:last_sign_in_at) }
 
   config.success_redirect_path = lambda { |user|
     if user.freelancer?
